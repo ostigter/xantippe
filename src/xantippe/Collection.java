@@ -157,16 +157,17 @@ public class Collection implements Comparable<Collection> {
 	
 	
 	public Collection createCollection(String name) {
-	    int childId = database.getNextId(); 
-		Collection col = new Collection(database, childId, name, id);
-		collections.add(childId);
+	    int colId = database.getNextId(); 
+		Collection col = new Collection(database, colId, name, id);
+		collections.add(colId);
 		return col;
 	}
 	
 	
 	public Document createDocument(String name) {
-		Document doc = new Document(database, name, this);
-		documents.add(doc.getId());
+	    int docId = database.getNextId();
+		Document doc = new Document(database, docId, name, id);
+		documents.add(id);
 		return doc;
 	}
 	
@@ -200,6 +201,16 @@ public class Collection implements Comparable<Collection> {
 	/* package */ int getId() {
 		return id;
 	}
+	
+	
+	/* package */ void addDocument(int id) {
+	    documents.add(id);
+	}
+
+
+    /* package */ void addCollection(int id) {
+        collections.add(id);
+    }
 
 
 }

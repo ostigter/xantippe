@@ -189,6 +189,11 @@ public class DatabaseImpl implements Database {
 	}
 	
 	
+	public void print() {
+	    printCollection(rootCollection);
+	}
+	
+	
     //------------------------------------------------------------------------
     //  Package protected methods
     //------------------------------------------------------------------------
@@ -282,7 +287,7 @@ public class DatabaseImpl implements Database {
     		try {
     			DataInputStream dis = new DataInputStream(
     					new FileInputStream(collectionsFile));
-    			rootCollection = readCollection(dis);
+    			rootCollection = readCollection(dis, -1);
     			dis.close();
     		} catch (IOException e) {
     			System.err.println("ERROR: Could not read collections file: " + e);
@@ -294,11 +299,27 @@ public class DatabaseImpl implements Database {
     }
     
     
-    private Collection readCollection(DataInputStream dis) throws IOException {
+    private Collection readCollection(DataInputStream dis, int parent)
+            throws IOException {
+        Collection col;
+        
         int id = dis.readInt();
         String name = dis.readUTF();
-        int parent = dis.readInt();
-        return new Collection(this, id, name, parent);
+        col = new Collection(this, id, name, parent);
+        int noOfDocs = dis.readInt();
+        for (int i = 0; i < noOfDocs; i++) {
+            int docId = dis.readInt();
+            String docName = dis.readUTF();
+            Document doc = new Document(this, docId, docName, id);
+            col.addDocument(doc.getId());
+        }
+        int noOfCols = dis.readInt();
+        for (int i = 0; i < noOfCols; i++) {
+            Collection childCol = readCollection(dis, id);
+            col.addCollection(childCol.getId());
+        }
+        
+        return col;
     }
     
     
@@ -318,22 +339,34 @@ public class DatabaseImpl implements Database {
     		throws IOException {
     	dos.writeInt(col.getId());
     	dos.writeUTF(col.getName());
-    	Collection parent = col.getParent();
-    	if (parent != null) {
-            dos.writeInt(parent.getId());
-    	} else {
-    	    dos.writeInt(-1);
-    	}
     	Set<Document> docs = col.getDocuments();
     	dos.writeInt(docs.size());
     	for (Document doc : docs) {
-    		dos.writeInt(doc.getId());
+    	    writeDocument(doc, dos);
     	}
     	Set<Collection> cols = col.getCollections();
     	dos.writeInt(cols.size());
     	for (Collection c : cols) {
 	        writeCollection(c, dos);
     	}
+    }
+    
+    
+    private void writeDocument(Document doc, DataOutputStream dos)
+            throws IOException {
+        dos.writeInt(doc.getId());
+        dos.writeUTF(doc.getName());
+    }
+    
+    
+    private void printCollection(Collection col) {
+        System.out.println(col + "/");
+        for (Document doc : col.getDocuments()) {
+            System.out.println(doc);
+        }
+        for (Collection c : col.getCollections()) {
+            printCollection(c);
+        }
     }
     
     

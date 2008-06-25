@@ -25,8 +25,8 @@ public class Document implements Comparable<Document> {
 	/** Name. */
 	private String name;
 	
-	/** Parent collection. */
-	private Collection parent;
+	/** Parent collection ID. */
+	private int parent;
 	
 	/** Keys mapped by their name. */
 	private Map<String, Key> keys;
@@ -38,9 +38,9 @@ public class Document implements Comparable<Document> {
 
 	
 	/* package */ Document(
-	        DatabaseImpl database, String name, Collection parent) {
+	        DatabaseImpl database, int id, String name, int parent) {
 	    this.database = database;
-		this.id = database.getNextId();
+		this.id = id;
 		this.name = name;
 		this.parent = parent;
 		
@@ -66,7 +66,7 @@ public class Document implements Comparable<Document> {
 	
 	
 	public Collection getParent() {
-		return parent;
+		return database.getCollection(parent);
 	}
 	
 	
@@ -93,12 +93,19 @@ public class Document implements Comparable<Document> {
 	
 	
 	public String getUri() {
-		return parent.getUri() + '/' + name; 
+	    Collection parent = getParent();
+	    StringBuilder sb = new StringBuilder();
+	    if (parent != null) {
+	        sb.append(parent.getUri());
+	    }
+	    sb.append('/');
+	    sb.append(name);
+		return sb.toString(); 
 	}
 	
 	
 	public String getContent() {
-		return null;
+		return "";
 	}
 	
 	
