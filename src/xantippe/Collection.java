@@ -167,7 +167,7 @@ public class Collection implements Comparable<Collection> {
 	public Document createDocument(String name) {
 	    int docId = database.getNextId();
 		Document doc = new Document(database, docId, name, id);
-		documents.add(id);
+		documents.add(docId);
 		return doc;
 	}
 	
