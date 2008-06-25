@@ -1,13 +1,9 @@
 package xantippe;
 
 
-import org.apache.log4j.Logger;
+import java.util.Set;
 
-import xantippe.Collection;
-import xantippe.Database;
-import xantippe.DatabaseImpl;
-import xantippe.Util;
-import xantippe.XmldbException;
+import org.apache.log4j.Logger;
 
 
 /**
@@ -30,47 +26,51 @@ public class DatabaseTest {
 		
 		try {
 		    database.start();
-		
+		    
     		// Create collections.
 		    Collection rootCol = database.getRootCollection();
 		    Collection dataCol = rootCol.createCollection("data");
 		    Collection fooCol = dataCol.createCollection("Foo");
 		    Collection modulesCol = rootCol.createCollection("modules");
     		
-		    // Create indices.
-		    dataCol.addIndex("DocumentId", "/Document/Id");
-		    fooCol.addIndex("DocumentType", "/Document/Type");
-		    logger.info(dataCol.getIndices());
-		    logger.info(fooCol.getIndices());
+//		    // Create indices.
+//		    dataCol.addIndex("DocumentId", "/Document/Id");
+//		    fooCol.addIndex("DocumentType", "/Document/Type");
+//		    logger.info(dataCol.getIndices());
+//		    logger.info(fooCol.getIndices());
 		    
-//    		// Add documents.
-//    		Document doc = fooCol.createDocument("0001.xml");
-//    		doc.setKey("DocumentId", 1);
-//    		doc.setKey("DocumentType", "Foo");
-//    		doc.setContent("<Document>\n  <Id>1</Id>\n  <Type>Foo</Type>\n</Document>");
-//    		doc = fooCol.createDocument("0002.xml");
-//    		doc.setKey("DocumentId", 2);
-//    		doc.setKey("DocumentType", "Foo");
-//    		doc.setContent("<Document>\n  <Id>2</Id>\n  <Type>Foo</Type>\n</Document>");
-//    		doc = fooCol.createDocument("0003.xml");
-//    		doc.setKey("DocumentId", 3);
-//    		doc.setKey("DocumentType", "Bar");
-//    		doc.setContent("<Document>\n  <Id>3</Id>\n  <Type>Bar</Type>\n</Document>");
-//    
-//            // Retrieve a document.
-//            Key[] keys = new Key[] {
-//            		new Key("DocumentType", "Foo"),
-////                    new Key("DocumentId",   2),
-//    		};
-//    		Set<Document> docs = database.findDocuments(keys);
-//            if (docs.size() == 0) {
-//                logger.info("No document found.");
-//            } else {
-//            	logger.info("Documents found:");
-//                for (Document d : docs) {
-//                	logger.info("  " + d);
-//                }
-//            }
+    		// Add documents.
+    		Document doc = fooCol.createDocument("0001.xml");
+    		doc.setKey("DocumentId", 1);
+    		doc.setKey("DocumentType", "Foo");
+    		doc.setContent("<Document>\n  <Id>1</Id>\n  <Type>Foo</Type>\n</Document>");
+    		doc = fooCol.createDocument("0002.xml");
+    		doc.setKey("DocumentId", 2);
+    		doc.setKey("DocumentType", "Foo");
+    		doc.setContent("<Document>\n  <Id>2</Id>\n  <Type>Foo</Type>\n</Document>");
+    		doc = fooCol.createDocument("0003.xml");
+    		doc.setKey("DocumentId", 3);
+    		doc.setKey("DocumentType", "Bar");
+    		doc.setContent("<Document>\n  <Id>3</Id>\n  <Type>Bar</Type>\n</Document>");
+            doc = modulesCol.createDocument("main.xqy");
+            doc.setContent("");
+    
+            // Retrieve a document.
+            Key[] keys = new Key[] {
+            		new Key("DocumentType", "Foo"),
+//                    new Key("DocumentId",   2),
+    		};
+    		Set<Document> docs = database.findDocuments(keys);
+            if (docs.size() == 0) {
+                System.out.println("No document found.");
+            } else {
+                System.out.println("Documents found:");
+                for (Document d : docs) {
+                    System.out.println("  " + d);
+                }
+            }
+            
+            database.print();
             
             database.shutdown();
             

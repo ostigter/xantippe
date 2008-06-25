@@ -50,7 +50,21 @@ interface Database {
     public Collection getRootCollection() throws XmldbException;
 
     
+    /**
+     * Returns the documents that match the specified keys.
+     *  
+     * @param keys  the keys
+     * 
+     * @return  the documents
+     * 
+     * @throws XmldbException
+     *           if the database is not running
+     */
     public Set<Document> findDocuments(Key[] keys) throws XmldbException;
+    
+    
+    // Debug only
+    public void print();
 
     
 }
