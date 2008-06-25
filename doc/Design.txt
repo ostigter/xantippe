@@ -118,3 +118,13 @@ Examples:
   {"DocumentId",   "/Header/Document/Id", Index.STRING)
   ("DocumentType", "/Header/Document/@type", Index.STRING)
   ("OrderNr",      "/Body/Order/Number"
+  
+
+Configuration file
+------------------
+
+<?xml version="1.0" encoding="UTF-8"?>
+<Xantippe xmlns="urn:xantippe">
+  <Database dir="data"/>
+  <WebDav enabled="true" port="5000"/>
+</Xantippe>

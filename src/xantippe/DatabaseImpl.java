@@ -27,15 +27,7 @@ public class DatabaseImpl implements Database {
 	private static final Logger logger = Logger.getLogger(DatabaseImpl.class);
 	
     /** Database directory. */
-    private static final String DB_DIR = "data";
-    
-    /** Meta data file. */
-    private static final File metaDataFile =
-    		new File(DB_DIR + "/metadata.dbx");
-    
-    /** Collections file. */
-    private static final File collectionsFile =
-    		new File(DB_DIR + "/collections.dbx");
+    private String dataDir = System.getProperty("xantippe.data.dir", "data");
     
     /** Whether the database is running. */
     private boolean isRunning = false;
@@ -70,6 +62,8 @@ public class DatabaseImpl implements Database {
     	collections = new HashMap<Integer, Collection>();
     	documents = new HashMap<Integer, Document>();
         indexes = new HashMap<String, IndexValue>();
+        
+        logger.debug("Data directory: " + dataDir);
 		
 		logger.debug("Database created.");
 	}
@@ -88,7 +82,7 @@ public class DatabaseImpl implements Database {
 		logger.debug("Starting database.");
 		
         // Create database directory if necessary. 
-        File dir = new File(DB_DIR);
+        File dir = new File(dataDir);
         if (!dir.exists()) {
             dir.mkdirs();
         }
@@ -200,7 +194,7 @@ public class DatabaseImpl implements Database {
     
     
     /* package */ String getDatabaseDir() {
-        return DB_DIR;
+        return dataDir;
     }
     
     
@@ -255,14 +249,15 @@ public class DatabaseImpl implements Database {
     
     
     private void readMetaData() {
-    	if (metaDataFile.exists()) {
+        File file = new File(dataDir + "/metadata.dbx");
+    	if (file.exists()) {
     		try {
     			DataInputStream dis =
-    					new DataInputStream(new FileInputStream(metaDataFile));
+    					new DataInputStream(new FileInputStream(file));
     			nextId = dis.readInt();
     			dis.close();
     		} catch (IOException e) {
-    			System.err.println("ERROR: Could not read metadata file: " + e);
+                logger.error("ERROR: Could not read metadata.dbx", e);
     		}
     	} else {
     		nextId = 1;
@@ -271,9 +266,10 @@ public class DatabaseImpl implements Database {
     
     
     private void writeMetaData() {
+        File file = new File(dataDir + "/metadata.dbx");
 		try {
 			DataOutputStream dos =
-					new DataOutputStream(new FileOutputStream(metaDataFile));
+					new DataOutputStream(new FileOutputStream(file));
 			dos.writeInt(nextId);
 			dos.close();
 		} catch (IOException e) {
@@ -283,14 +279,15 @@ public class DatabaseImpl implements Database {
     
     
     private void readCollections() {
-    	if (collectionsFile.exists()) {
+        File file = new File(dataDir + "/collections.dbx");
+    	if (file.exists()) {
     		try {
     			DataInputStream dis = new DataInputStream(
-    					new FileInputStream(collectionsFile));
+    					new FileInputStream(file));
     			rootCollection = readCollection(dis, -1);
     			dis.close();
     		} catch (IOException e) {
-    			System.err.println("ERROR: Could not read collections file: " + e);
+    			logger.error("ERROR: Could not read collections.dbx", e);
     		}
     	} else {
     	    int id = getNextId();
@@ -324,13 +321,14 @@ public class DatabaseImpl implements Database {
     
     
     private void writeCollections() {
+        File file = new File(dataDir + "/collections.dbx");
 		try {
 			DataOutputStream dos = new DataOutputStream(
-					new FileOutputStream(collectionsFile));
+					new FileOutputStream(file));
 			writeCollection(rootCollection, dos);
 			dos.close();
 		} catch (IOException e) {
-			System.err.println("ERROR: Could not write collections file: " + e);
+			logger.error("Could not write collections.dbx", e);
 		}
     }
     
