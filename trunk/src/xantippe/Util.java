@@ -49,4 +49,21 @@ public class Util {
     }
     
     
+    public static void deleteFile(String path) {
+        deleteFile(new File(path));
+    }
+    
+
+    public static void deleteFile(File file) {
+        if (file.exists()) {
+            if (file.isDirectory()) {
+                for (File f : file.listFiles()) {
+                    deleteFile(f);
+                }
+            }
+            file.delete();
+        }
+    }
+    
+    
 }

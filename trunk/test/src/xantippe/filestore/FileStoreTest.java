@@ -9,34 +9,42 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import xantippe.Util;
-import xantippe.filestore.FileStore;
-import xantippe.filestore.FileStoreException;
 
 
 public class FileStoreTest {
 	
 
-	private static final String DB_DIR = "test_data";
+    private static final String DATA_DIR = "test/data";
 
-	private static final String DOCS_DIR = "test/docs";
+    private static final String DOCS_DIR = "test/docs";
+    
 	
-	
+    //------------------------------------------------------------------------
+    //  JUnit methods
+    //------------------------------------------------------------------------
+    
+    
 	@BeforeClass
 	public static void beforeClass() {
 		Util.initLog4j();
-		deleteFile(DB_DIR);
+		Util.deleteFile(DATA_DIR);
 	}
 	
 	
 	@AfterClass
 	public static void afterClass() {
-		deleteFile(DB_DIR);
+	    Util.deleteFile(DATA_DIR);
 	}
 	
 	
+    //------------------------------------------------------------------------
+    //  Tests
+    //------------------------------------------------------------------------
+    
+    
 	@Test
 	public void test() {
-		FileStore store = new FileStore(DB_DIR);
+		FileStore store = new FileStore(DATA_DIR);
 
 		try {
 			
@@ -72,23 +80,6 @@ public class FileStoreTest {
 			
 		} catch (FileStoreException e) {
 			Assert.fail(e.getMessage());
-		}
-	}
-	
-	
-	private static void deleteFile(String path) {
-		deleteFile(new File(path));
-	}
-	
-
-	public static void deleteFile(File file) {
-		if (file.exists()) {
-			if (file.isDirectory()) {
-				for (File f : file.listFiles()) {
-					deleteFile(f);
-				}
-			}
-			file.delete();
 		}
 	}
 	
