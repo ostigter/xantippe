@@ -2,7 +2,7 @@ package xantippe;
 
 
 /**
- * Index definition.
+ * Definition of a document index.
  * 
  * @author Oscar Stigter
  */

@@ -14,6 +14,9 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 
+import xantippe.filestore.FileStore;
+import xantippe.filestore.FileStoreException;
+
 
 /**
  * Default implementation of the database.
@@ -29,9 +32,9 @@ public class DatabaseImpl implements Database {
     /** Database directory. */
     private String dataDir = System.getProperty("xantippe.data.dir", "data");
     
-    /** Whether the database is running. */
-    private boolean isRunning = false;
-
+    /** File store with the documents. */
+    private FileStore fileStore;
+    
 	/** Root collection. */
 	private Collection rootCollection;
 	
@@ -46,6 +49,9 @@ public class DatabaseImpl implements Database {
     
     /** Next document ID. */
     private int nextId;
+
+    /** Whether the database is running. */
+    private boolean isRunning = false;
     
 	
     //------------------------------------------------------------------------
@@ -58,6 +64,8 @@ public class DatabaseImpl implements Database {
      */
     public DatabaseImpl() {
     	Util.initLog4j();
+    	
+    	fileStore = new FileStore(dataDir);
     	
     	collections = new HashMap<Integer, Collection>();
     	documents = new HashMap<Integer, Document>();
@@ -79,13 +87,21 @@ public class DatabaseImpl implements Database {
             throw new XmldbException("Database already running");
         }
         
-		logger.debug("Starting database.");
+		logger.debug("Database startup requested.");
 		
-        // Create database directory if necessary. 
-        File dir = new File(dataDir);
-        if (!dir.exists()) {
-            dir.mkdirs();
-        }
+//        // Create database directory if necessary. 
+//        File dir = new File(dataDir);
+//        if (!dir.exists()) {
+//            dir.mkdirs();
+//        }
+		
+		try {
+		    fileStore.start();
+		} catch (FileStoreException e) {
+		    String msg = "Could not start FileStore";
+		    logger.error(msg, e);
+		    throw new XmldbException(msg, e);
+		}
         
         readMetaData();
         
@@ -100,15 +116,23 @@ public class DatabaseImpl implements Database {
     public void shutdown() throws XmldbException {
         checkRunning();
         
-		logger.debug("Shutting down database.");
+		logger.debug("Database shutdown requested.");
 		
+        try {
+            fileStore.shutdown();
+        } catch (FileStoreException e) {
+            String msg = "Could not shut down FileStore";
+            logger.error(msg, e);
+            throw new XmldbException(msg, e);
+        }
+        
         writeMetaData();
         
         writeCollections();
         
         isRunning = false;
         
-		logger.debug("Database shut down.");
+        logger.debug("Database shutdown finished.");
     }
     
     

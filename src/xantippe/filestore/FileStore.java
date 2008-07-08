@@ -28,8 +28,8 @@ import org.apache.log4j.Logger;
  * All database files are stored in a configurable directory (by default
  * 'data'). If this directory does not exists, it will be created.
  *
- * The entryitioning algorithm for storing a file is simple; it just inserts the
- * file at the first free entryition it fits in, or it appends the file at the
+ * The positioning algorithm for storing a file is simple; it just inserts the
+ * file at the first free position it fits in, or it appends the file at the
  * end.
  *
  * @author Oscar Stigter
