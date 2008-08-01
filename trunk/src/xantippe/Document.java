@@ -1,11 +1,11 @@
 package xantippe;
 
 
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
+import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
+
+import xantippe.filestore.FileStoreException;
 
 
 /**
@@ -109,21 +109,39 @@ public class Document implements Comparable<Document> {
 	}
 	
 	
-	public void setContent(String content) throws XmldbException {
+	public void setContent(File file) throws XmldbException {
 	    try {
-            OutputStream os =
-                    new FileOutputStream(database.getDatabaseDir() + getUri());
-            os.write(content.getBytes());
-            os.close();
-	    } catch (IOException e) {
+	        database.getFileStore().store(id, file);
+	        database.indexDocument(this);
+	    } catch (FileStoreException e) {
 	        String msg = "Could not store document: " + this;
 	        throw new XmldbException(msg, e);
 	    }
-	    
-		database.indexDocument(this);
 	}
 	
 	
+    public void setContent(String contents) throws XmldbException {
+        try {
+            database.getFileStore().store(id, contents.getBytes());
+            database.indexDocument(this);
+        } catch (FileStoreException e) {
+            String msg = "Could not store document: " + this;
+            throw new XmldbException(msg, e);
+        }
+    }
+    
+    
+    public void setContent(byte[] content) throws XmldbException {
+        try {
+            database.getFileStore().store(id, content);
+            database.indexDocument(this);
+        } catch (FileStoreException e) {
+            String msg = "Could not store document: " + this;
+            throw new XmldbException(msg, e);
+        }
+    }
+    
+    
     //------------------------------------------------------------------------
     //  Interface implementation: Comparable
     //------------------------------------------------------------------------

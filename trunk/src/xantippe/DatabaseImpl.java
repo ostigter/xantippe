@@ -89,12 +89,6 @@ public class DatabaseImpl implements Database {
         
 		logger.debug("Database startup requested.");
 		
-//        // Create database directory if necessary. 
-//        File dir = new File(dataDir);
-//        if (!dir.exists()) {
-//            dir.mkdirs();
-//        }
-		
 		try {
 		    fileStore.start();
 		} catch (FileStoreException e) {
@@ -257,6 +251,10 @@ public class DatabaseImpl implements Database {
             }
             index.indexDocument(doc, key.getValue());
         }
+    }
+    
+    /* package */ FileStore getFileStore() {
+        return fileStore;
     }
     
     
