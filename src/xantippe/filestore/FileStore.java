@@ -37,20 +37,26 @@ import org.apache.log4j.Logger;
 public class FileStore {
 	
 	
-	private static final String DEFAULT_DATA_DIR = "data";
+    /** Default database directory. */
+    private static final String DEFAULT_DATA_DIR = "data";
 	
-    private static final String INDEX_FILE = "entries.dbx";
+    /** File with the document entries (FAT). */
+    private static final String INDEX_FILE = "documents.dbx";
     
+    /** File with the document contents. */
     private static final String DATA_FILE = "contents.dbx";
     
 	private static final Logger logger = Logger.getLogger(FileStore.class);
 
-    private final Map<Integer, FileEntry> entries;
+	/** Document entries mapped by the their document ID. */
+	private final Map<Integer, FileEntry> entries;
     
     private boolean isRunning = false;
     
+    /** Database directory. */
     private String dataDirectory;
     
+    /** Random access file handle to the document contents file. */ 
     private RandomAccessFile dataFile;
     
 

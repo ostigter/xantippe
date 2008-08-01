@@ -1,13 +1,12 @@
 package xantippe;
 
 
-import java.io.File;
 import java.util.Set;
 import java.util.TreeSet;
 
 
 /**
- * Collection.
+ * A collection of documents and subcollections.
  * 
  * @author Oscar Stigter
  */
@@ -51,12 +50,6 @@ public class Collection implements Comparable<Collection> {
 		collections = new TreeSet<Integer>();
 		documents = new TreeSet<Integer>();
 		indices = new TreeSet<Index>();
-		
-		// Create corresponding directory on file system.
-		File dir = new File(database.getDatabaseDir() + getUri());
-		if (!dir.exists()) {
-		    dir.mkdir();
-		}
 		
 		database.addCollection(this);
 	}
