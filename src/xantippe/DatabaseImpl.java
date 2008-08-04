@@ -87,7 +87,7 @@ public class DatabaseImpl implements Database {
             throw new XmldbException("Database already running");
         }
         
-		logger.debug("Database startup requested.");
+		logger.debug("Database starting....");
 		
 		try {
 		    fileStore.start();
@@ -103,14 +103,14 @@ public class DatabaseImpl implements Database {
         
         isRunning = true;
 
-		logger.debug("Database started.");
+		logger.info("Database started.");
     }
     
     
     public void shutdown() throws XmldbException {
         checkRunning();
         
-		logger.debug("Database shutdown requested.");
+		logger.debug("Database shutting down...");
 		
         try {
             fileStore.shutdown();
@@ -126,7 +126,7 @@ public class DatabaseImpl implements Database {
         
         isRunning = false;
         
-        logger.debug("Database shutdown finished.");
+        logger.info("Database shut down.");
     }
     
     

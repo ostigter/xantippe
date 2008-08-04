@@ -44,7 +44,7 @@ public class DatabaseTest {
 
 	@AfterClass
 	public static void afterClass() {
-//		Util.deleteFile(DATA_DIR);
+		Util.deleteFile(DATA_DIR);
 	}
 
 
@@ -133,7 +133,7 @@ public class DatabaseTest {
 			doc = modulesCol.createDocument("main.xqy");
 			doc.setContent("");
 
-			database.print();
+//			database.print();
 
 			// Find documents by keys.
 			Key[] keys = new Key[] {

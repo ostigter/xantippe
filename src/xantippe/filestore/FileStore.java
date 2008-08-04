@@ -157,28 +157,31 @@ public class FileStore {
     }
     
 
-    public byte[] retrieve(int id) throws FileStoreException {
-        byte[] data = null;
+    public InputStream retrieve(int id) throws FileStoreException {
+        InputStream is = null;
+        
         if (isRunning) {
             logger.debug("Retrieving entry with ID " + id);
             FileEntry entry = entries.get(id);
             if (entry != null) {
-                data = new byte[entry.getLength()];
                 try {
-                    dataFile.seek(entry.getOffset());
-                    dataFile.read(data);
+                    is = new RetrieveStream(
+                            dataFile, entry.getOffset(), entry.getLength());
                 } catch (IOException e) {
-                    throw new FileStoreException(
-                            "Could not read entry with ID " + id);
+                    String msg = "I/O error retrieving entry with ID " + id;
+                    logger.error(msg, e);
+                    throw new FileStoreException(msg, e);
                 }
             } else {
-                throw new FileStoreException(
-                        "Entry with ID " + id + " not found");
+                String msg = "Entry with ID " + id + " not found";
+                logger.error(msg);
+                throw new FileStoreException(msg);
             }
         } else {
             throw new FileStoreException("FileStore not started");
         }
-        return data;
+        
+        return is;
     }
     
     
