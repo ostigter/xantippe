@@ -2,7 +2,7 @@ package xantippe.filestore;
 
 
 /**
- * Administrative entry of a single, stored file.
+ * Administrative entry of a stored file.
  * 
  * Each entry has a name, offset and length.
  * 

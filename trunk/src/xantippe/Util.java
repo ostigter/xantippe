@@ -10,6 +10,11 @@ import org.apache.log4j.PatternLayout;
 import org.apache.log4j.xml.DOMConfigurator;
 
 
+/**
+ * Static class offering various utility methods.
+ *  
+ * @author Oscar Stigter
+ */
 public class Util {
     
     

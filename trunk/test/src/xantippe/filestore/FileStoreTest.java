@@ -2,6 +2,7 @@ package xantippe.filestore;
 
 
 import java.io.File;
+import java.io.InputStream;
 
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -56,6 +57,26 @@ public class FileStoreTest {
 			store.store(1, new File(DOCS_DIR + "/0001.xml"));
 			Assert.assertEquals(1, store.size());
 			
+            // Retrieve file.
+            InputStream is = store.retrieve(1);
+            Assert.assertNotNull(is);
+            Assert.assertEquals(83, is.available());
+            Assert.assertEquals('<', (char) is.read());
+            Assert.assertEquals(82, is.available());
+            Assert.assertEquals('D', (char) is.read());
+            Assert.assertEquals(81, is.available());
+            Assert.assertEquals('o', (char) is.read());
+            Assert.assertEquals(80, is.available());
+            Assert.assertEquals('c', (char) is.read());
+            Assert.assertEquals(79, is.available());
+            byte[] buffer = new byte[79];
+            int read = is.read(buffer, 0, 6);
+            Assert.assertEquals(6, read);
+            Assert.assertEquals("ument>", new String(buffer, 0, read));
+            read = is.read(buffer);
+            Assert.assertEquals(73, read);
+            is.close();
+            
 			// Add file.
 			store.store(2, new File(DOCS_DIR + "/0002.xml"));
 			Assert.assertEquals(2, store.size());
@@ -78,7 +99,8 @@ public class FileStoreTest {
 			
 			store.shutdown();
 			
-		} catch (FileStoreException e) {
+		} catch (Exception e) {
+		    System.err.println(e);
 			Assert.fail(e.getMessage());
 		}
 	}

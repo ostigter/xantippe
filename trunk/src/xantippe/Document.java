@@ -2,6 +2,7 @@ package xantippe;
 
 
 import java.io.File;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -104,8 +105,10 @@ public class Document implements Comparable<Document> {
 	}
 	
 	
-	public String getContent() {
-		return "";
+	public InputStream getContent() {
+//	    InputStream is = database.getFileStore().retrieve(id);
+//	    return is;
+	    return null;
 	}
 	
 	
