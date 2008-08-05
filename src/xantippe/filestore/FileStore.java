@@ -33,6 +33,9 @@ import org.apache.log4j.Logger;
  * The positioning algorithm for storing a document is simple; it inserts the
  * document at the first free position it fits in, or it appends the document
  * at the end.
+ * 
+ * For performance reasons, this class offers no synchronization and is thus
+ * NOT thread-safe.
  *
  * @author Oscar Stigter
  */
@@ -92,9 +95,9 @@ public class FileStore {
     
 
     /**
-     * Starts the FileStore.
+     * Starts the <code>FileStore</code>.
      * 
-     * @throws FileStoreException  If the FileStore could not be started
+     * @throws FileStoreException  if the FileStore could not be started
      */
     public void start() throws FileStoreException {
         if (!isRunning) {
@@ -132,19 +135,19 @@ public class FileStore {
             
             logger.debug("Started");
         } else {
-            System.err.println("WARNING: Already running.");
+            throw new FileStoreException("FileStore already running");
         }
     }
     
 
     /**
-     * Shuts down the FileStore.
+     * Shuts down the <code>FileStore</code>.
      * 
      * @throws FileStoreException  If the FileStore could not be shut down
      */
     public void shutdown() throws FileStoreException {
         if (isRunning) {
-            logger.debug("Shutting down");
+            logger.debug("Shutting down...");
             
             sync();
             
@@ -161,12 +164,83 @@ public class FileStore {
         }
     }
     
+    
+    /**
+     * Returns whether the <code>FileStore</code> is running.
+     * 
+     * @return  whether the <code>FileStore</code> is running
+     */
+    public boolean isRunning() {
+        return isRunning;
+    }
+    
 
+    /**
+     * Returns the number of stored documents.
+     * 
+     * @return  the number of stored documents
+     */
     public int size() {
         return entries.size();
     }
     
 
+    /**
+     * Stores a document based on a <code>File</code> object.
+     * 
+     * @param id  the document ID
+     * @param file  the file with the document contents
+     * 
+     * @throws FileStoreException  if the document could not be stored
+     */
+    public void store(int id, File file) throws FileStoreException {
+        if (isRunning) {
+            logger.debug("Storing document with ID " + id);
+            
+        	int length = (int) file.length();
+        	
+        	entries.remove(id);
+        	
+            int offset = findFreePosition(length);
+            logger.debug("Storing entry with offset " + offset
+                    + " and length " + length + "...");
+                
+            FileEntry entry = new FileEntry(id);
+            entry.setOffset(offset);
+            entry.setLength(length);
+            entries.put(id, entry);
+            
+            try {
+                dataFile.seek(offset);
+        		InputStream is = new FileInputStream(file);
+        		int bytesRead;
+        		while ((bytesRead = is.read(buffer)) > 0) {
+        			dataFile.write(buffer, 0, bytesRead);
+        		}
+        		is.close();
+                sync();
+            } catch (IOException e) {
+                entries.remove(id);
+                String msg = "Could not store document with ID " + id;
+                logger.error(msg, e);
+                throw new FileStoreException(msg, e);
+            }
+        } else {
+            throw new FileStoreException("FileStore not started");
+        }
+    }
+    
+
+    /**
+     * Retrieves the content of a document.
+     *  
+     * @param id  the document ID
+     * 
+     * @return  the document content
+     * 
+     * @throws FileStoreException
+     *             if the document content could not be retrieved
+     */
     public InputStream retrieve(int id) throws FileStoreException {
         InputStream is = null;
         
@@ -178,7 +252,7 @@ public class FileStore {
                     is = new RetrieveStream(
                             dataFile, entry.getOffset(), entry.getLength());
                 } catch (IOException e) {
-                    String msg = "I/O error retrieving entry with ID " + id;
+                    String msg = "Error retrieving entry with ID " + id;
                     logger.error(msg, e);
                     throw new FileStoreException(msg, e);
                 }
@@ -195,206 +269,14 @@ public class FileStore {
     }
     
     
-    /**
-     * Stores a document based on a <code>File</code> object.
-     * 
-     * @param id  the document ID
-     * @param file  the file with the document contents
-     * 
-     * @throws FileStoreException  if the document could not be stored
-     */
-    public void store(int id, File file) throws FileStoreException {
-        if (isRunning) {
-            logger.debug("Storing document with ID " + id);
-        	int length = (int) file.length();
-            FileEntry entry = entries.get(id);
-            if (entry == null) {
-                // Insert new entry.
-                
-                // Find a free position.
-                int offset = findFreePosition(length);
-                logger.debug("Creating new entry with offset " + offset
-                		+ " and length " + length + "...");
-                
-                // Create new index entry.
-                entry = new FileEntry(id);
-                entry.setOffset(offset);
-                entry.setLength(length);
-                entries.put(id, entry);
-                
-                // Write entry.
-                try {
-                    dataFile.seek(offset);
-                    
-            		InputStream is = new FileInputStream(file);
-            		int bytesRead;
-            		while ((bytesRead = is.read(buffer)) > 0) {
-            			dataFile.write(buffer, 0, bytesRead);
-            		}
-            		is.close();
-                    sync();
-                } catch (IOException e) {
-                    entries.remove(entry);
-                    String msg = "Could not store document with ID " + id;
-                    logger.error(msg, e);
-                    throw new FileStoreException(msg, e);
-                }
-            } else {
-                // Update existing entry.
-                if (length <= entry.getLength()) {
-                    // Fits; overwrite previous contents.
-                    logger.debug("Updating existing entry with offset "
-                    		+ entry.getOffset() + " and length "
-                    		+ length + "...");
-
-                    // Update length.
-                    entry.setLength(length);
-                    
-                    // Write data.
-                    try {
-                        dataFile.seek(entry.getOffset());
-                		InputStream is = new FileInputStream(file);
-                		int bytesRead;
-                		while ((bytesRead = is.read(buffer)) > 0) {
-                			dataFile.write(buffer, 0, bytesRead);
-                		}
-                		is.close();
-                        sync();
-                    } catch (IOException e) {
-                        entries.remove(entry);
-                        String msg = "Could not store document with ID " + id;
-                        logger.error(msg, e);
-                        throw new FileStoreException(msg, e);
-                    }
-                } else {
-                    // Does not fit; delete old entry.
-                    entries.remove(entry);
-                    
-                    // Find a free entryition.
-                    int offset = findFreePosition(length);
-                    
-                    logger.debug("Moving existing entry with offset " + offset + " and length " + length + "...");
-                    
-                    // Update index entry.
-                    entry.setOffset(offset);
-                    entry.setLength(length);
-                    entries.put(id, entry);
-                    
-                    // Write entry.
-                    try {
-                        dataFile.seek(offset);
-                		InputStream is = new FileInputStream(file);
-                		int bytesRead;
-                		while ((bytesRead = is.read(buffer)) > 0) {
-                			dataFile.write(buffer, 0, bytesRead);
-                		}
-                		is.close();
-                        sync();
-                    } catch (IOException e) {
-                        String msg = "Could not store document with ID " + id;
-                        logger.error(msg, e);
-                        throw new FileStoreException(msg, e);
-                    }
-                }
-            }
-        } else {
-            throw new FileStoreException("FileStore not started");
-        }
-    }
-    
-
-    /**
-     * Stores an entry based on an byte array.
-     * 
-     * @param id    the entry ID
-     * @param data  the data
-     * @throws FileStoreException  If the entry could not be stored
-     */
-    public void store(int id, byte[] data)
-            throws FileStoreException {
-        if (isRunning) {
-            logger.debug("Storing entry with ID " + id);
-            FileEntry entry = entries.get(id);
-            if (entry == null) {
-                // Insert new entry.
-                
-                // Find a free position.
-                int offset = findFreePosition(data.length);
-                logger.debug("Creating new entry with offset " + offset + " and length " + data.length + "...");
-                
-                // Create new index entry.
-                entry = new FileEntry(id);
-                entry.setOffset(offset);
-                entry.setLength(data.length);
-                entries.put(id, entry);
-                
-                // Write entry.
-                try {
-                    dataFile.seek(offset);
-                    dataFile.write(data);
-                    sync();
-                } catch (IOException e) {
-                    entries.remove(entry);
-                    throw new FileStoreException("Error updating data file", e);
-                }
-            } else {
-                // Update existing entry.
-                if (data.length <= entry.getLength()) {
-                    // Fits; overwrite same entryition.
-                    logger.debug("Updating existing entry with offset " + entry.getOffset() + " and length " + data.length + "...");
-
-                    // Update length.
-                    entry.setLength(data.length);
-                    
-                    // Write data.
-                    try {
-                        dataFile.seek(entry.getOffset());
-                        dataFile.write(data);
-                        sync();
-                    } catch (IOException e) {
-                        throw new FileStoreException("Error updating data file", e);
-                    }
-                } else {
-                    // Does not fit; delete old entry.
-                    entries.remove(entry);
-                    
-                    // Find a free entryition.
-                    int offset = findFreePosition(data.length);
-                    
-                    logger.debug("Moving existing entry with offset " + offset + " and length " + data.length + "...");
-                    
-                    // Update index entry.
-                    entry.setOffset(offset);
-                    entry.setLength(data.length);
-                    entries.put(id, entry);
-                    
-                    // Write entry.
-                    try {
-                        dataFile.seek(offset);
-                        dataFile.write(data);
-                        sync();
-                    } catch (IOException e) {
-                        throw new FileStoreException("Error updating data file", e);
-                    }
-                }
-            }
-        } else {
-            throw new FileStoreException("FileStore not started");
-        }
-    }
-    
-    
-    public boolean contains(int id) {
-        return entries.containsKey(id);
-    }
-    
-
     public void delete(int id) {
         if (isRunning) {
             FileEntry entry = entries.get(id);
             if (entry != null) {
                 entries.remove(id);
-                logger.debug("Deleted entry with ID " + id + " with offset " + entry.getOffset() + " and length " + entry.getLength());
+                logger.debug("Deleted entry with ID " + id + " with offset "
+                        + entry.getOffset() + " and length "
+                        + entry.getLength());
             } else {
                 System.err.println("WARNING: Entry with ID " + id + " not found");
             }
@@ -404,28 +286,42 @@ public class FileStore {
     }
     
 
+    /**
+     * Deletes ALL files.
+     */
     public void deleteAll() {
         entries.clear();
+        
         sync();
+        
         try {
             dataFile.setLength(0L);
         } catch (IOException e) {
-            System.err.println("ERROR clearing data file: " + e);
+            String msg = "Error clearing data file";
+            logger.error(msg, e);
         }
+        
         logger.debug("Deleted all entries.");
     }
     
 
+    /**
+     * Writes any volatile meta-data to disk.
+     */
     public void sync() {
-    	logger.debug("Sync'ing to disk...");
+        logger.debug("Sync");
     	try {
     		writeIndexFile();
     	} catch (IOException e) {
-    		System.err.println("ERROR sync'ing to disk: " + e);
+    		logger.error("Error sync'ing to disk", e);
     	}
+    	printSizeInfo();
     }
   
 
+    /**
+     * Logs a message showing the disk size usage.
+     */
     public void printSizeInfo() {
         long stored = getStoredSpace();
         long used = getUsedSpace();
@@ -434,7 +330,7 @@ public class FileStore {
         if (stored > 0) {
             wastedPerc = ((double) wasted / (double) stored) * 100.0;
         }
-        logger.info(String.format(
+        logger.info(String.format(Locale.US,
         		"Disk usage:  Size: %s, Used: %s, Wasted: %s (%.1f %%)",
                 diskSizeToString(stored), diskSizeToString(used),
                 diskSizeToString(wasted), wastedPerc));
@@ -446,13 +342,21 @@ public class FileStore {
     //------------------------------------------------------------------------
     
 
+    /**
+     * Returns the offset of the first free position in the data file that
+     * would fit a file with the specified length.
+     * 
+     * @param  length  the file length in bytes
+     * 
+     * @return  the offset  
+     */
     private int findFreePosition(int length) {
         int offset = 0;
         for (FileEntry entry : entries.values()) {
-            // Determine any free space between entries.
+            // Look for free space between entries.
             long free = entry.getOffset() - offset;
             if (free >= length) {
-                // Found a free spot!
+                // Found a suitable spot!
                 break;
             } else {
                 // Proceed to next entry.
@@ -463,6 +367,11 @@ public class FileStore {
     }
     
     
+    /**
+     * Reads the index file.
+     * 
+     * @throws  IOException  if the file could not be read
+     */
     private void readIndexFile() throws IOException {
         entries.clear();
         File file = new File(dataDirectory + '/' + INDEX_FILE);
@@ -484,6 +393,11 @@ public class FileStore {
     }
     
 
+    /**
+     * Writes the index file.
+     * 
+     * @throws  IOException  if the file could not be written
+     */
     private void writeIndexFile() throws IOException {
         DataOutputStream dos = new DataOutputStream(
                 new FileOutputStream(dataDirectory + '/' + INDEX_FILE));
@@ -497,6 +411,44 @@ public class FileStore {
     }
     
 
+    /**
+     * Returns the size of the data file actually stored on disk.
+     * 
+     * @return  the size of the data file
+     */
+    private long getStoredSpace() {
+        long size = 0L;
+        try {
+            size = dataFile.length();
+        } catch (IOException e) {
+            System.err.println(e);
+        }
+        return size;
+    }
+    
+
+    /**
+     * Returns the net used disk space for storing the documents without any
+     * fragmentation.
+     * 
+     * @return  the net used disk space 
+     */
+    private long getUsedSpace() {
+        long size = 0L;
+        for (FileEntry entry : entries.values()) {
+            size += entry.getLength();
+        }
+        return size;
+    }
+    
+
+    /**
+     * Returns a human-friendly representation of a file size.
+     *  
+     * @param size  the file size in bytes
+     * 
+     * @return  the human-friendly representation of the file size
+     */
     private String diskSizeToString(long size) {
         String s = null;
         if (size >= 1073741824L) {
@@ -510,26 +462,6 @@ public class FileStore {
         }
         return s;
     }
-    
-
-    private long getStoredSpace() {
-        long size = 0L;
-        try {
-            size = dataFile.length();
-        } catch (IOException e) {
-            System.err.println(e);
-        }
-        return size;
-    }
-    
-
-    private long getUsedSpace() {
-        long size = 0L;
-        for (FileEntry entry : entries.values()) {
-            size += entry.getLength();
-        }
-        return size;
-    }
-    
+ 
 
 }

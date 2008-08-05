@@ -148,28 +148,6 @@ public class Document implements Comparable<Document> {
 	}
 	
 	
-    public void setContent(String contents) throws XmldbException {
-        try {
-            database.getFileStore().store(id, contents.getBytes());
-            database.indexDocument(this);
-        } catch (FileStoreException e) {
-            String msg = "Could not store document: " + this;
-            throw new XmldbException(msg, e);
-        }
-    }
-    
-    
-    public void setContent(byte[] content) throws XmldbException {
-        try {
-            database.getFileStore().store(id, content);
-            database.indexDocument(this);
-        } catch (FileStoreException e) {
-            String msg = "Could not store document: " + this;
-            throw new XmldbException(msg, e);
-        }
-    }
-    
-    
     //------------------------------------------------------------------------
     //  Interface implementation: Comparable
     //------------------------------------------------------------------------

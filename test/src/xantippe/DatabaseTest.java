@@ -2,6 +2,9 @@ package xantippe;
 
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Set;
 
@@ -46,7 +49,7 @@ public class DatabaseTest {
 
 	@AfterClass
 	public static void afterClass() {
-        Util.deleteFile(DATA_DIR);
+//        Util.deleteFile(DATA_DIR);
 	}
 
 
@@ -57,6 +60,8 @@ public class DatabaseTest {
 
 	@Test
 	public void test() {
+	    File file;
+	    
 		logger.debug("DatabaseTest started.");
 
 		try {
@@ -123,27 +128,40 @@ public class DatabaseTest {
 			Assert.assertEquals(0, doc.getKeys().length);
 			doc.setKey("DocumentId", 1);
 			doc.setKey("DocumentType", "Foo");
-			doc.setContent(new File("test/docs/0001.xml"));
+            file = new File("test/docs/0001.xml");
+            doc.setContent(file);
+            assertEqual(doc.getContent(), file);
+			
 			doc = fooCol.createDocument("0002.xml");
 			doc.setKey("DocumentId", 2);
 			doc.setKey("DocumentType", "Foo");
-			doc.setContent("<Document>\n  <Id>2</Id>\n  <Type>Foo</Type>\n</Document>");
+            file = new File("test/docs/0002.xml");
+            doc.setContent(file);
+            assertEqual(doc.getContent(), file);
+
 			doc = fooCol.createDocument("0003.xml");
 			doc.setKey("DocumentId", 3);
 			doc.setKey("DocumentType", "Bar");
 			OutputStream os = doc.setContent();
 			os.write("<Document>\n  <Id>3</Id>\n  <Type>Bar</Type>\n</Document>".getBytes());
 			os.close();
-			doc = modulesCol.createDocument("main.xqy");
-			doc.setContent("");
 			
-//			doc = fooCol.createDocument("osm_0001.xml");
-//			doc.setKey("DocumentId", 101);
-//			doc.setKey("DocumentType", "OnlineStreetMap");
-//			doc.setContent(new File("test/docs/osm_0001.xml"));
+			doc = fooCol.createDocument("osm_0001.xml");
+			doc.setKey("DocumentId", 101);
+			doc.setKey("DocumentType", "OnlineStreetMap");
+            file = new File("test/docs/osm_0001.xml");
+			doc.setContent(file);
+            assertEqual(doc.getContent(), file);
 
+            doc = fooCol.createDocument("osm_0002.xml");
+            doc.setKey("DocumentId", 102);
+            doc.setKey("DocumentType", "OnlineStreetMap");
+            file = new File("test/docs/osm_0002.xml");
+            doc.setContent(file);
+            assertEqual(doc.getContent(), file);
+            
 //			database.print();
-
+            
 			// Find documents by keys.
 			Key[] keys = new Key[] {
 					new Key("DocumentType", "Foo"),
@@ -167,4 +185,27 @@ public class DatabaseTest {
 	}
 
 
+    private static void assertEqual(InputStream is, File file) {
+        long startTime = System.currentTimeMillis();
+        try {
+            InputStream is2 = new FileInputStream(file);
+            byte[] buffer1 = new byte[8192];
+            byte[] buffer2 = new byte[8192];
+            int bytesRead1;
+            int bytesRead2;
+            while ((bytesRead1 = is.read(buffer1)) > 0) {
+                bytesRead2 = is2.read(buffer2);
+                Assert.assertEquals(bytesRead1, bytesRead2);
+                Assert.assertArrayEquals(buffer1, buffer2);
+            }
+            is2.close();
+            is.close();
+            long duration = System.currentTimeMillis() - startTime;
+            logger.debug("File compared in " + duration + " ms");
+        } catch (IOException e) {
+            Assert.fail(e.getMessage());
+        }
+    }
+    
+    
 }
