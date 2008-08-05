@@ -1,6 +1,8 @@
 package xantippe;
 
 
+import java.io.File;
+import java.io.OutputStream;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
@@ -44,7 +46,7 @@ public class DatabaseTest {
 
 	@AfterClass
 	public static void afterClass() {
-		Util.deleteFile(DATA_DIR);
+        Util.deleteFile(DATA_DIR);
 	}
 
 
@@ -121,7 +123,7 @@ public class DatabaseTest {
 			Assert.assertEquals(0, doc.getKeys().length);
 			doc.setKey("DocumentId", 1);
 			doc.setKey("DocumentType", "Foo");
-			doc.setContent("<Document>\n  <Id>1</Id>\n  <Type>Foo</Type>\n</Document>");
+			doc.setContent(new File("test/docs/0001.xml"));
 			doc = fooCol.createDocument("0002.xml");
 			doc.setKey("DocumentId", 2);
 			doc.setKey("DocumentType", "Foo");
@@ -129,9 +131,16 @@ public class DatabaseTest {
 			doc = fooCol.createDocument("0003.xml");
 			doc.setKey("DocumentId", 3);
 			doc.setKey("DocumentType", "Bar");
-			doc.setContent("<Document>\n  <Id>3</Id>\n  <Type>Bar</Type>\n</Document>");
+			OutputStream os = doc.setContent();
+			os.write("<Document>\n  <Id>3</Id>\n  <Type>Bar</Type>\n</Document>".getBytes());
+			os.close();
 			doc = modulesCol.createDocument("main.xqy");
 			doc.setContent("");
+			
+//			doc = fooCol.createDocument("osm_0001.xml");
+//			doc.setKey("DocumentId", 101);
+//			doc.setKey("DocumentType", "OnlineStreetMap");
+//			doc.setContent(new File("test/docs/osm_0001.xml"));
 
 //			database.print();
 
@@ -149,8 +158,9 @@ public class DatabaseTest {
 
 			database.shutdown();
 
-		} catch (XmldbException e) {
+		} catch (Exception e) {
 			logger.error(e);
+			Assert.fail(e.getMessage());
 		}
 
 		logger.debug("DatabaseTest finished.");

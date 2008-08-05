@@ -16,21 +16,23 @@ import java.util.TreeMap;
 import org.apache.log4j.Logger;
 
 
+
 /**
- * File system based database for storing files.
+ * File system based database for storing documents.
  *
- * Files are logically stored, retrieved, listed and deleted based on a name.
- * The file contents are handled as a byte array.
+ * Documents are logically stored, retrieved, listed and deleted based on an
+ * ID.
  *
- * Files are physically stored in a single binary file ('data.dbx').
- * File entries are stored in a second binary file ('index.dbx').
+ * Document entries (the administration) are stored in a binary file
+ * 'documents.dbx'. The document contents are stored in a binary file
+ * 'contents.dbx'.
  *
  * All database files are stored in a configurable directory (by default
  * 'data'). If this directory does not exists, it will be created.
  *
- * The positioning algorithm for storing a file is simple; it just inserts the
- * file at the first free position it fits in, or it appends the file at the
- * end.
+ * The positioning algorithm for storing a document is simple; it inserts the
+ * document at the first free position it fits in, or it appends the document
+ * at the end.
  *
  * @author Oscar Stigter
  */
@@ -46,17 +48,25 @@ public class FileStore {
     /** File with the document contents. */
     private static final String DATA_FILE = "contents.dbx";
     
-	private static final Logger logger = Logger.getLogger(FileStore.class);
+	/** log4j logger. */
+    private static final Logger logger = Logger.getLogger(FileStore.class);
+	
+	/** Buffer size. */
+	private static final int BUFFER_SIZE = 8192;  // 8 kB
+	
+	/** Buffer for reading and writing files. */
+	private final byte[] buffer = new byte[BUFFER_SIZE]; 
 
-	/** Document entries mapped by the their document ID. */
+	/** Document entries mapped by the their ID. */
 	private final Map<Integer, FileEntry> entries;
     
-    private boolean isRunning = false;
+	/** Indicates whether the FileStore is running. */
+	private boolean isRunning = false;
     
     /** Database directory. */
     private String dataDirectory;
     
-    /** Random access file handle to the document contents file. */ 
+    /** Data file with the document contents. */ 
     private RandomAccessFile dataFile;
     
 
@@ -185,19 +195,111 @@ public class FileStore {
     }
     
     
+    /**
+     * Stores a document based on a <code>File</code> object.
+     * 
+     * @param id  the document ID
+     * @param file  the file with the document contents
+     * 
+     * @throws FileStoreException  if the document could not be stored
+     */
     public void store(int id, File file) throws FileStoreException {
-    	int length = (int) file.length();
-    	try {
-    		InputStream is = new FileInputStream(file);
-    		byte[] buffer = new byte[length]; 
-    		is.read(buffer);
-    		is.close();
-    		store(id, buffer);
-    	} catch (IOException e) {
-    		String msg = "I/O error while storing file";
-    		logger.error(msg, e);
-    		throw new FileStoreException(msg, e);
-    	}
+        if (isRunning) {
+            logger.debug("Storing document with ID " + id);
+        	int length = (int) file.length();
+            FileEntry entry = entries.get(id);
+            if (entry == null) {
+                // Insert new entry.
+                
+                // Find a free position.
+                int offset = findFreePosition(length);
+                logger.debug("Creating new entry with offset " + offset
+                		+ " and length " + length + "...");
+                
+                // Create new index entry.
+                entry = new FileEntry(id);
+                entry.setOffset(offset);
+                entry.setLength(length);
+                entries.put(id, entry);
+                
+                // Write entry.
+                try {
+                    dataFile.seek(offset);
+                    
+            		InputStream is = new FileInputStream(file);
+            		int bytesRead;
+            		while ((bytesRead = is.read(buffer)) > 0) {
+            			dataFile.write(buffer, 0, bytesRead);
+            		}
+            		is.close();
+                    sync();
+                } catch (IOException e) {
+                    entries.remove(entry);
+                    String msg = "Could not store document with ID " + id;
+                    logger.error(msg, e);
+                    throw new FileStoreException(msg, e);
+                }
+            } else {
+                // Update existing entry.
+                if (length <= entry.getLength()) {
+                    // Fits; overwrite previous contents.
+                    logger.debug("Updating existing entry with offset "
+                    		+ entry.getOffset() + " and length "
+                    		+ length + "...");
+
+                    // Update length.
+                    entry.setLength(length);
+                    
+                    // Write data.
+                    try {
+                        dataFile.seek(entry.getOffset());
+                		InputStream is = new FileInputStream(file);
+                		int bytesRead;
+                		while ((bytesRead = is.read(buffer)) > 0) {
+                			dataFile.write(buffer, 0, bytesRead);
+                		}
+                		is.close();
+                        sync();
+                    } catch (IOException e) {
+                        entries.remove(entry);
+                        String msg = "Could not store document with ID " + id;
+                        logger.error(msg, e);
+                        throw new FileStoreException(msg, e);
+                    }
+                } else {
+                    // Does not fit; delete old entry.
+                    entries.remove(entry);
+                    
+                    // Find a free entryition.
+                    int offset = findFreePosition(length);
+                    
+                    logger.debug("Moving existing entry with offset " + offset + " and length " + length + "...");
+                    
+                    // Update index entry.
+                    entry.setOffset(offset);
+                    entry.setLength(length);
+                    entries.put(id, entry);
+                    
+                    // Write entry.
+                    try {
+                        dataFile.seek(offset);
+                		InputStream is = new FileInputStream(file);
+                		int bytesRead;
+                		while ((bytesRead = is.read(buffer)) > 0) {
+                			dataFile.write(buffer, 0, bytesRead);
+                		}
+                		is.close();
+                        sync();
+                    } catch (IOException e) {
+                        String msg = "Could not store document with ID " + id;
+                        logger.error(msg, e);
+                        throw new FileStoreException(msg, e);
+                    }
+                }
+            }
+        } else {
+            throw new FileStoreException("FileStore not started");
+        }
     }
     
 
