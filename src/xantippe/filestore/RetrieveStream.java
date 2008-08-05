@@ -16,52 +16,92 @@ import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 public class RetrieveStream extends InputStream {
     
     
-    private final RandomAccessFile file;
+    /** The data file. */
+	private final RandomAccessFile dataFile;
     
-    private final int length;
+    /** The file length in bytes. */
+	private final int length;
     
-    private int position = 0;
+    /** The current position in the stream. */ 
+	private int position = 0;
     
     
-    /* package */ RetrieveStream(
-            RandomAccessFile file, int offset, int length) throws IOException {
-        this.file = file;
+	/**
+	 * Constructor.
+	 * 
+	 * @param file    the data file
+	 * @param offset  the file's offset in the data file. 
+	 * @param length  the file's length in bytes
+	 * 
+	 * @throws IOException  if the file could not be read  
+	 */
+	/* package */ RetrieveStream(
+			RandomAccessFile dataFile, int offset, int length)
+            throws IOException {
+        this.dataFile = dataFile;
         this.length = length;
-        file.seek(offset);
+        dataFile.seek(offset);
     }
 
 
-    @Override
+	/**
+	 * Returns the number of bytes that can still be read.
+	 * 
+	 * @return  the number of bytes that can still be read
+	 */
+	@Override
     public int available() throws IOException {
         return (length - position);
     }
 
 
-    @Override
+	/**
+	 * Closes the stream.
+	 */
+	@Override
     public void close() throws IOException {
         super.close();
     }
 
 
-    @Override
+	/**
+	 * Marks the current position in the stream.
+	 * 
+	 * Not supported.
+	 */
+	@Override
     public synchronized void mark(int position) {
         throw new NotImplementedException();
     }
 
 
-    @Override
+	/**
+	 * Returns true if this class supports the mark() method, otherwise false.
+	 * 
+	 * Since mark() is not implemented, this method will always return false.
+	 * 
+	 * @return false (fixed)
+	 */
+	@Override
     public boolean markSupported() {
         // Not implemented.
         return false;
     }
 
 
-    @Override
+	/**
+	 * Returns the next byte as integer in the range [0, 255].
+	 * 
+	 * @return  the next byte
+	 *  
+	 * @throws  IOException  in case of any I/O errors
+	 */
+	@Override
     public int read() throws IOException {
         int value;
         
         if (available() > 0) {
-            value = file.read();
+            value = dataFile.read();
             position++;
         } else {
             value = -1;
@@ -71,7 +111,16 @@ public class RetrieveStream extends InputStream {
     }
 
 
-    @Override
+    /**
+     * Reads as many bytes as necessary to fill the specified buffer.
+     * 
+     * @param  buffer  the buffer
+     * 
+     * @return  the number of bytes actually read
+	 *  
+	 * @throws  IOException  in case of any I/O errors
+     */
+	@Override
     public int read(byte[] buffer) throws IOException {
         if (buffer == null) {
             throw new IllegalArgumentException("Null buffer");
@@ -81,7 +130,18 @@ public class RetrieveStream extends InputStream {
     }
 
 
-    @Override
+	/**
+	 * Reads the specified number of bytes and fills the specified buffer.
+	 * 
+	 * @param  buffer  the buffer
+	 * @param  offset  the buffer offset
+	 * @param  length  the number of bytes to read
+	 * 
+	 * @return  the actual number of bytes read
+	 *  
+	 * @throws  IOException  in case of any I/O errors
+	 */
+	@Override
     public int read(byte[] buffer, int offset, int length) throws IOException {
         if (buffer == null) {
             throw new IllegalArgumentException("Null buffer");
@@ -102,19 +162,33 @@ public class RetrieveStream extends InputStream {
         if (length > available()) {
             length = available();
         }
-        int read = file.read(buffer, offset, length);
+        int read = dataFile.read(buffer, offset, length);
         position += read;
         return read;
     }
 
 
-    @Override
+    /**
+     * Resets the stream to the last mark() call.
+     * 
+     *  Not implemented.
+     */
+	@Override
     public synchronized void reset() throws IOException {
         throw new NotImplementedException();
     }
 
 
-    @Override
+	/**
+	 * Skips the specified number of bytes.
+	 * 
+	 * @param  length  the number of bytes to skip
+	 * 
+	 * @return  the number of bytes actually skipped
+	 *  
+	 * @throws  IOException  in case of any I/O errors
+	 */
+	@Override
     public long skip(long length) throws IOException {
         if (length > available()) {
             length = available();

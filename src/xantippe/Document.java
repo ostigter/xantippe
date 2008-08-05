@@ -2,9 +2,13 @@ package xantippe;
 
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.Map;
+
+import org.apache.log4j.Logger;
 
 import xantippe.filestore.FileStoreException;
 
@@ -16,6 +20,9 @@ import xantippe.filestore.FileStoreException;
  */
 public class Document implements Comparable<Document> {
 	
+	
+	/** log4j logger. */
+	private static final Logger logger = Logger.getLogger(Document.class);
 	
 	/** Back-reference to the database. */
 	private DatabaseImpl database;
@@ -105,10 +112,27 @@ public class Document implements Comparable<Document> {
 	}
 	
 	
-	public InputStream getContent() {
-//	    InputStream is = database.getFileStore().retrieve(id);
-//	    return is;
-	    return null;
+	public InputStream getContent() throws XmldbException {
+		InputStream is = null;
+		try {
+			is = database.getFileStore().retrieve(id);
+		} catch (FileStoreException e) {
+            String msg = "Could not retrieve document: " + this;
+	        logger.error(msg, e);
+            throw new XmldbException(msg, e);
+		}
+		return is;
+	}
+	
+	
+	public OutputStream setContent() throws XmldbException {
+	    try {
+	    	return new InsertStream(this);
+	    } catch (IOException e) {
+	        String msg = "Could not store document: " + this;
+	        logger.error(msg, e);
+	        throw new XmldbException(msg, e);
+	    }
 	}
 	
 	
@@ -118,6 +142,7 @@ public class Document implements Comparable<Document> {
 	        database.indexDocument(this);
 	    } catch (FileStoreException e) {
 	        String msg = "Could not store document: " + this;
+	        logger.error(msg, e);
 	        throw new XmldbException(msg, e);
 	    }
 	}
