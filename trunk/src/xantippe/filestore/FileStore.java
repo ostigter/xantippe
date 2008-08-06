@@ -218,7 +218,6 @@ public class FileStore {
         			dataFile.write(buffer, 0, bytesRead);
         		}
         		is.close();
-                sync();
             } catch (IOException e) {
                 entries.remove(id);
                 String msg = "Could not store document with ID " + id;
@@ -315,7 +314,6 @@ public class FileStore {
     	} catch (IOException e) {
     		logger.error("Error sync'ing to disk", e);
     	}
-    	printSizeInfo();
     }
   
 
