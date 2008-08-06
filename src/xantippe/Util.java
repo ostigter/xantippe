@@ -11,7 +11,7 @@ import org.apache.log4j.xml.DOMConfigurator;
 
 
 /**
- * Static class offering various utility methods.
+ * Static class with various utility methods.
  *  
  * @author Oscar Stigter
  */
@@ -21,7 +21,7 @@ public class Util {
     /** Config file for log4j. */
     private static final String LOG_CONFIG_FILE = "log4j.xml";
     
-    
+    /** Indicates whether log4j has been initialized. */
     private static boolean logInitialized = false; 
     
     
@@ -54,11 +54,21 @@ public class Util {
     }
     
     
+    /**
+     * Deletes a file or directory (recursively).
+     * 
+     * @param  path  the file path
+     */
     public static void deleteFile(String path) {
         deleteFile(new File(path));
     }
     
 
+    /**
+     * Deletes a file or directory (recursively).
+     * 
+     * @param  file  the file
+     */
     public static void deleteFile(File file) {
         if (file.exists()) {
             if (file.isDirectory()) {

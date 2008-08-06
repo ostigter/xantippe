@@ -33,6 +33,9 @@ public class Document implements Comparable<Document> {
 	/** Name. */
 	private String name;
 	
+	/** Media type. */
+	private MediaType mediaType;
+	
 	/** Parent collection ID. */
 	private int parent;
 	
@@ -45,11 +48,12 @@ public class Document implements Comparable<Document> {
     //------------------------------------------------------------------------
 
 	
-	/* package */ Document(
-	        DatabaseImpl database, int id, String name, int parent) {
+	/* package */ Document(DatabaseImpl database, int id, String name,
+			MediaType mediaType, int parent) {
 	    this.database = database;
 		this.id = id;
 		this.name = name;
+		this.mediaType = mediaType;
 		this.parent = parent;
 		
 		keys = new HashMap<String, Key>();
@@ -68,13 +72,18 @@ public class Document implements Comparable<Document> {
 	}
 	
 	
-	public void setName(String name) {
-		this.name = name;
-	}
+//	public void setName(String name) {
+//		this.name = name;
+//	}
 	
 	
 	public Collection getParent() {
 		return database.getCollection(parent);
+	}
+	
+	
+	public MediaType getMediaType() {
+		return mediaType;
 	}
 	
 	

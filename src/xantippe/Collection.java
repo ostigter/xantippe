@@ -158,8 +158,13 @@ public class Collection implements Comparable<Collection> {
 	
 	
 	public Document createDocument(String name) {
+		return createDocument(name, database.getMediaType(name));
+	}
+	
+	
+	public Document createDocument(String name, MediaType mediaType) {
 	    int docId = database.getNextId();
-		Document doc = new Document(database, docId, name, id);
+		Document doc = new Document(database, docId, name, mediaType, id);
 		documents.add(docId);
 		return doc;
 	}

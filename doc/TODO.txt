@@ -1,13 +1,13 @@
 TO DO
 =====
 
-- Set document contents using output stream
-- Media types
+- Validation
 - Index persistency (per collection, inheritance tree)
-- XML validation
 - Automatic indexing of XML documents
 - Saxon XQuery support
+- Configuration file
+- Document caching
 - Management console
 - WebDAV interface
 - REST interface
-- Use (optional) ZIP compression (FileStore)
+- Compression

@@ -49,7 +49,7 @@ public class DatabaseTest {
 
 	@AfterClass
 	public static void afterClass() {
-//        Util.deleteFile(DATA_DIR);
+        Util.deleteFile(DATA_DIR);
 	}
 
 

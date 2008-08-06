@@ -278,10 +278,10 @@ public class FileStore {
                         + entry.getOffset() + " and length "
                         + entry.getLength());
             } else {
-                System.err.println("WARNING: Entry with ID " + id + " not found");
+            	logger.warn("WARNING: Entry with ID " + id + " not found");
             }
         } else {
-            System.err.println("ERROR: Not started.");
+            logger.error("ERROR: Not started.");
         }
     }
     
@@ -421,7 +421,7 @@ public class FileStore {
         try {
             size = dataFile.length();
         } catch (IOException e) {
-            System.err.println(e);
+            logger.error("Error retrieving data file length", e);
         }
         return size;
     }
