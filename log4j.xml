@@ -17,15 +17,15 @@
     </appender>
 
     <logger name="xantippe">
-        <level value="debug"/>
+        <level value="info"/>
     </logger>
 
     <logger name="xantippe.filestore">
-        <level value="debug"/>
+        <level value="info"/>
     </logger>
 
     <logger name="xantippe.DatabaseTest">
-        <level value="debug"/>
+        <level value="info"/>
     </logger>
 
     <root>

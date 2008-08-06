@@ -6,11 +6,13 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Locale;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
-import org.junit.AfterClass;
+import org.junit.After;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -24,6 +26,11 @@ public class DatabaseTest {
 
 
 	private static final String DATA_DIR = "test/data";
+	
+	private static final String LARGE_DATASET_DIR =
+	        "C:/LocalData/Temp/results/1000"; 
+	
+	private static final int BUFFER_SIZE = 8192;  // 8 kB
 
 	private static final Logger logger = Logger.getLogger(DatabaseTest.class);
 
@@ -39,16 +46,20 @@ public class DatabaseTest {
 	public static void beforeClass() {
 		Util.initLog4j();
 
-		Util.deleteFile(DATA_DIR);
-
 		System.setProperty("xantippe.data.dir", DATA_DIR);
 
 		database  = new DatabaseImpl();
 	}
+	
+	
+	@Before
+	public void before() {
+        Util.deleteFile(DATA_DIR);
+	}
 
 
-	@AfterClass
-	public static void afterClass() {
+	@After
+	public void after() {
         Util.deleteFile(DATA_DIR);
 	}
 
@@ -59,11 +70,11 @@ public class DatabaseTest {
 
 
 	@Test
-	public void test() {
-	    File file;
-	    
-		logger.debug("DatabaseTest started.");
+	public void general() {
+        logger.debug("Test suite 'general' started.");
 
+        File file;
+        
 		try {
 			database.start();
 
@@ -146,19 +157,19 @@ public class DatabaseTest {
 			os.write("<Document>\n  <Id>3</Id>\n  <Type>Bar</Type>\n</Document>".getBytes());
 			os.close();
 			
-			doc = fooCol.createDocument("osm_0001.xml");
-			doc.setKey("DocumentId", 101);
-			doc.setKey("DocumentType", "OnlineStreetMap");
-            file = new File("test/docs/osm_0001.xml");
-			doc.setContent(file);
-            assertEqual(doc.getContent(), file);
-
-            doc = fooCol.createDocument("osm_0002.xml");
-            doc.setKey("DocumentId", 102);
-            doc.setKey("DocumentType", "OnlineStreetMap");
-            file = new File("test/docs/osm_0002.xml");
-            doc.setContent(file);
-            assertEqual(doc.getContent(), file);
+//			doc = fooCol.createDocument("osm_0001.xml");
+//			doc.setKey("DocumentId", 4);
+//			doc.setKey("DocumentType", "OnlineStreetMap");
+//            file = new File("test/docs/osm_0001.xml");
+//			doc.setContent(file);
+//            assertEqual(doc.getContent(), file);
+//
+//            doc = fooCol.createDocument("osm_0002.xml");
+//            doc.setKey("DocumentId", 5);
+//            doc.setKey("DocumentType", "OnlineStreetMap");
+//            file = new File("test/docs/osm_0002.xml");
+//            doc.setContent(file);
+//            assertEqual(doc.getContent(), file);
             
 //			database.print();
             
@@ -175,22 +186,73 @@ public class DatabaseTest {
 //			Assert.assertEquals("0002.xml", doc.getName());
 
 			database.shutdown();
-
-		} catch (Exception e) {
+			
+		} catch (XmldbException e) {
 			logger.error(e);
 			Assert.fail(e.getMessage());
-		}
+        } catch (IOException e) {
+            logger.error(e);
+            Assert.fail(e.getMessage());
+        }
 
-		logger.debug("DatabaseTest finished.");
+		logger.debug("Test suite 'general' finished.");
+	}
+	
+	
+	@Test
+	public void manyDocuments() {
+        logger.debug("Test suite 'manyDocuments' started.");
+
+        try {
+            database.start();
+
+            Collection col = database.getRootCollection();
+            
+            File dir = new File(LARGE_DATASET_DIR);
+            if (!dir.isDirectory() || !dir.canRead()) {
+                String msg = "Invalid dataset directory: " + dir;
+                logger.error(msg);
+                Assert.fail(msg);
+            }
+
+            int count = 0;
+            long size = 0L;
+            
+            logger.info("Storing documents...");
+            long startTime = System.currentTimeMillis();
+            for (File file : dir.listFiles()) {
+                if (file.isFile()) {
+                    Document doc =
+                            col.createDocument(file.getName(), MediaType.XML);
+                    doc.setContent(file);
+                    count++;
+                    size += file.length();
+                }
+            }
+            double duration = (System.currentTimeMillis() - startTime) / 1000.0;
+            double speed = (size / (1024 * 1024)) / duration;
+            logger.info(String.format(Locale.US,
+                    "Stored %d documents in %.3f seconds (%.2f MB/s)",
+                    count, duration, speed));
+            
+            database.shutdown();
+            
+        } catch (XmldbException e) {
+            logger.error(e);
+            Assert.fail(e.getMessage());
+        }
+
+        logger.debug("Test suite 'manyDocuments' finished.");
 	}
 
 
     private static void assertEqual(InputStream is, File file) {
+        logger.debug("Verifying document content...");
         long startTime = System.currentTimeMillis();
         try {
             InputStream is2 = new FileInputStream(file);
-            byte[] buffer1 = new byte[8192];
-            byte[] buffer2 = new byte[8192];
+            byte[] buffer1 = new byte[BUFFER_SIZE];
+            byte[] buffer2 = new byte[BUFFER_SIZE];
             int bytesRead1;
             int bytesRead2;
             while ((bytesRead1 = is.read(buffer1)) > 0) {
@@ -201,7 +263,7 @@ public class DatabaseTest {
             is2.close();
             is.close();
             long duration = System.currentTimeMillis() - startTime;
-            logger.debug("File compared in " + duration + " ms");
+            logger.debug("Document verified in " + duration + " ms");
         } catch (IOException e) {
             Assert.fail(e.getMessage());
         }
