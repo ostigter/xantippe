@@ -258,6 +258,23 @@ public class DatabaseImpl implements Database {
     }
     
     
+    /* package */ MediaType getMediaType(String fileName) {
+    	MediaType mediaType = MediaType.BINARY;
+    	
+    	int p = fileName.lastIndexOf('.');
+    	if (p > 0) {
+    		String extention = fileName.substring(p + 1).toLowerCase();
+    		if (extention.equals("xml")) {
+    			mediaType = MediaType.XML;
+    		} else if (extention.equals("txt")) { 
+    			mediaType = MediaType.PLAIN_TEXT;
+    		}
+    	}
+    	
+    	return mediaType;
+    }
+    
+    
     //------------------------------------------------------------------------
     //  Private methods
     //------------------------------------------------------------------------
@@ -329,7 +346,8 @@ public class DatabaseImpl implements Database {
         for (int i = 0; i < noOfDocs; i++) {
             int docId = dis.readInt();
             String docName = dis.readUTF();
-            Document doc = new Document(this, docId, docName, id);
+            MediaType mediaType = MediaType.values()[dis.readByte()];
+            Document doc = new Document(this, docId, docName, mediaType, id);
             col.addDocument(doc.getId());
         }
         int noOfCols = dis.readInt();
@@ -376,6 +394,7 @@ public class DatabaseImpl implements Database {
             throws IOException {
         dos.writeInt(doc.getId());
         dos.writeUTF(doc.getName());
+        dos.writeByte(doc.getMediaType().ordinal());
     }
     
     
