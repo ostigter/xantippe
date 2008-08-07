@@ -14,6 +14,7 @@ import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 import javax.xml.validation.Validator;
 
+import org.apache.log4j.Logger;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
@@ -31,6 +32,10 @@ public class DocumentValidator {
     private static final SchemaFactory schemaFactory =
             SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
 
+    /** log4j logger. */
+    private static final Logger logger =
+            Logger.getLogger(DocumentValidator.class);
+    
     /** SAX parser. */
     private final SAXParser parser;
 
@@ -38,6 +43,11 @@ public class DocumentValidator {
 	private final Map<String, Validator> validators; 
 	
 	
+    //------------------------------------------------------------------------
+    //  Constructors.
+    //------------------------------------------------------------------------
+
+
 	/**
 	 * Constructor.
 	 */
@@ -47,14 +57,20 @@ public class DocumentValidator {
         try {
             parser = spf.newSAXParser();
         } catch (Exception e) {
-            throw new RuntimeException(
-                    "Could not instantiate SAX parser: " + e);
+            String msg = "Could not instantiate SAX parser";
+            logger.fatal(msg, e);
+            throw new RuntimeException(msg, e);
         }
         
 		validators = new HashMap<String, Validator>();
 	}
 	
 	
+    //------------------------------------------------------------------------
+    //  Public methods.
+    //------------------------------------------------------------------------
+
+
 	/**
 	 * Adds a schema.
 	 * 
@@ -71,7 +87,7 @@ public class DocumentValidator {
 	/**
 	 * Clears all schema's.
 	 */
-	public void clear() {
+	public void clearSchemas() {
 		validators.clear();
 	}
 	
@@ -84,32 +100,51 @@ public class DocumentValidator {
 	 * 
 	 * @return  true if the document is valid, otherwise false
 	 */
-	public boolean validateDocument(File file, boolean required) {
-		boolean isValid = false;
-		
-		String namespace = null;
+	public void validate(File doc, boolean required)
+	        throws XmldbException {
+	    long startTime = System.currentTimeMillis();
+	    
+		String namespace;
 		try {
-			namespace = getDocumentNamespace(file);
-			if (namespace != null) {
-				Validator validator = validators.get(namespace);
-				if (validator != null) {
-					try {
-						validator.validate(new StreamSource(file));
-						isValid = true;
-					} catch (Exception e) {
-						System.err.println(e);
-					}
-				} else {
-					//TODO: Unknown schema.
+			namespace = getDocumentNamespace(doc);
+        } catch (Exception e) {
+            String msg = String.format(
+                    "Invalid document: '%s': ", doc, e.getMessage());
+            logger.warn(msg);
+            throw new XmldbException(msg);
+        }
+			
+		if (namespace != null) {
+			Validator validator = validators.get(namespace);
+			if (validator != null) {
+				try {
+					validator.validate(new StreamSource(doc));
+					long duration = System.currentTimeMillis() - startTime;
+					logger.debug(String.format(
+				        "Document '%s' validated in %d ms", doc, duration));
+				} catch (Exception e) {
+					String msg = String.format(
+				        "Invalid document: '%s': %s", doc, e.getMessage());
+					logger.warn(msg);
+					throw new XmldbException(msg);
 				}
 			} else {
-				isValid = !required;
+			    if (required) {
+                    String msg = String.format(
+                            "Invalid document: '%s'; "
+                            + "no schema found for namespace '%s'",
+                            doc, namespace);
+                    throw new XmldbException(msg);
+			    }
 			}
-		} catch (Exception e) {
-			//TODO: Error parsing document.
+		} else {
+			if (required) {
+                String msg = String.format(
+                        "Invalid document: '%s'; no document namespace", doc);
+                logger.warn(msg);
+                throw new XmldbException(msg);
+			}
 		}
-		
-		return isValid;
 	}
 	
 	

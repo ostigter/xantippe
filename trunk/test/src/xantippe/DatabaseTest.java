@@ -28,8 +28,8 @@ public class DatabaseTest {
 	private static final String DATA_DIR = "test/data";
 	
 	private static final String LARGE_DATASET_DIR =
-			"D:/Temp/XML_docs/10000"; 
-//			"C:/LocalData/Temp/results/1000"; 
+//			"D:/Temp/XML_docs/1000"; 
+			"C:/LocalData/Temp/XML_docs/1000"; 
 	
 	private static final int BUFFER_SIZE = 8192;  // 8 kB
 
@@ -189,10 +189,8 @@ public class DatabaseTest {
 			database.shutdown();
 			
 		} catch (XmldbException e) {
-			logger.error(e);
 			Assert.fail(e.getMessage());
         } catch (IOException e) {
-            logger.error(e);
             Assert.fail(e.getMessage());
         }
 
@@ -224,7 +222,7 @@ public class DatabaseTest {
 			for (File file : dir.listFiles()) {
 				if (file.isFile()) {
 					Document doc =
-						col.createDocument(file.getName(), MediaType.XML);
+						col.createDocument(file.getName());
 					doc.setContent(file);
 					count++;
 					size += file.length();
@@ -239,7 +237,6 @@ public class DatabaseTest {
 			database.shutdown();
 
 		} catch (XmldbException e) {
-			logger.error(e);
 			Assert.fail(e.getMessage());
 		}
 
@@ -247,28 +244,39 @@ public class DatabaseTest {
 	}
 
 
-//	@Test
-//	public void validation() {
-//        logger.debug("Test suite 'validation' started.");
-//
-//        try {
-//            database.start();
-//
-//            Collection col = database.getRootCollection();
-//            
-//            File file = new File("test/docs/Foo.xsd");
-//            Document doc = col.createDocument(file.getName());
-//            doc.setContent(file);
-//            
-//            database.shutdown();
-//            
-//        } catch (XmldbException e) {
-//            logger.error(e);
-//            Assert.fail(e.getMessage());
-//        }
-//
-//        logger.debug("Test suite 'validation' finished.");
-//	}
+	@Test
+	public void validation() {
+        logger.debug("Test suite 'validation' started.");
+        
+        File file;
+        Document doc;
+
+        try {
+            database.start();
+
+            Collection col = database.getRootCollection();
+            
+            file = new File("test/schemas/TestResult_v1.0.xsd");
+            doc = col.createDocument(file.getName());
+            doc.setContent(file);
+            
+            file = new File("test/docs/TestResult_0001.xml");
+            doc = col.createDocument(file.getName());
+            doc.setContent(file);
+            
+            database.shutdown();
+            
+        } catch (XmldbException e) {
+            Assert.fail(e.getMessage());
+        }
+
+        logger.debug("Test suite 'validation' finished.");
+	}
+
+
+    //------------------------------------------------------------------------
+    //  Private methods.
+    //------------------------------------------------------------------------
 
 
     private static void assertEqual(InputStream is, File file) {

@@ -17,7 +17,7 @@
     </appender>
 
     <logger name="xantippe">
-        <level value="info"/>
+        <level value="debug"/>
     </logger>
 
     <logger name="xantippe.filestore">
