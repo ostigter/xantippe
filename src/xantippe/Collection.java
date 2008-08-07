@@ -211,4 +211,9 @@ public class Collection implements Comparable<Collection> {
     }
 
 
+	/* package */ ValidationMode getValidationMode() {
+		return ValidationMode.AUTO;
+	}
+	
+	
 }

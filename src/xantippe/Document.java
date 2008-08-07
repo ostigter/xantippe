@@ -146,14 +146,17 @@ public class Document implements Comparable<Document> {
 	
 	
 	public void setContent(File file) throws XmldbException {
-	    try {
-	        database.getFileStore().store(id, file);
-	        database.indexDocument(this);
-	    } catch (FileStoreException e) {
-	        String msg = "Could not store document: " + this;
-	        logger.error(msg, e);
-	        throw new XmldbException(msg, e);
-	    }
+    	if (mediaType == MediaType.SCHEMA) {
+    		try {
+    			database.getValidator().addSchema(file);
+    		} catch (Exception e) {
+    			String msg = "Invalid schema file";
+    			logger.error(msg, e);
+    			throw new XmldbException(msg, e);
+    		}
+    	}
+    	
+		storeDocument(file);
 	}
 	
 	
@@ -187,5 +190,25 @@ public class Document implements Comparable<Document> {
 		return id;
 	}
 	
+	
+    //------------------------------------------------------------------------
+    //  Package protected methods
+    //------------------------------------------------------------------------
+	
+	
+	private void storeDocument(File file) throws XmldbException {
+        if (mediaType == MediaType.XML) {
+	        database.indexDocument(this);
+        }
+        
+	    try {
+	        database.getFileStore().store(id, file);
+	    } catch (FileStoreException e) {
+	        String msg = "Could not store document: " + this;
+	        logger.error(msg, e);
+	        throw new XmldbException(msg, e);
+	    }
+	}
+    
 	
 }
