@@ -212,6 +212,7 @@ public class Collection implements Comparable<Collection> {
 
 
 	/* package */ ValidationMode getValidationMode() {
+	    //TODO: Validation configuration per collection (with inheritance)
 		return ValidationMode.AUTO;
 	}
 	

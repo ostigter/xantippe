@@ -2,7 +2,7 @@ package xantippe;
 
 
 /**
- * Document key using to find documents using indexes.
+ * Document key used to retrieve documents using indexes.
  * 
  * Basically a simple name/value combination.
  * 
