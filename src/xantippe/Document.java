@@ -154,6 +154,8 @@ public class Document implements Comparable<Document> {
     			logger.error(msg, e);
     			throw new XmldbException(msg, e);
     		}
+    	} else if (mediaType == MediaType.XML) {
+    	    database.getValidator().validate(file, false);
     	}
     	
 		storeDocument(file);
