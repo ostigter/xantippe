@@ -28,7 +28,8 @@ public class DatabaseTest {
 	private static final String DATA_DIR = "test/data";
 	
 	private static final String LARGE_DATASET_DIR =
-	        "C:/LocalData/Temp/results/1000"; 
+			"D:/Temp/XML_docs/10000"; 
+//			"C:/LocalData/Temp/results/1000"; 
 	
 	private static final int BUFFER_SIZE = 8192;  // 8 kB
 
@@ -201,49 +202,73 @@ public class DatabaseTest {
 	
 	@Test
 	public void manyDocuments() {
-        logger.debug("Test suite 'manyDocuments' started.");
+		logger.debug("Test suite 'manyDocuments' started.");
 
-        try {
-            database.start();
+		try {
+			database.start();
 
-            Collection col = database.getRootCollection();
-            
-            File dir = new File(LARGE_DATASET_DIR);
-            if (!dir.isDirectory() || !dir.canRead()) {
-                String msg = "Invalid dataset directory: " + dir;
-                logger.error(msg);
-                Assert.fail(msg);
-            }
+			Collection col = database.getRootCollection();
 
-            int count = 0;
-            long size = 0L;
-            
-            logger.info("Storing documents...");
-            long startTime = System.currentTimeMillis();
-            for (File file : dir.listFiles()) {
-                if (file.isFile()) {
-                    Document doc =
-                            col.createDocument(file.getName(), MediaType.XML);
-                    doc.setContent(file);
-                    count++;
-                    size += file.length();
-                }
-            }
-            double duration = (System.currentTimeMillis() - startTime) / 1000.0;
-            double speed = (size / (1024 * 1024)) / duration;
-            logger.info(String.format(Locale.US,
-                    "Stored %d documents in %.3f seconds (%.2f MB/s)",
-                    count, duration, speed));
-            
-            database.shutdown();
-            
-        } catch (XmldbException e) {
-            logger.error(e);
-            Assert.fail(e.getMessage());
-        }
+			File dir = new File(LARGE_DATASET_DIR);
+			if (!dir.isDirectory() || !dir.canRead()) {
+				String msg = "Invalid dataset directory: " + dir;
+				logger.error(msg);
+				Assert.fail(msg);
+			}
 
-        logger.debug("Test suite 'manyDocuments' finished.");
+			int count = 0;
+			long size = 0L;
+
+			logger.info("Storing documents...");
+			long startTime = System.currentTimeMillis();
+			for (File file : dir.listFiles()) {
+				if (file.isFile()) {
+					Document doc =
+						col.createDocument(file.getName(), MediaType.XML);
+					doc.setContent(file);
+					count++;
+					size += file.length();
+				}
+			}
+			double duration = (System.currentTimeMillis() - startTime) / 1000.0;
+			double speed = (size / (1024 * 1024)) / duration;
+			logger.info(String.format(Locale.US,
+					"Stored %d documents in %.3f seconds (%.2f MB/s)",
+					count, duration, speed));
+
+			database.shutdown();
+
+		} catch (XmldbException e) {
+			logger.error(e);
+			Assert.fail(e.getMessage());
+		}
+
+		logger.debug("Test suite 'manyDocuments' finished.");
 	}
+
+
+//	@Test
+//	public void validation() {
+//        logger.debug("Test suite 'validation' started.");
+//
+//        try {
+//            database.start();
+//
+//            Collection col = database.getRootCollection();
+//            
+//            File file = new File("test/docs/Foo.xsd");
+//            Document doc = col.createDocument(file.getName());
+//            doc.setContent(file);
+//            
+//            database.shutdown();
+//            
+//        } catch (XmldbException e) {
+//            logger.error(e);
+//            Assert.fail(e.getMessage());
+//        }
+//
+//        logger.debug("Test suite 'validation' finished.");
+//	}
 
 
     private static void assertEqual(InputStream is, File file) {

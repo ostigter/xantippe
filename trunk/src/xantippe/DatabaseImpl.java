@@ -49,6 +49,9 @@ public class DatabaseImpl implements Database {
     
     /** Next document ID. */
     private int nextId;
+    
+    /** Document validator. */
+    private DocumentValidator validator;
 
     /** Whether the database is running. */
     private boolean isRunning = false;
@@ -70,6 +73,8 @@ public class DatabaseImpl implements Database {
     	collections = new HashMap<Integer, Collection>();
     	documents = new HashMap<Integer, Document>();
         indexes = new HashMap<String, IndexValue>();
+        
+        validator = new DocumentValidator();
         
         logger.debug("Data directory: " + dataDir);
 		
@@ -266,12 +271,24 @@ public class DatabaseImpl implements Database {
     		String extention = fileName.substring(p + 1).toLowerCase();
     		if (extention.equals("xml")) {
     			mediaType = MediaType.XML;
+    		} else if (extention.equals("xsd")) { 
+    			mediaType = MediaType.SCHEMA;
     		} else if (extention.equals("txt")) { 
     			mediaType = MediaType.PLAIN_TEXT;
     		}
     	}
     	
     	return mediaType;
+    }
+    
+    
+    /* package */ boolean isSchemaFile(String fileName) {
+    	return fileName.toLowerCase().endsWith(".xsd");
+    }
+    
+    
+    /* package */ DocumentValidator getValidator() {
+    	return validator;
     }
     
     

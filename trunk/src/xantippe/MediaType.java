@@ -10,6 +10,8 @@ public enum MediaType {
 	
 	XML,
 	
+	SCHEMA,
+	
 	PLAIN_TEXT,
 	
 	BINARY,

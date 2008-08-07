@@ -1,4 +1,5 @@
-<Document>
+<?xml version="1.0" encoding="UTF-8"?>
+<foo:Document xmlns:foo="http://www.example.com/XMLSchema/Foo/v1.0">
   <Id>1</Id>
   <Type>Foo</Type>
   <Title>Foo-1</Title>
