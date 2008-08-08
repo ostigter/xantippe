@@ -9,6 +9,7 @@
     <sequence>
       <element name="Street" type="string"/>
       <element name="City" type="string"/>
+      <element name="State" type="string"/>
       <element name="ZipCode" type="string"/>
       <element name="Country" type="string"/>
     </sequence>

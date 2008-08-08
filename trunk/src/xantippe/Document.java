@@ -146,13 +146,37 @@ public class Document implements Comparable<Document> {
 	
 	
 	public void setContent(File file) throws XmldbException {
+	    if (file == null) {
+            throw new IllegalArgumentException("file is null");
+	    }
+	    
+	    if (!file.exists()) {
+            String msg = String.format("File not found: '%s'", file);
+	        logger.error(msg);
+	        throw new XmldbException(msg);
+	    }
+	    
+        if (!file.isFile()) {
+            String msg = String.format("Not a file: '%s'", file);
+            logger.error(msg);
+            throw new XmldbException(msg);
+        }
+        
+        if (!file.canRead()) {
+            String msg =
+                    String.format("No permission to read file: '%s'", file);
+            logger.error(msg);
+            throw new XmldbException(msg);
+        }
+        
     	if (mediaType == MediaType.SCHEMA) {
     		try {
     			database.getValidator().addSchema(file, id);
     		} catch (Exception e) {
-    			String msg = "Invalid schema file";
-    			logger.error(msg, e);
-    			throw new XmldbException(msg, e);
+    			String msg = String.format(
+    			        "Invalid schema file: '%s': %s", file, e.getMessage());
+    			logger.error(msg);
+    			throw new XmldbException(msg);
     		}
     	} else if (mediaType == MediaType.XML) {
     		//TODO: Determine correct validation mode.
