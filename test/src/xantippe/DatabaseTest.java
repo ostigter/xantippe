@@ -255,23 +255,27 @@ public class DatabaseTest {
 
             Collection col = database.getRootCollection();
             
+            // Self-contained schema.
+            
             file = new File("test/schemas/Address_v1.0.xsd");
             doc = col.createDocument(file.getName());
             doc.setContent(file);
-            
-            file = new File("test/docs/Address.xml");
+            file = new File("test/docs/Address_0001.xml");
+            doc = col.createDocument(file.getName());
+            doc.setContent(file);
+            file = new File("test/docs/Address_0002.xml");
             doc = col.createDocument(file.getName());
             doc.setContent(file);
             
-            file = new File("test/schemas/Generic_v1.0.xsd");
-            doc = col.createDocument(file.getName());
-            doc.setContent(file);
+            // Multi-file schema (with 'include' statement).
             
-            file = new File("test/schemas/TestResult_v1.0.xsd");
-            doc = col.createDocument(file.getName());
-            doc.setContent(file);
-            
-            //FIXME: Schema's that 'include' others.
+            //FIXME: Schema's with 'include' statements.
+//            file = new File("test/schemas/Generic_v1.0.xsd");
+//            doc = col.createDocument(file.getName());
+//            doc.setContent(file);
+//            file = new File("test/schemas/TestResult_v1.0.xsd");
+//            doc = col.createDocument(file.getName());
+//            doc.setContent(file);
 //            file = new File("test/docs/TestResult_0001.xml");
 //            doc = col.createDocument(file.getName());
 //            doc.setContent(file);

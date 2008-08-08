@@ -127,7 +127,12 @@ public class DocumentValidator {
 		String namespace;
 		try {
 			namespace = getDocumentNamespace(file);
-        } catch (Exception e) {
+		} catch (IOException e) {
+            String msg = String.format(
+                    "Error reading file: '%s': ", file, e.getMessage());
+            logger.error(msg);
+            throw new XmldbException(msg);
+        } catch (SAXException e) {
             String msg = String.format(
                     "Invalid document: '%s': ", file, e.getMessage());
             logger.warn(msg);
