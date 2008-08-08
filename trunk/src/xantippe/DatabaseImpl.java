@@ -74,7 +74,7 @@ public class DatabaseImpl implements Database {
     	documents = new HashMap<Integer, Document>();
         indexes = new HashMap<String, IndexValue>();
         
-        validator = new DocumentValidator();
+        validator = new DocumentValidator(this);
         
         logger.debug("Data directory: " + dataDir);
 		

@@ -148,14 +148,16 @@ public class Document implements Comparable<Document> {
 	public void setContent(File file) throws XmldbException {
     	if (mediaType == MediaType.SCHEMA) {
     		try {
-    			database.getValidator().addSchema(file);
+    			database.getValidator().addSchema(file, id);
     		} catch (Exception e) {
     			String msg = "Invalid schema file";
     			logger.error(msg, e);
     			throw new XmldbException(msg, e);
     		}
     	} else if (mediaType == MediaType.XML) {
-    	    database.getValidator().validate(file, false);
+    		//TODO: Determine correct validation mode.
+    		boolean required = false;
+    	    database.getValidator().validate(file, required);
     	}
     	
 		storeDocument(file);

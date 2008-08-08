@@ -162,8 +162,15 @@ public class RetrieveStream extends InputStream {
         if (length > available()) {
             length = available();
         }
-        int read = dataFile.read(buffer, offset, length);
-        position += read;
+        
+        int read;
+        if (length > 0) {
+            read = dataFile.read(buffer, offset, length);
+            position += read;
+        } else {
+        	read = -1;
+        }
+        
         return read;
     }
 

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<a:Address xmlns:a="http://www.example.com/XMLSchema/Address/v1.0">
+  <Street>Amienslaan 35</Street>
+  <City>Eindhoven</City>
+  <ZipCode>5627 PN</ZipCode>
+  <Country>Netherlands</Country>
+</a:Address>

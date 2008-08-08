@@ -6,7 +6,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.Locale;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
@@ -27,9 +26,9 @@ public class DatabaseTest {
 
 	private static final String DATA_DIR = "test/data";
 	
-	private static final String LARGE_DATASET_DIR =
+//	private static final String LARGE_DATASET_DIR =
 //			"D:/Temp/XML_docs/1000"; 
-			"C:/LocalData/Temp/XML_docs/1000"; 
+//			"C:/LocalData/Temp/XML_docs/1000"; 
 	
 	private static final int BUFFER_SIZE = 8192;  // 8 kB
 
@@ -71,8 +70,8 @@ public class DatabaseTest {
 
 
 	@Test
-	public void general() {
-        logger.debug("Test suite 'general' started.");
+	public void basics() {
+        logger.debug("Test suite 'basics' started.");
 
         File file;
         
@@ -194,54 +193,54 @@ public class DatabaseTest {
             Assert.fail(e.getMessage());
         }
 
-		logger.debug("Test suite 'general' finished.");
+		logger.debug("Test suite 'basics' finished.");
 	}
 	
 	
-	@Test
-	public void manyDocuments() {
-		logger.debug("Test suite 'manyDocuments' started.");
-
-		try {
-			database.start();
-
-			Collection col = database.getRootCollection();
-
-			File dir = new File(LARGE_DATASET_DIR);
-			if (!dir.isDirectory() || !dir.canRead()) {
-				String msg = "Invalid dataset directory: " + dir;
-				logger.error(msg);
-				Assert.fail(msg);
-			}
-
-			int count = 0;
-			long size = 0L;
-
-			logger.info("Storing documents...");
-			long startTime = System.currentTimeMillis();
-			for (File file : dir.listFiles()) {
-				if (file.isFile()) {
-					Document doc =
-						col.createDocument(file.getName());
-					doc.setContent(file);
-					count++;
-					size += file.length();
-				}
-			}
-			double duration = (System.currentTimeMillis() - startTime) / 1000.0;
-			double speed = (size / (1024 * 1024)) / duration;
-			logger.info(String.format(Locale.US,
-					"Stored %d documents in %.3f seconds (%.2f MB/s)",
-					count, duration, speed));
-
-			database.shutdown();
-
-		} catch (XmldbException e) {
-			Assert.fail(e.getMessage());
-		}
-
-		logger.debug("Test suite 'manyDocuments' finished.");
-	}
+//	@Test
+//	public void manyDocuments() {
+//		logger.debug("Test suite 'manyDocuments' started.");
+//
+//		try {
+//			database.start();
+//
+//			Collection col = database.getRootCollection();
+//
+//			File dir = new File(LARGE_DATASET_DIR);
+//			if (!dir.isDirectory() || !dir.canRead()) {
+//				String msg = "Invalid dataset directory: " + dir;
+//				logger.error(msg);
+//				Assert.fail(msg);
+//			}
+//
+//			int count = 0;
+//			long size = 0L;
+//
+//			logger.info("Storing documents...");
+//			long startTime = System.currentTimeMillis();
+//			for (File file : dir.listFiles()) {
+//				if (file.isFile()) {
+//					Document doc =
+//						col.createDocument(file.getName());
+//					doc.setContent(file);
+//					count++;
+//					size += file.length();
+//				}
+//			}
+//			double duration = (System.currentTimeMillis() - startTime) / 1000.0;
+//			double speed = (size / (1024 * 1024)) / duration;
+//			logger.info(String.format(Locale.US,
+//					"Stored %d documents in %.3f seconds (%.2f MB/s)",
+//					count, duration, speed));
+//
+//			database.shutdown();
+//
+//		} catch (XmldbException e) {
+//			Assert.fail(e.getMessage());
+//		}
+//
+//		logger.debug("Test suite 'manyDocuments' finished.");
+//	}
 
 
 	@Test
@@ -256,13 +255,26 @@ public class DatabaseTest {
 
             Collection col = database.getRootCollection();
             
+            file = new File("test/schemas/Address_v1.0.xsd");
+            doc = col.createDocument(file.getName());
+            doc.setContent(file);
+            
+            file = new File("test/docs/Address.xml");
+            doc = col.createDocument(file.getName());
+            doc.setContent(file);
+            
+            file = new File("test/schemas/Generic_v1.0.xsd");
+            doc = col.createDocument(file.getName());
+            doc.setContent(file);
+            
             file = new File("test/schemas/TestResult_v1.0.xsd");
             doc = col.createDocument(file.getName());
             doc.setContent(file);
             
-            file = new File("test/docs/TestResult_0001.xml");
-            doc = col.createDocument(file.getName());
-            doc.setContent(file);
+            //FIXME: Schema's that 'include' others.
+//            file = new File("test/docs/TestResult_0001.xml");
+//            doc = col.createDocument(file.getName());
+//            doc.setContent(file);
             
             database.shutdown();
             
