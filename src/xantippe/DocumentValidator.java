@@ -36,11 +36,17 @@ public class DocumentValidator {
     private static final Logger logger =
             Logger.getLogger(DocumentValidator.class);
     
+	/** Back-reference to the database. */
+	private DatabaseImpl database;
+
     /** SAX parser. */
     private final SAXParser parser;
 
+	/** Schema files mapped by the schema namespace. */
+	private final Map<String, Integer> schemaFiles; 
+	
 	/** Cached Validator objects mapped by their schema namespace. */
-	private final Map<String, Validator> validators; 
+	private final Map<String, Validator> validators;
 	
 	
     //------------------------------------------------------------------------
@@ -51,7 +57,7 @@ public class DocumentValidator {
 	/**
 	 * Constructor.
 	 */
-	/* package */ DocumentValidator() {
+	/* package */ DocumentValidator(DatabaseImpl database) {
         SAXParserFactory spf = SAXParserFactory.newInstance();
         spf.setNamespaceAware(true);
         try {
@@ -62,6 +68,9 @@ public class DocumentValidator {
             throw new RuntimeException(msg, e);
         }
         
+	    this.database = database;
+	    
+		schemaFiles = new HashMap<String, Integer>();
 		validators = new HashMap<String, Validator>();
 	}
 	
@@ -72,23 +81,34 @@ public class DocumentValidator {
 
 
 	/**
-	 * Adds a schema.
-	 * 
-	 * @param  file  the schema file
+	 * Clears all schema namespaces and cached Validator objects.
 	 */
-	public void addSchema(File file) throws IOException, SAXException {
-		String namespace = getTargetNamespaceFromSchema(file);
-		Schema schema = schemaFactory.newSchema(file);
-		Validator validator = schema.newValidator();
-		validators.put(namespace, validator);
+	public void clearSchemas() {
+		schemaFiles.clear();
+		validators.clear();
 	}
 	
 	
 	/**
-	 * Clears all schema's.
+	 * Adds a schema.
+	 * 
+	 * @param  file   the schema file
+	 * @param  docId  the document ID 
 	 */
-	public void clearSchemas() {
-		validators.clear();
+	public void addSchema(File file, int docId)
+			throws IOException, SAXException, XmldbException {
+		String namespace = getTargetNamespaceFromSchema(file);
+		schemaFiles.put(namespace, docId);
+		logger.debug(String.format(
+				"Added schema with namespace '%s'", namespace));
+//		try {
+//			// Validate schema by compiling it, but do not keep in cache.
+//			getValidator(namespace, false);
+//		} catch (XmldbException e) {
+//			// Invalid schema; remove from table.
+//			schemaFiles.remove(namespace);
+//			throw e;
+//		}
 	}
 	
 	
@@ -100,31 +120,31 @@ public class DocumentValidator {
 	 * 
 	 * @return  true if the document is valid, otherwise false
 	 */
-	public void validate(File doc, boolean required)
+	public void validate(File file, boolean required)
 	        throws XmldbException {
 	    long startTime = System.currentTimeMillis();
 	    
 		String namespace;
 		try {
-			namespace = getDocumentNamespace(doc);
+			namespace = getDocumentNamespace(file);
         } catch (Exception e) {
             String msg = String.format(
-                    "Invalid document: '%s': ", doc, e.getMessage());
+                    "Invalid document: '%s': ", file, e.getMessage());
             logger.warn(msg);
             throw new XmldbException(msg);
         }
 			
-		if (namespace != null) {
-			Validator validator = validators.get(namespace);
+		if (namespace != null && namespace.length() != 0) {
+			Validator validator = getValidator(namespace, true);
 			if (validator != null) {
 				try {
-					validator.validate(new StreamSource(doc));
+					validator.validate(new StreamSource(file));
 					long duration = System.currentTimeMillis() - startTime;
 					logger.debug(String.format(
-				        "Document '%s' validated in %d ms", doc, duration));
+				        "Document '%s' validated in %d ms", file, duration));
 				} catch (Exception e) {
 					String msg = String.format(
-				        "Invalid document: '%s': %s", doc, e.getMessage());
+				        "Invalid document: '%s': %s", file, e.getMessage());
 					logger.warn(msg);
 					throw new XmldbException(msg);
 				}
@@ -133,14 +153,15 @@ public class DocumentValidator {
                     String msg = String.format(
                             "Invalid document: '%s'; "
                             + "no schema found for namespace '%s'",
-                            doc, namespace);
+                            file, namespace);
+                    logger.warn(msg);
                     throw new XmldbException(msg);
 			    }
 			}
 		} else {
 			if (required) {
                 String msg = String.format(
-                        "Invalid document: '%s'; no document namespace", doc);
+                		"Invalid document: '%s'; no document namespace", file);
                 logger.warn(msg);
                 throw new XmldbException(msg);
 			}
@@ -153,6 +174,55 @@ public class DocumentValidator {
     //------------------------------------------------------------------------
 
 
+	private Validator getValidator(String namespace, boolean keepInCache)
+			throws XmldbException {
+		logger.debug("Get schema for namespace '" + namespace + "'");
+		
+		// Try the cache first.
+		Validator validator = validators.get(namespace);
+		if (validator == null) {
+			// Find matching schema file.
+			Integer docId =  schemaFiles.get(namespace);
+			if (docId != null) {
+				// Retrieve schema file.
+				logger.debug("Retrieve schema file");
+				Document doc = database.getDocument(docId);
+				if (doc != null) {
+					// Compile schema.
+					long startTime = System.currentTimeMillis();
+					try {
+						Schema schema = schemaFactory.newSchema(
+								new StreamSource(doc.getContent()));
+						validator = schema.newValidator();
+						long duration = System.currentTimeMillis() - startTime;
+						logger.debug(String.format(
+								"Schema compiled in %d ms", duration));
+						if (keepInCache) {
+							validators.put(namespace, validator);
+						}
+					} catch (SAXException e) {
+						String msg = String.format(
+								"Error parsing schema file '%s': %s",
+								doc, e.getMessage());
+						logger.error(msg);
+						throw new XmldbException(msg);
+					}
+				} else {
+					String msg = "Stored schema file no longer found";
+					logger.error(msg);
+					throw new XmldbException(msg);
+				}
+			} else {
+				logger.debug("No matching schema file found (ignored)");
+			}
+		} else {
+			logger.debug("Precompiled schema found");
+		}
+		
+		return validator;
+	}
+	
+	
     /**
      * Returns the target namespace from a schema file.
      *

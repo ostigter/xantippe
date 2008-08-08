@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <schema xmlns="http://www.w3.org/2001/XMLSchema"
     xmlns:gen="http://www.example.com/XMLSchema/Generic/v1.0"
     targetNamespace="http://www.example.com/XMLSchema/Generic/v1.0">

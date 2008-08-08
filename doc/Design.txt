@@ -115,16 +115,30 @@ Index (XML):
   Type (string, integer, date)
 
 Examples:
-  {"DocumentId",   "/Header/Document/Id", Index.STRING)
-  ("DocumentType", "/Header/Document/@type", Index.STRING)
-  ("OrderNr",      "/Body/Order/Number"
+  {"DocumentId",   "/Header/Document/Id", IndexType.STRING)
+  ("DocumentType", "/Header/Document/@type", IndexType.STRING)
+  ("OrderNr",      "/Body/Order/Number", IndexType.INTEGER)
+  ("Created",      "/Header/Document/Created", IndexType.DATE)
   
 
 Configuration file
 ------------------
 
 <?xml version="1.0" encoding="UTF-8"?>
-<Xantippe xmlns="urn:xantippe">
+<c:Configuration xmlns:c="http://www.xantippe.org/XMLSchema/Configuration/v1.0">
+
   <Database dir="data"/>
-  <WebDav enabled="true" port="5000"/>
-</Xantippe>
+  
+  <Validation default="off">
+    <Collection uri="/db/data"         validation="auto"/>
+    <Collection uri="/db/data/results" validation="required"/>
+    <Collection uri="/db/data/tests"   validation="off"/>
+    <Collection uri="/db/schemas"      validation="default"/>
+    <Collection uri="/db/temp"         validation="default"/>
+  </Validation>
+  
+  <WebDavInterface enabled="true" port="8081"/>
+  
+  <RestInterface enabled="true" port="8081"/>
+  
+</c:Xantippe>
