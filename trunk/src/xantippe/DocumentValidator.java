@@ -3,6 +3,8 @@ package xantippe;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.Reader;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -15,6 +17,8 @@ import javax.xml.validation.SchemaFactory;
 import javax.xml.validation.Validator;
 
 import org.apache.log4j.Logger;
+import org.w3c.dom.ls.LSInput;
+import org.w3c.dom.ls.LSResourceResolver;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
@@ -28,19 +32,13 @@ import org.xml.sax.helpers.DefaultHandler;
 public class DocumentValidator {
 	
 	
-    /** Schema factory for WC3 XML schema's with namespaces. */
-    private static final SchemaFactory schemaFactory =
-            SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
-
     /** log4j logger. */
     private static final Logger logger =
             Logger.getLogger(DocumentValidator.class);
     
-	/** Back-reference to the database. */
-	private DatabaseImpl database;
-
-    /** SAX parser. */
-    private final SAXParser parser;
+    /** Schema factory for WC3 XML schema's with namespaces. */
+    private final SchemaFactory schemaFactory =
+            SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
 
 	/** Schema files mapped by the schema namespace. */
 	private final Map<String, Integer> schemaFiles; 
@@ -48,7 +46,12 @@ public class DocumentValidator {
 	/** Cached Validator objects mapped by their schema namespace. */
 	private final Map<String, Validator> validators;
 	
-	
+    /** SAX parser. */
+    private final SAXParser parser;
+    
+	/** Back-reference to the database. */
+	private final DatabaseImpl database;
+
     //------------------------------------------------------------------------
     //  Constructors.
     //------------------------------------------------------------------------
@@ -58,6 +61,10 @@ public class DocumentValidator {
 	 * Constructor.
 	 */
 	/* package */ DocumentValidator(DatabaseImpl database) {
+	    this.database = database;
+	    
+		schemaFactory.setResourceResolver(new XmldbResourceResolver());
+		
         SAXParserFactory spf = SAXParserFactory.newInstance();
         spf.setNamespaceAware(true);
         try {
@@ -68,8 +75,6 @@ public class DocumentValidator {
             throw new RuntimeException(msg, e);
         }
         
-	    this.database = database;
-	    
 		schemaFiles = new HashMap<String, Integer>();
 		validators = new HashMap<String, Validator>();
 	}
@@ -101,6 +106,7 @@ public class DocumentValidator {
 		schemaFiles.put(namespace, docId);
 		logger.debug(String.format(
 				"Added schema with namespace '%s'", namespace));
+		//TODO: Validate schema before storing it.
 //		try {
 //			// Validate schema by compiling it, but do not keep in cache.
 //			getValidator(namespace, false);
@@ -120,8 +126,7 @@ public class DocumentValidator {
 	 * 
 	 * @return  true if the document is valid, otherwise false
 	 */
-	public void validate(File file, boolean required)
-	        throws XmldbException {
+	public void validate(File file, boolean required) throws XmldbException {
 	    long startTime = System.currentTimeMillis();
 	    
 		String namespace;
@@ -189,8 +194,6 @@ public class DocumentValidator {
 			// Find matching schema file.
 			Integer docId =  schemaFiles.get(namespace);
 			if (docId != null) {
-				// Retrieve schema file.
-				logger.debug("Retrieve schema file");
 				Document doc = database.getDocument(docId);
 				if (doc != null) {
 					// Compile schema.
@@ -203,6 +206,7 @@ public class DocumentValidator {
 						logger.debug(String.format(
 								"Schema compiled in %d ms", duration));
 						if (keepInCache) {
+							// Store compiled schema in cache. 
 							validators.put(namespace, validator);
 						}
 					} catch (SAXException e) {
@@ -381,5 +385,173 @@ public class DocumentValidator {
 
     }
 
+
+    //------------------------------------------------------------------------
+    
+    
+    /**
+     * Resource resolver to retrieve resources by database URI's.
+     */
+    private class XmldbResourceResolver implements LSResourceResolver {
+    	
+    	
+    	private static final String SCHEMA_TYPE =
+				"http://www.w3.org/2001/XMLSchema";
+    	
+	
+    	public LSInput resolveResource(String type, String namespace,
+    			String publicId, String systemId, String baseUri) {
+    		LSInput input = null;
+    		
+//    		logger.debug("type      = " + type);
+//    		logger.debug("namespace = " + namespace);
+//    		logger.debug("publicId  = " + publicId);
+//    		logger.debug("systemId  = " + systemId);
+//    		logger.debug("baseUri   = " + baseUri);
+    		
+    		if (type.equals(SCHEMA_TYPE)) {
+    			logger.debug(String.format(
+    					"Retrieve schema with namespace '%s'", namespace));
+        		Integer docId = schemaFiles.get(namespace);
+        		if (docId != null) {
+            		Document doc = database.getDocument(docId);
+            		if (doc != null) {
+            			try {
+            				InputStream is = doc.getContent();
+            				if (is != null) {
+            		    		input = new XmldbResourceInput();
+            		    		input.setByteStream(is);
+            				}
+            			} catch (XmldbException e) {
+            				String msg = "Error retrieving schema file: "
+            						+ e.getMessage();
+            				logger.error(msg);
+            			}
+            		} else {
+        				String msg = String.format(
+        						"Schema with namespace '%s' not found",
+        						namespace);
+        				logger.error(msg);
+            		}
+        		} else {
+    				String msg = String.format(
+    						"Unknown schema with namespace '%s'", namespace);
+    				logger.error(msg);
+        		}
+    		} else {
+    			String msg =
+    					String.format("Unexpected resource type: '%s'", type);
+    			logger.error(msg);
+    		}
+    		
+			return input;
+		}
+    	
+    	
+    }
+    
+    
+    //------------------------------------------------------------------------
+    
+    
+    /**
+     * Resource input to retrieve schema's by their namespace from the
+     * database as byte stream.  
+     */
+    private class XmldbResourceInput implements LSInput {
+    	
+    	
+    	private InputStream is;
+    	
+    	
+		public String getPublicId() {
+			// Empty implementation.
+			return null;
+		}
+
+
+		public void setPublicId(String publicId) {
+			// Empty implementation.
+		}
+
+
+		public String getSystemId() {
+			// Empty implementation.
+			return null;
+		}
+
+		
+		public void setSystemId(String systemId) {
+			// Empty implementation.
+		}
+    	
+
+		public String getBaseURI() {
+			// Empty implementation.
+			return null;
+		}
+
+
+		public void setBaseURI(String baseUri) {
+			// Empty implementation.
+		}
+
+
+		public InputStream getByteStream() {
+			return is;
+		}
+
+
+		public void setByteStream(InputStream is) {
+			this.is = is;
+		}
+
+
+		public boolean getCertifiedText() {
+			// Not supported.
+			return false;
+		}
+
+		
+		public void setCertifiedText(boolean isCertifiedText) {
+			// Empty implementation.
+		}
+
+
+		public Reader getCharacterStream() {
+			// Empty implementation.
+			return null;
+		}
+
+		
+		public void setCharacterStream(Reader reader) {
+			// Empty implementation.
+		}
+
+
+		public String getEncoding() {
+			// Empty implementation.
+			return null;
+		}
+
+
+		public void setEncoding(String encoding) {
+			// Empty implementation.
+		}
+
+
+		public String getStringData() {
+			// Empty implementation.
+			return null;
+		}
+
+		
+		public void setStringData(String stringData) {
+			// Empty implementation.
+		}
+
+
+    }
+    	
 
 }
