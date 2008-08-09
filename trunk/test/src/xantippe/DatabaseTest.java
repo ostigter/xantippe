@@ -17,7 +17,7 @@ import org.junit.Test;
 
 
 /**
- * Test driver for the database.
+ * Test suite for the database.
  * 
  * @author Oscar Stigter
  */
@@ -60,7 +60,7 @@ public class DatabaseTest {
 
 	@After
 	public void after() {
-        Util.deleteFile(DATA_DIR);
+//        Util.deleteFile(DATA_DIR);
 	}
 
 
@@ -157,22 +157,6 @@ public class DatabaseTest {
 			os.write("<Document>\n  <Id>3</Id>\n  <Type>Bar</Type>\n</Document>".getBytes());
 			os.close();
 			
-//			doc = fooCol.createDocument("osm_0001.xml");
-//			doc.setKey("DocumentId", 4);
-//			doc.setKey("DocumentType", "OnlineStreetMap");
-//            file = new File("test/docs/osm_0001.xml");
-//			doc.setContent(file);
-//            assertEqual(doc.getContent(), file);
-//
-//            doc = fooCol.createDocument("osm_0002.xml");
-//            doc.setKey("DocumentId", 5);
-//            doc.setKey("DocumentType", "OnlineStreetMap");
-//            file = new File("test/docs/osm_0002.xml");
-//            doc.setContent(file);
-//            assertEqual(doc.getContent(), file);
-            
-//			database.print();
-            
 			// Find documents by keys.
 			Key[] keys = new Key[] {
 					new Key("DocumentType", "Foo"),

@@ -14,12 +14,19 @@ import org.junit.Test;
 import xantippe.Util;
 
 
+/**
+ * Test suite for the <code>FileStore</code> class.
+ * 
+ * @author Oscar Stigter
+ */
 public class FileStoreTest {
 	
 
-    private static final String DATA_DIR = "test/data";
+	/** Temporary database directory. */ 
+	private static final String DATA_DIR = "test/data";
 
-    private static final String DOCS_DIR = "test/docs";
+    /** Directory with input documents. */
+	private static final String DOCS_DIR = "test/docs";
     
 	
     //------------------------------------------------------------------------
@@ -64,21 +71,23 @@ public class FileStoreTest {
             // Retrieve file.
             InputStream is = store.retrieve(1);
             Assert.assertNotNull(is);
-            Assert.assertEquals(83, is.available());
+            Assert.assertEquals(181, is.available());
             Assert.assertEquals('<', (char) is.read());
-            Assert.assertEquals(82, is.available());
-            Assert.assertEquals('D', (char) is.read());
-            Assert.assertEquals(81, is.available());
-            Assert.assertEquals('o', (char) is.read());
-            Assert.assertEquals(80, is.available());
-            Assert.assertEquals('c', (char) is.read());
-            Assert.assertEquals(79, is.available());
-            byte[] buffer = new byte[79];
-            int read = is.read(buffer, 0, 6);
-            Assert.assertEquals(6, read);
-            Assert.assertEquals("ument>", new String(buffer, 0, read));
+            Assert.assertEquals(180, is.available());
+            Assert.assertEquals('?', (char) is.read());
+            Assert.assertEquals(179, is.available());
+            Assert.assertEquals('x', (char) is.read());
+            Assert.assertEquals(178, is.available());
+            Assert.assertEquals('m', (char) is.read());
+            Assert.assertEquals(177, is.available());
+            Assert.assertEquals('l', (char) is.read());
+            Assert.assertEquals(176, is.available());
+            byte[] buffer = new byte[176];
+            int read = is.read(buffer, 0, 8);
+            Assert.assertEquals(8, read);
+            Assert.assertEquals(" version", new String(buffer, 0, read));
             read = is.read(buffer);
-            Assert.assertEquals(73, read);
+            Assert.assertEquals(168, read);
             is.close();
             
 			// Add file.
@@ -98,53 +107,36 @@ public class FileStoreTest {
 			Assert.assertEquals(3, store.size());
             assertEqual(store.retrieve(3), file);
 			
-            // Add file.
-            file = new File(DOCS_DIR + "/osm_0002.xml");
-            store.store(4, file);
-            Assert.assertEquals(4, store.size());
-            assertEqual(store.retrieve(4), file);
-            
-//            // Add file.
-//            inFile = new File(DOCS_DIR + "/osm_0001.xml");
-//            store.store(4, inFile);
-//            Assert.assertEquals(4, store.size());
-//            outFile = new File("test/docs/osm_0001-out.xml"); 
-//            writeInputStreamToFile(store.retrieve(1), outFile);
-//            assertEqual(inFile, outFile);
-            
-//			// Delete file.
-//			store.delete(2);
-//			Assert.assertEquals(2, store.size());
-//			
-//			// Delete all files.
-//			store.deleteAll();
-//			Assert.assertEquals(0, store.size());
+			// Delete file.
+			store.delete(2);
+			Assert.assertEquals(2, store.size());
+			
+			// Delete all files.
+			store.deleteAll();
+			Assert.assertEquals(0, store.size());
 			
 			store.shutdown();
 			
 		} catch (FileStoreException e) {
-		    System.err.println(e);
 			Assert.fail(e.getMessage());
         } catch (IOException e) {
-            System.err.println(e);
             Assert.fail(e.getMessage());
         }
 	}
 	
 	
-//	private static void writeInputStreamToFile(InputStream is, File file)
-//	        throws IOException {
-//	    OutputStream os = new FileOutputStream(file);
-//	    byte[] buffer = new byte[8192];
-//	    int bytesRead;
-//	    while ((bytesRead = is.read(buffer)) > 0) {
-//	        os.write(buffer, 0, bytesRead);
-//	    }
-//	    os.close();
-//	    is.close();
-//	}
-	
-	
+    //------------------------------------------------------------------------
+    //  Private methods
+    //------------------------------------------------------------------------
+    
+    
+	/**
+	 * Asserts that the contents of the specified byte stream is equal to that
+	 * of the specified file.
+	 * 
+	 *  @param  is    the byte stream
+	 *  @param  file  the file
+	 */
 	private static void assertEqual(InputStream is, File file) {
 	    try {
     	    InputStream is2 = new FileInputStream(file);

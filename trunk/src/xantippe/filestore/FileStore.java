@@ -67,7 +67,7 @@ public class FileStore {
 	private boolean isRunning = false;
     
     /** Database directory. */
-    private String dataDirectory;
+    private String dataDir;
     
     /** Data file with the document contents. */ 
     private RandomAccessFile dataFile;
@@ -83,8 +83,8 @@ public class FileStore {
     }
     
 
-    public FileStore(String dataDirectory) {
-        this.dataDirectory = dataDirectory;
+    public FileStore(String dataDir) {
+        this.dataDir = dataDir;
         entries = new TreeMap<Integer, FileEntry>();
     }
     
@@ -105,30 +105,34 @@ public class FileStore {
             
             try {
                 // Create data directory.
-                File dir = new File(dataDirectory);
+                File dir = new File(dataDir);
                 if (!dir.exists()) {
                     dir.mkdirs();
                 }
             } catch (Exception e) {
-                throw new FileStoreException(
-                        "Could not create data directory: " + dataDirectory, e);
+            	String msg = String.format(
+            			"Could not create data directory '%s': %s",
+            			dataDir, e.getMessage());
+                throw new FileStoreException(msg);
             }
             
             try {
                 // Read index file.
                 readIndexFile();
             } catch (IOException e) {
-                throw new FileStoreException(
-                        "Could not read index file: " + INDEX_FILE, e);
+            	String msg = String.format("Error reading file '%s': %s",
+            			INDEX_FILE, e.getMessage());
+                throw new FileStoreException(msg);
             }
             
             try {
                 // Open data file.
                 dataFile = new RandomAccessFile(
-                        dataDirectory + '/' + DATA_FILE, "rw");
+                		dataDir + '/' + DATA_FILE, "rw");
             } catch (IOException e) {
-                throw new FileStoreException(
-                        "Could not open data file: " + DATA_FILE, e);
+            	String msg = String.format("Error openen data file '%s': %s",
+            			DATA_FILE, e.getMessage());
+                throw new FileStoreException(msg);
             }
 
             isRunning = true;
@@ -225,7 +229,7 @@ public class FileStore {
                 throw new FileStoreException(msg, e);
             }
         } else {
-            throw new FileStoreException("FileStore not started");
+            throw new FileStoreException("FileStore not running");
         }
     }
     
@@ -261,14 +265,14 @@ public class FileStore {
                 throw new FileStoreException(msg);
             }
         } else {
-            throw new FileStoreException("FileStore not started");
+            throw new FileStoreException("FileStore not running");
         }
         
         return is;
     }
     
     
-    public void delete(int id) {
+    public void delete(int id) throws FileStoreException {
         if (isRunning) {
             FileEntry entry = entries.get(id);
             if (entry != null) {
@@ -280,7 +284,7 @@ public class FileStore {
             	logger.warn("WARNING: Entry with ID " + id + " not found");
             }
         } else {
-            logger.error("ERROR: Not started.");
+            throw new FileStoreException("FileStore not running");
         }
     }
     
@@ -288,31 +292,41 @@ public class FileStore {
     /**
      * Deletes ALL files.
      */
-    public void deleteAll() {
-        entries.clear();
-        
-        sync();
-        
-        try {
-            dataFile.setLength(0L);
-        } catch (IOException e) {
-            String msg = "Error clearing data file";
-            logger.error(msg, e);
-        }
-        
-        logger.debug("Deleted all entries.");
+    public void deleteAll() throws FileStoreException {
+    	if (isRunning) {
+	        entries.clear();
+	        
+	        sync();
+	        
+	        try {
+	            dataFile.setLength(0L);
+	        } catch (IOException e) {
+	            String msg = "Error clearing data file";
+	            logger.error(msg, e);
+	        }
+	        
+	        logger.debug("Deleted all entries.");
+    	} else {
+            throw new FileStoreException("FileStore not running");
+    	}
     }
     
 
     /**
      * Writes any volatile meta-data to disk.
      */
-    public void sync() {
-        logger.debug("Sync");
-    	try {
-    		writeIndexFile();
-    	} catch (IOException e) {
-    		logger.error("Error sync'ing to disk", e);
+    public void sync() throws FileStoreException {
+    	if (isRunning) {
+	        logger.debug("Sync");
+	    	try {
+	    		writeIndexFile();
+	    	} catch (IOException e) {
+	    		String msg = "Error sync'ing to disk: " + e.getMessage();
+	    		logger.error(msg);
+	    		throw new FileStoreException(msg);
+	    	}
+    	} else {
+            throw new FileStoreException("FileStore not running");
     	}
     }
   
@@ -321,17 +335,19 @@ public class FileStore {
      * Logs a message showing the disk size usage.
      */
     public void printSizeInfo() {
-        long stored = getStoredSpace();
-        long used = getUsedSpace();
-        long wasted = stored - used;
-        double wastedPerc = 0.0;
-        if (stored > 0) {
-            wastedPerc = ((double) wasted / (double) stored) * 100.0;
-        }
-        logger.info(String.format(Locale.US,
-        		"Disk usage:  Size: %s, Used: %s, Wasted: %s (%.1f %%)",
-                diskSizeToString(stored), diskSizeToString(used),
-                diskSizeToString(wasted), wastedPerc));
+    	if (isRunning) {
+	        long stored = getStoredSpace();
+	        long used = getUsedSpace();
+	        long wasted = stored - used;
+	        double wastedPerc = 0.0;
+	        if (stored > 0) {
+	            wastedPerc = ((double) wasted / (double) stored) * 100;
+	        }
+	        logger.debug(String.format(Locale.US,
+	        		"Disk usage:  Size: %s, Used: %s, Wasted: %s (%.1f %%)",
+	                diskSizeToString(stored), diskSizeToString(used),
+	                diskSizeToString(wasted), wastedPerc));
+    	}
     }
     
 
@@ -372,7 +388,7 @@ public class FileStore {
      */
     private void readIndexFile() throws IOException {
         entries.clear();
-        File file = new File(dataDirectory + '/' + INDEX_FILE);
+        File file = new File(dataDir + '/' + INDEX_FILE);
         if (file.exists()) {
             DataInputStream dis =
                     new DataInputStream(new FileInputStream(file));
@@ -398,7 +414,7 @@ public class FileStore {
      */
     private void writeIndexFile() throws IOException {
         DataOutputStream dos = new DataOutputStream(
-                new FileOutputStream(dataDirectory + '/' + INDEX_FILE));
+        		new FileOutputStream(dataDir + '/' + INDEX_FILE));
         dos.writeInt(entries.size());
         for (FileEntry entry : entries.values()) {
             dos.writeInt(entry.getId());
