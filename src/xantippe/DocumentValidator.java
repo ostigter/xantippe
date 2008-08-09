@@ -1,7 +1,11 @@
 package xantippe;
 
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
@@ -31,6 +35,9 @@ import org.xml.sax.helpers.DefaultHandler;
  */
 public class DocumentValidator {
 	
+
+	/** Database file with the schema's. */
+	private static final String SCHEMAS_FILE = "schemas.dbx";
 	
     /** log4j logger. */
     private static final Logger logger =
@@ -179,6 +186,53 @@ public class DocumentValidator {
 	}
 	
 	
+    public void readSchemas(String dataDir) {
+    	logger.debug(String.format("Read database file '%s'", SCHEMAS_FILE));
+    	clearSchemas();
+        File file = new File(dataDir + '/' + SCHEMAS_FILE);
+    	if (file.exists()) {
+    		try {
+    			DataInputStream dis =
+    					new DataInputStream(new FileInputStream(file));
+    			int noOfSchemas = dis.readInt();
+    			for (int i = 0; i < noOfSchemas; i++) {
+    				String namespace = dis.readUTF();
+    				int docId = dis.readInt();
+    				schemaFiles.put(namespace, docId);
+    			}
+    			dis.close();
+    		} catch (IOException e) {
+    			String msg = String.format(
+    					"Error reading database file '%s': ",
+    					SCHEMAS_FILE, e.getMessage());
+    			logger.error(msg);
+    		}
+    	}
+    }
+    
+    
+    public void writeSchemas(String dataDir) {
+    	logger.debug(String.format("Write database file '%s'", SCHEMAS_FILE));
+        File file = new File(dataDir + '/' + SCHEMAS_FILE);
+		try {
+			DataOutputStream dos = new DataOutputStream(
+					new FileOutputStream(file));
+			dos.writeInt(schemaFiles.size());
+			for (String namespace : schemaFiles.keySet()) {
+				int docId = schemaFiles.get(namespace);
+				dos.writeUTF(namespace);
+				dos.writeInt(docId);
+			}
+			dos.close();
+		} catch (IOException e) {
+			String msg = String.format(
+					"Error writing database file '%s': ",
+					SCHEMAS_FILE, e.getMessage());
+			logger.error(msg);
+		}
+    }
+    
+    
     //------------------------------------------------------------------------
     //  Private methods.
     //------------------------------------------------------------------------
@@ -390,7 +444,7 @@ public class DocumentValidator {
     
     
     /**
-     * Resource resolver to retrieve resources by database URI's.
+     * Resource resolver to retrieve schema files by their namespace.
      */
     private class XmldbResourceResolver implements LSResourceResolver {
     	
@@ -402,12 +456,6 @@ public class DocumentValidator {
     	public LSInput resolveResource(String type, String namespace,
     			String publicId, String systemId, String baseUri) {
     		LSInput input = null;
-    		
-//    		logger.debug("type      = " + type);
-//    		logger.debug("namespace = " + namespace);
-//    		logger.debug("publicId  = " + publicId);
-//    		logger.debug("systemId  = " + systemId);
-//    		logger.debug("baseUri   = " + baseUri);
     		
     		if (type.equals(SCHEMA_TYPE)) {
     			logger.debug(String.format(

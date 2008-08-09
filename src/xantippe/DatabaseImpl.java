@@ -26,6 +26,10 @@ import xantippe.filestore.FileStoreException;
 public class DatabaseImpl implements Database {
 	
 	
+	private static final String METADATA_FILE = "metadata.dbx";
+	
+	private static final String COLLECTIONS_FILE = "collections.dbx";
+	
 	/** log4j logger. */
 	private static final Logger logger = Logger.getLogger(DatabaseImpl.class);
 	
@@ -68,6 +72,14 @@ public class DatabaseImpl implements Database {
     public DatabaseImpl() {
     	Util.initLog4j();
     	
+//    	File dir = new File(dataDir);
+//    	if (!dir.isDirectory() || !dir.canWrite()) {
+//    		String msg =
+//    			String.format("Invalid data directory: '%s'", dataDir);
+//    		logger.fatal(msg);
+//    		throw new RuntimeException(msg);
+//    	}
+    	
     	fileStore = new FileStore(dataDir);
     	
     	collections = new HashMap<Integer, Collection>();
@@ -76,7 +88,7 @@ public class DatabaseImpl implements Database {
         
         validator = new DocumentValidator(this);
         
-        logger.debug("Data directory: " + dataDir);
+        logger.debug(String.format("Data directory: '%s'", dataDir));
 		
 		logger.debug("Database created.");
 	}
@@ -106,6 +118,8 @@ public class DatabaseImpl implements Database {
         
         readCollections();
         
+        validator.readSchemas(dataDir);
+        
         isRunning = true;
 
 		logger.info("Database started.");
@@ -128,6 +142,8 @@ public class DatabaseImpl implements Database {
         writeMetaData();
         
         writeCollections();
+        
+        validator.writeSchemas(dataDir);
         
         isRunning = false;
         
@@ -206,6 +222,7 @@ public class DatabaseImpl implements Database {
 	}
 	
 	
+    // For debugging purposes only.
 	public void print() {
 	    printCollection(rootCollection);
 	}
@@ -305,7 +322,8 @@ public class DatabaseImpl implements Database {
     
     
     private void readMetaData() {
-        File file = new File(dataDir + "/metadata.dbx");
+    	logger.debug(String.format("Read database file '%s'", METADATA_FILE));
+        File file = new File(dataDir + '/' + METADATA_FILE);
     	if (file.exists()) {
     		try {
     			DataInputStream dis =
@@ -313,7 +331,10 @@ public class DatabaseImpl implements Database {
     			nextId = dis.readInt();
     			dis.close();
     		} catch (IOException e) {
-                logger.error("ERROR: Could not read metadata.dbx", e);
+    			String msg = String.format(
+    					"Error reading database file '%s': %s",
+    					METADATA_FILE, e.getMessage());
+    			logger.error(msg);
     		}
     	} else {
     		nextId = 1;
@@ -322,20 +343,26 @@ public class DatabaseImpl implements Database {
     
     
     private void writeMetaData() {
-        File file = new File(dataDir + "/metadata.dbx");
+    	logger.debug(String.format("Write database file '%s'", METADATA_FILE));
+        File file = new File(dataDir + '/' + METADATA_FILE);
 		try {
 			DataOutputStream dos =
 					new DataOutputStream(new FileOutputStream(file));
 			dos.writeInt(nextId);
 			dos.close();
 		} catch (IOException e) {
-			System.err.println(e);
+			String msg = String.format(
+					"Error writing database file '%s': %s",
+					METADATA_FILE, e.getMessage());
+			logger.error(msg);
 		}
     }
     
     
     private void readCollections() {
-        File file = new File(dataDir + "/collections.dbx");
+    	logger.debug(
+    			String.format("Read database file '%s'", COLLECTIONS_FILE));
+        File file = new File(dataDir + '/' + COLLECTIONS_FILE);
     	if (file.exists()) {
     		try {
     			DataInputStream dis = new DataInputStream(
@@ -343,7 +370,10 @@ public class DatabaseImpl implements Database {
     			rootCollection = readCollection(dis, -1);
     			dis.close();
     		} catch (IOException e) {
-    			logger.error("ERROR: Could not read collections.dbx", e);
+    			String msg = String.format(
+    					"Error reading database file '%s': %s",
+    					COLLECTIONS_FILE, e.getMessage());
+    			logger.error(msg);
     		}
     	} else {
     	    int id = getNextId();
@@ -378,14 +408,19 @@ public class DatabaseImpl implements Database {
     
     
     private void writeCollections() {
-        File file = new File(dataDir + "/collections.dbx");
+    	logger.debug(
+    			String.format("Write database file '%s'", COLLECTIONS_FILE));
+        File file = new File(dataDir + '/' + COLLECTIONS_FILE);
 		try {
 			DataOutputStream dos = new DataOutputStream(
 					new FileOutputStream(file));
 			writeCollection(rootCollection, dos);
 			dos.close();
 		} catch (IOException e) {
-			logger.error("Could not write collections.dbx", e);
+			String msg = String.format(
+					"Error writing database file '%s': %s",
+					COLLECTIONS_FILE, e.getMessage());
+			logger.error(msg);
 		}
     }
     
@@ -415,6 +450,7 @@ public class DatabaseImpl implements Database {
     }
     
     
+    // For debugging purposes only.
     private void printCollection(Collection col) {
         System.out.println(col + "/");
         for (Document doc : col.getDocuments()) {
