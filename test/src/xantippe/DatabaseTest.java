@@ -270,15 +270,15 @@ public class DatabaseTest {
             // Multi-file schema (with 'include' statement).
             
             //FIXME: Schema's with 'include' statements.
-//            file = new File("test/schemas/Generic_v1.0.xsd");
-//            doc = col.createDocument(file.getName());
-//            doc.setContent(file);
-//            file = new File("test/schemas/TestResult_v1.0.xsd");
-//            doc = col.createDocument(file.getName());
-//            doc.setContent(file);
-//            file = new File("test/docs/TestResult_0001.xml");
-//            doc = col.createDocument(file.getName());
-//            doc.setContent(file);
+            file = new File("test/schemas/Generic_v1.0.xsd");
+            doc = col.createDocument(file.getName());
+            doc.setContent(file);
+            file = new File("test/schemas/TestResult_v1.0.xsd");
+            doc = col.createDocument(file.getName());
+            doc.setContent(file);
+            file = new File("test/docs/TestResult_0001.xml");
+            doc = col.createDocument(file.getName());
+            doc.setContent(file);
             
             database.shutdown();
             

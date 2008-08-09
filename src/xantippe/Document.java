@@ -123,6 +123,7 @@ public class Document implements Comparable<Document> {
 	
 	public InputStream getContent() throws XmldbException {
 		InputStream is = null;
+		
 		try {
 			is = database.getFileStore().retrieve(id);
 		} catch (FileStoreException e) {
@@ -130,6 +131,7 @@ public class Document implements Comparable<Document> {
 	        logger.error(msg, e);
             throw new XmldbException(msg, e);
 		}
+		
 		return is;
 	}
 	
