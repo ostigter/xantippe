@@ -80,7 +80,8 @@ public class DatabaseImpl implements Database {
         
         validator = new DocumentValidator(this);
         
-        logger.debug(String.format("Data directory: '%s'", dataDir));
+        logger.debug(String.format("Database directory: '%s'",
+                new File(dataDir).getAbsolutePath()));
 		
 		logger.debug("Database created.");
 	}
@@ -383,6 +384,8 @@ public class DatabaseImpl implements Database {
         int id = dis.readInt();
         String name = dis.readUTF();
         col = new Collection(this, id, name, parent);
+        col.setValidationMode(ValidationMode.values()[dis.readByte()]);
+        
         int noOfDocs = dis.readInt();
         for (int i = 0; i < noOfDocs; i++) {
             int docId = dis.readInt();
@@ -423,6 +426,7 @@ public class DatabaseImpl implements Database {
     		throws IOException {
     	dos.writeInt(col.getId());
     	dos.writeUTF(col.getName());
+    	dos.writeByte(col.getValidationMode().ordinal());
     	Set<Document> docs = col.getDocuments();
     	dos.writeInt(docs.size());
     	for (Document doc : docs) {
