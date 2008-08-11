@@ -60,7 +60,7 @@ public class DatabaseTest {
 
 	@After
 	public void after() {
-//        Util.deleteFile(DATA_DIR);
+        Util.deleteFile(DATA_DIR);
 	}
 
 
@@ -238,6 +238,7 @@ public class DatabaseTest {
             database.start();
 
             Collection col = database.getRootCollection();
+            col.setValidationMode(ValidationMode.ON);
             
             // Self-contained schema.
             

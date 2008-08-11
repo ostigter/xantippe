@@ -72,11 +72,6 @@ public class Document implements Comparable<Document> {
 	}
 	
 	
-//	public void setName(String name) {
-//		this.name = name;
-//	}
-	
-	
 	public Collection getParent() {
 		return database.getCollection(parent);
 	}
@@ -181,9 +176,22 @@ public class Document implements Comparable<Document> {
     			throw new XmldbException(msg);
     		}
     	} else if (mediaType == MediaType.XML) {
-    		//TODO: Determine correct validation mode.
-    		boolean required = false;
-    	    database.getValidator().validate(file, required);
+    		ValidationMode vm = getParent().getValidationMode();
+    		switch (vm) {
+    			case ON:
+    				// Validate document against mandatory schema. 
+            	    database.getValidator().validate(file, true);
+            	    break;
+    			case AUTO:
+    				// Validate document if possible (namespace and schema).
+            	    database.getValidator().validate(file, false);
+            	    break;
+    			case OFF:
+    				// No validation.
+    				break;
+    			default:
+    				logger.error("Invalid validation mode: " + vm);
+    		}
     	}
     	
 		storeDocument(file);

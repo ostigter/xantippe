@@ -4,17 +4,17 @@ package xantippe;
 public enum ValidationMode {
 	
 	
-	/** Validate each document; matching schema must be present. */
-	ON,
-	
 	/** No document validation (disabled). */
 	OFF,
 
-	/** Validate documents if matching schema is present. */ 
+	/** Validate each document; matching schema must be present. */
+	ON,
+	
+	/** Validate documents if it has a namespace and a matching schema. */ 
 	AUTO,
 	
 	/** Inherit setting from parent collection. */
-	DEFAULT,
+	INHERIT,
 	
 
 }
