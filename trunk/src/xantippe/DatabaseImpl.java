@@ -72,14 +72,6 @@ public class DatabaseImpl implements Database {
     public DatabaseImpl() {
     	Util.initLog4j();
     	
-//    	File dir = new File(dataDir);
-//    	if (!dir.isDirectory() || !dir.canWrite()) {
-//    		String msg =
-//    			String.format("Invalid data directory: '%s'", dataDir);
-//    		logger.fatal(msg);
-//    		throw new RuntimeException(msg);
-//    	}
-    	
     	fileStore = new FileStore(dataDir);
     	
     	collections = new HashMap<Integer, Collection>();
@@ -378,6 +370,8 @@ public class DatabaseImpl implements Database {
     	} else {
     	    int id = getNextId();
             rootCollection = new Collection(this, id, "db", -1);
+            // Validation disabled by default.
+            rootCollection.setValidationMode(ValidationMode.OFF);
     	}
     }
     

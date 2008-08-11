@@ -4,6 +4,8 @@ package xantippe;
 import java.util.Set;
 import java.util.TreeSet;
 
+import org.apache.log4j.Logger;
+
 
 /**
  * A collection of documents and subcollections.
@@ -12,6 +14,9 @@ import java.util.TreeSet;
  */
 public class Collection implements Comparable<Collection> {
 	
+	
+	/** log4j logger. */
+	private static final Logger logger = Logger.getLogger(Collection.class);
 	
 	/** Back-reference to the database. */
 	private DatabaseImpl database;
@@ -30,6 +35,9 @@ public class Collection implements Comparable<Collection> {
 	
 	/** Documents. */
 	private Set<Integer> documents;
+	
+	/** Validation mode. */
+	private ValidationMode validationMode = ValidationMode.INHERIT;
 	
 	/** Indices. */
 	private Set<Index> indices;
@@ -72,22 +80,43 @@ public class Collection implements Comparable<Collection> {
 	
 	public Set<Collection> getCollections() {
 	    Set<Collection> cols = new TreeSet<Collection>();
-	    
 	    for (int id : collections) {
 	        cols.add(database.getCollection(id));
 	    }
-	    
 		return cols;
+	}
+	
+	
+	public ValidationMode getValidationMode() {
+		ValidationMode vm = validationMode;
+		if (vm == ValidationMode.INHERIT) { 
+			Collection col = getParent();
+			if (col != null) {
+				vm = col.getValidationMode();
+			} else {
+				// Root collection cannot inherit! 
+				logger.error("Invalid validation mode on root collection");
+				vm = ValidationMode.OFF;
+			}
+		}
+		return vm;
+	}
+	
+	
+	public void setValidationMode(ValidationMode vm) {
+		if (parent == -1 && vm == ValidationMode.INHERIT) {
+			logger.debug("Invalid validation mode on root collection");
+		} else {
+			validationMode = vm;
+		}
 	}
 	
 
 	public Set<Document> getDocuments() {
         Set<Document> docs = new TreeSet<Document>();
-        
         for (int id : documents) {
             docs.add(database.getDocument(id));
         }
-        
         return docs;
 	}
 	
@@ -110,7 +139,6 @@ public class Collection implements Comparable<Collection> {
 	
 	public Index getIndex(String name) {
 		Index index = null;
-		
 		Set<Index> inheritedIndices = getIndices();
 		for (Index i : inheritedIndices) {
 			if (i.getName().equals(name)) {
@@ -118,7 +146,6 @@ public class Collection implements Comparable<Collection> {
 				break;
 			}
 		}
-		
 		return index;
 	}
 	
@@ -137,14 +164,12 @@ public class Collection implements Comparable<Collection> {
 	
 	public String getUri() {
 		StringBuilder sb = new StringBuilder();
-		
 		Collection col = this;
 		while (col != null) {
 			sb.insert(0, '/'); 
 			sb.insert(1, col.getName());
 			col = col.getParent();
 		}
-		
 		return sb.toString();
 	}
 	
@@ -211,10 +236,4 @@ public class Collection implements Comparable<Collection> {
     }
 
 
-	/* package */ ValidationMode getValidationMode() {
-	    //TODO: Validation configuration per collection (with inheritance)
-		return ValidationMode.AUTO;
-	}
-	
-	
 }
