@@ -241,7 +241,6 @@ public class DatabaseTest {
             col.setValidationMode(ValidationMode.ON);
             
             // Self-contained schema.
-            
             file = new File("test/schemas/Address_v1.0.xsd");
             doc = col.createDocument(file.getName());
             doc.setContent(file);
@@ -253,8 +252,6 @@ public class DatabaseTest {
             doc.setContent(file);
             
             // Multi-file schema (with 'include' statement).
-            
-            //FIXME: Schema's with 'include' statements.
             file = new File("test/schemas/Generic_v1.0.xsd");
             doc = col.createDocument(file.getName());
             doc.setContent(file);
