@@ -1,13 +1,12 @@
 TO DO
 =====
 
-- Validation
 - Index persistency (per collection, inheritance tree)
 - Automatic indexing of XML documents
 - Saxon XQuery support
 - Configuration file
-- Document caching
 - Management console
 - WebDAV interface
 - REST interface
 - Compression
+- Document caching

@@ -109,17 +109,41 @@ db/ (ID 1)
 indices.dbx
 -----------
 
-Index (XML):
-  Name
-  Path (element or attribute)
-  Type (string, integer, date)
+Structure:
+
+  Collection
+    Index
+      id
+      name
+      path (element or attribute)
+      type (string, integer, double, date)
+    IndexValue
+      index
+      value
+      documents
 
 Examples:
-  {"DocumentId",   "/Header/Document/Id", IndexType.STRING)
-  ("DocumentType", "/Header/Document/@type", IndexType.STRING)
-  ("OrderNr",      "/Body/Order/Number", IndexType.INTEGER)
-  ("Created",      "/Header/Document/Created", IndexType.DATE)
-  
+
+  Collection {"/db/data"}
+    indices
+      Index {101, "DocumentId", "/element()/Header/Document/Id", IndexType.STRING}
+      Index {102, "DocumentType", "/element()/Header/Document/Type", IndexType.STRING}
+      Index {103, "DocumentVersion", "/element()/Header/Document/Version", IndexType.STRING}
+    indexValues
+      IndexValue {101, "0001", {11}}      // DocumentId
+      IndexValue {101, "0002", {12}}
+      IndexValue {101, "0003", {13}}
+      IndexValue {102, "Foo", {11, 12}}   // DocumentType
+      IndexValue {102, "Bar", {13}}
+      IndexValue {103, "v1.0", {11, 12}}  // DocumentVersion
+      IndexValue {103, "v1.1", {13}}
+  Collection {"/db/data/results"}
+    indices
+      Index {104, "TestType", "/element()/Body/Test/Type", IndexType.STRING}
+    indexValues
+      IndexValue {101, "0004", {14}}      // DocumentId
+      IndexValue {104, "FooTest", {14}}   // TestType
+
 
 Configuration file
 ------------------
