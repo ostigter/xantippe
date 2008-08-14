@@ -9,72 +9,72 @@ package xantippe.filestore;
  * @author Oscar Stigter
  */
 public class FileEntry implements Comparable<FileEntry> {
-	
+    
 
-	private int id;
-	
-	private int offset;
-	
-	private int length;
-	
+    private int id;
+    
+    private int offset;
+    
+    private int length;
+    
 
-	public FileEntry(int id) {
-		this.id = id;
-	}
-
-
-	public int getId() {
-		return id;
-	}
+    public FileEntry(int id) {
+        this.id = id;
+    }
 
 
-	public int getOffset() {
-		return offset;
-	}
+    public int getId() {
+        return id;
+    }
 
 
-	public void setOffset(int offset) {
-		this.offset = offset;
-	}
+    public int getOffset() {
+        return offset;
+    }
 
 
-	public int getLength() {
-		return length;
-	}
+    public void setOffset(int offset) {
+        this.offset = offset;
+    }
 
 
-	public void setLength(int length) {
-		this.length = length;
-	}
+    public int getLength() {
+        return length;
+    }
 
 
-	@Override
-	public String toString() {
-		return "{'" + id + "', " + offset + ", " + length + "}";
-	}
+    public void setLength(int length) {
+        this.length = length;
+    }
 
 
-	@Override
-	public boolean equals(Object obj) {
-		if (obj instanceof FileEntry) {
-			FileEntry entry = (FileEntry) obj;
-			return entry.getId() == id;
-		} else {
-			return false;
-		}
-	}
+    @Override
+    public String toString() {
+        return "{'" + id + "', " + offset + ", " + length + "}";
+    }
 
 
-	public int compareTo(FileEntry entry) {
-		int otherOffset = entry.getOffset();
-		if (offset > otherOffset) {
-			return 1;
-		} else if (offset < otherOffset) {
-			return -1;
-		} else {
-			return 0;
-		}
-	}
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof FileEntry) {
+            FileEntry entry = (FileEntry) obj;
+            return entry.getId() == id;
+        } else {
+            return false;
+        }
+    }
+
+
+    public int compareTo(FileEntry entry) {
+        int otherOffset = entry.getOffset();
+        if (offset > otherOffset) {
+            return 1;
+        } else if (offset < otherOffset) {
+            return -1;
+        } else {
+            return 0;
+        }
+    }
 
 
 }

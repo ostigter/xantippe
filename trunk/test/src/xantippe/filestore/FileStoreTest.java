@@ -20,54 +20,54 @@ import xantippe.Util;
  * @author Oscar Stigter
  */
 public class FileStoreTest {
-	
+    
 
-	/** Temporary database directory. */ 
-	private static final String DATA_DIR = "test/data";
+    /** Temporary database directory. */ 
+    private static final String DATA_DIR = "test/data";
 
     /** Directory with input documents. */
-	private static final String DOCS_DIR = "test/docs";
+    private static final String DOCS_DIR = "test/docs";
     
-	
+    
     //------------------------------------------------------------------------
     //  JUnit methods
     //------------------------------------------------------------------------
     
     
-	@BeforeClass
-	public static void beforeClass() {
-		Util.initLog4j();
-		Util.deleteFile(DATA_DIR);
-	}
-	
-	
-	@AfterClass
-	public static void afterClass() {
-	    Util.deleteFile(DATA_DIR);
-	}
-	
-	
+    @BeforeClass
+    public static void beforeClass() {
+        Util.initLog4j();
+        Util.deleteFile(DATA_DIR);
+    }
+    
+    
+    @AfterClass
+    public static void afterClass() {
+        Util.deleteFile(DATA_DIR);
+    }
+    
+    
     //------------------------------------------------------------------------
     //  Tests
     //------------------------------------------------------------------------
     
     
-	@Test
-	public void test() {
-	    File file;
-	    
-		FileStore store = new FileStore(DATA_DIR);
+    @Test
+    public void test() {
+        File file;
+        
+        FileStore store = new FileStore(DATA_DIR);
 
-		try {
-			
-			store.start();
-			
-			Assert.assertEquals(0, store.size());
-			
-			// Add file.
-			store.store(1, new File(DOCS_DIR + "/0001.xml"));
-			Assert.assertEquals(1, store.size());
-			
+        try {
+            
+            store.start();
+            
+            Assert.assertEquals(0, store.size());
+            
+            // Add file.
+            store.store(1, new File(DOCS_DIR + "/0001.xml"));
+            Assert.assertEquals(1, store.size());
+            
             // Retrieve file.
             InputStream is = store.retrieve(1);
             Assert.assertNotNull(is);
@@ -90,56 +90,56 @@ public class FileStoreTest {
             Assert.assertEquals(168, read);
             is.close();
             
-			// Add file.
+            // Add file.
             file = new File(DOCS_DIR + "/0002.xml");
-			store.store(2, file);
-			Assert.assertEquals(2, store.size());
-			assertEqual(store.retrieve(2), file);
-			
-			// Update file.
-			store.store(2, file);
-			Assert.assertEquals(2, store.size());
+            store.store(2, file);
+            Assert.assertEquals(2, store.size());
             assertEqual(store.retrieve(2), file);
-			
-			// Add file.
+            
+            // Update file.
+            store.store(2, file);
+            Assert.assertEquals(2, store.size());
+            assertEqual(store.retrieve(2), file);
+            
+            // Add file.
             file = new File(DOCS_DIR + "/0003.xml");
             store.store(3, file);
-			Assert.assertEquals(3, store.size());
+            Assert.assertEquals(3, store.size());
             assertEqual(store.retrieve(3), file);
-			
-			// Delete file.
-			store.delete(2);
-			Assert.assertEquals(2, store.size());
-			
-			// Delete all files.
-			store.deleteAll();
-			Assert.assertEquals(0, store.size());
-			
-			store.shutdown();
-			
-		} catch (FileStoreException e) {
-			Assert.fail(e.getMessage());
+            
+            // Delete file.
+            store.delete(2);
+            Assert.assertEquals(2, store.size());
+            
+            // Delete all files.
+            store.deleteAll();
+            Assert.assertEquals(0, store.size());
+            
+            store.shutdown();
+            
+        } catch (FileStoreException e) {
+            Assert.fail(e.getMessage());
         } catch (IOException e) {
             Assert.fail(e.getMessage());
         }
-	}
-	
-	
+    }
+    
+    
     //------------------------------------------------------------------------
     //  Private methods
     //------------------------------------------------------------------------
     
     
-	/**
-	 * Asserts that the contents of the specified byte stream is equal to that
-	 * of the specified file.
-	 * 
-	 *  @param  is    the byte stream
-	 *  @param  file  the file
-	 */
-	private static void assertEqual(InputStream is, File file) {
-	    try {
-    	    InputStream is2 = new FileInputStream(file);
+    /**
+     * Asserts that the contents of the specified byte stream is equal to that
+     * of the specified file.
+     * 
+     *  @param  is    the byte stream
+     *  @param  file  the file
+     */
+    private static void assertEqual(InputStream is, File file) {
+        try {
+            InputStream is2 = new FileInputStream(file);
             byte[] buffer1 = new byte[8192];
             byte[] buffer2 = new byte[8192];
             int bytesRead1;
@@ -151,10 +151,10 @@ public class FileStoreTest {
             }
             is2.close();
             is.close();
-	    } catch (IOException e) {
-	        Assert.fail(e.getMessage());
-	    }
-	}
-	
-	
+        } catch (IOException e) {
+            Assert.fail(e.getMessage());
+        }
+    }
+    
+    
 }

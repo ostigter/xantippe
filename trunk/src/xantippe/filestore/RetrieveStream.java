@@ -17,26 +17,26 @@ public class RetrieveStream extends InputStream {
     
     
     /** The data file. */
-	private final RandomAccessFile dataFile;
+    private final RandomAccessFile dataFile;
     
     /** The file length in bytes. */
-	private final int length;
+    private final int length;
     
     /** The current position in the stream. */ 
-	private int position = 0;
+    private int position = 0;
     
     
-	/**
-	 * Constructor.
-	 * 
-	 * @param file    the data file
-	 * @param offset  the file's offset in the data file. 
-	 * @param length  the file's length in bytes
-	 * 
-	 * @throws IOException  if the file could not be read  
-	 */
-	/* package */ RetrieveStream(
-			RandomAccessFile dataFile, int offset, int length)
+    /**
+     * Constructor.
+     * 
+     * @param file    the data file
+     * @param offset  the file's offset in the data file. 
+     * @param length  the file's length in bytes
+     * 
+     * @throws IOException  if the file could not be read  
+     */
+    /* package */ RetrieveStream(
+            RandomAccessFile dataFile, int offset, int length)
             throws IOException {
         this.dataFile = dataFile;
         this.length = length;
@@ -44,59 +44,59 @@ public class RetrieveStream extends InputStream {
     }
 
 
-	/**
-	 * Returns the number of bytes that can still be read.
-	 * 
-	 * @return  the number of bytes that can still be read
-	 */
-	@Override
+    /**
+     * Returns the number of bytes that can still be read.
+     * 
+     * @return  the number of bytes that can still be read
+     */
+    @Override
     public int available() throws IOException {
         return (length - position);
     }
 
 
-	/**
-	 * Closes the stream.
-	 */
-	@Override
+    /**
+     * Closes the stream.
+     */
+    @Override
     public void close() throws IOException {
         super.close();
     }
 
 
-	/**
-	 * Marks the current position in the stream.
-	 * 
-	 * Not supported.
-	 */
-	@Override
+    /**
+     * Marks the current position in the stream.
+     * 
+     * Not supported.
+     */
+    @Override
     public synchronized void mark(int position) {
         throw new NotImplementedException();
     }
 
 
-	/**
-	 * Returns true if this class supports the mark() method, otherwise false.
-	 * 
-	 * Since mark() is not implemented, this method will always return false.
-	 * 
-	 * @return false (fixed)
-	 */
-	@Override
+    /**
+     * Returns true if this class supports the mark() method, otherwise false.
+     * 
+     * Since mark() is not implemented, this method will always return false.
+     * 
+     * @return false (fixed)
+     */
+    @Override
     public boolean markSupported() {
         // Not implemented.
         return false;
     }
 
 
-	/**
-	 * Returns the next byte as integer in the range [0, 255].
-	 * 
-	 * @return  the next byte
-	 *  
-	 * @throws  IOException  in case of any I/O errors
-	 */
-	@Override
+    /**
+     * Returns the next byte as integer in the range [0, 255].
+     * 
+     * @return  the next byte
+     *  
+     * @throws  IOException  in case of any I/O errors
+     */
+    @Override
     public int read() throws IOException {
         int value;
         
@@ -117,10 +117,10 @@ public class RetrieveStream extends InputStream {
      * @param  buffer  the buffer
      * 
      * @return  the number of bytes actually read
-	 *  
-	 * @throws  IOException  in case of any I/O errors
+     *  
+     * @throws  IOException  in case of any I/O errors
      */
-	@Override
+    @Override
     public int read(byte[] buffer) throws IOException {
         if (buffer == null) {
             throw new IllegalArgumentException("Null buffer");
@@ -130,18 +130,18 @@ public class RetrieveStream extends InputStream {
     }
 
 
-	/**
-	 * Reads the specified number of bytes and fills the specified buffer.
-	 * 
-	 * @param  buffer  the buffer
-	 * @param  offset  the buffer offset
-	 * @param  length  the number of bytes to read
-	 * 
-	 * @return  the actual number of bytes read
-	 *  
-	 * @throws  IOException  in case of any I/O errors
-	 */
-	@Override
+    /**
+     * Reads the specified number of bytes and fills the specified buffer.
+     * 
+     * @param  buffer  the buffer
+     * @param  offset  the buffer offset
+     * @param  length  the number of bytes to read
+     * 
+     * @return  the actual number of bytes read
+     *  
+     * @throws  IOException  in case of any I/O errors
+     */
+    @Override
     public int read(byte[] buffer, int offset, int length) throws IOException {
         if (buffer == null) {
             throw new IllegalArgumentException("Null buffer");
@@ -168,7 +168,7 @@ public class RetrieveStream extends InputStream {
             read = dataFile.read(buffer, offset, length);
             position += read;
         } else {
-        	read = -1;
+            read = -1;
         }
         
         return read;
@@ -180,22 +180,22 @@ public class RetrieveStream extends InputStream {
      * 
      *  Not implemented.
      */
-	@Override
+    @Override
     public synchronized void reset() throws IOException {
         throw new NotImplementedException();
     }
 
 
-	/**
-	 * Skips the specified number of bytes.
-	 * 
-	 * @param  length  the number of bytes to skip
-	 * 
-	 * @return  the number of bytes actually skipped
-	 *  
-	 * @throws  IOException  in case of any I/O errors
-	 */
-	@Override
+    /**
+     * Skips the specified number of bytes.
+     * 
+     * @param  length  the number of bytes to skip
+     * 
+     * @return  the number of bytes actually skipped
+     *  
+     * @throws  IOException  in case of any I/O errors
+     */
+    @Override
     public long skip(long length) throws IOException {
         if (length > available()) {
             length = available();

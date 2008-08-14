@@ -16,83 +16,83 @@ import java.io.OutputStream;
  * @author Oscar Stigter
  */
 public class InsertStream extends OutputStream {
-	
-	
-	/** The document. */
-	private final Document document;
-	
-	/** Temporary file with the document content. */
-	private final File file;
-	
-	/** Underlying output stream to the temporary file. */
-	private final OutputStream os;
-	
+    
+    
+    /** The document. */
+    private final Document document;
+    
+    /** Temporary file with the document content. */
+    private final File file;
+    
+    /** Underlying output stream to the temporary file. */
+    private final OutputStream os;
+    
 
     //------------------------------------------------------------------------
     //  Constructors
     //------------------------------------------------------------------------
     
 
-	/**
-	 * Constructor.
-	 * 
-	 * @param  document  the associated document
-	 */
-	/* protected */ InsertStream(Document document) throws IOException {
-		this.document = document;
-		file = File.createTempFile("xantippe-", null);
-		os = new FileOutputStream(file);
-	}
-	
-	
+    /**
+     * Constructor.
+     * 
+     * @param  document  the associated document
+     */
+    /* protected */ InsertStream(Document document) throws IOException {
+        this.document = document;
+        file = File.createTempFile("xantippe-", null);
+        os = new FileOutputStream(file);
+    }
+    
+    
     //------------------------------------------------------------------------
     //  Public methods
     //------------------------------------------------------------------------
     
 
-	/**
-	 * Closes the stream.
-	 * 
-	 * @throws IOException  if the stream could not be gracefully closed
-	 */
-	@Override
-	public void close() throws IOException {
-	    try {
-	        os.close();
-	        
-    		try {
-    			document.setContent(file);
-    		} catch (XmldbException e) {
-    			throw new IOException(e.getMessage());
-    		}
-	    } finally {
-		    file.delete();
-		}
-	}
+    /**
+     * Closes the stream.
+     * 
+     * @throws IOException  if the stream could not be gracefully closed
+     */
+    @Override
+    public void close() throws IOException {
+        try {
+            os.close();
+            
+            try {
+                document.setContent(file);
+            } catch (XmldbException e) {
+                throw new IOException(e.getMessage());
+            }
+        } finally {
+            file.delete();
+        }
+    }
 
 
-	/**
-	 * Flushes the stream, writing any non-written data.
-	 * 
-	 * @throws IOException  if the data could not be written
-	 */
-	@Override
-	public void flush() throws IOException {
-		os.flush();
-	}
+    /**
+     * Flushes the stream, writing any non-written data.
+     * 
+     * @throws IOException  if the data could not be written
+     */
+    @Override
+    public void flush() throws IOException {
+        os.flush();
+    }
 
 
-	/**
-	 * Writes a byte.
-	 * 
-	 * @param  b  the byte
-	 * 
-	 * @throws  IOException  if the byte could not be written
-	 */
-	@Override
-	public void write(int b) throws IOException {
-		os.write(b);
-	}
+    /**
+     * Writes a byte.
+     * 
+     * @param  b  the byte
+     * 
+     * @throws  IOException  if the byte could not be written
+     */
+    @Override
+    public void write(int b) throws IOException {
+        os.write(b);
+    }
 
 
     /**
@@ -102,10 +102,10 @@ public class InsertStream extends OutputStream {
      * 
      * @throws  IOException  if the data could not be written
      */
-	@Override
-	public void write(byte[] data) throws IOException {
-		os.write(data);
-	}
+    @Override
+    public void write(byte[] data) throws IOException {
+        os.write(data);
+    }
 
 
     /**
@@ -117,11 +117,11 @@ public class InsertStream extends OutputStream {
      * 
      * @throws  IOException  if the data could not be written
      */
-	@Override
-	public void write(byte[] buffer, int offset, int length)
-			throws IOException {
-		os.write(buffer, offset, length);
-	}
+    @Override
+    public void write(byte[] buffer, int offset, int length)
+            throws IOException {
+        os.write(buffer, offset, length);
+    }
 
 
 }
