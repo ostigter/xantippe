@@ -40,31 +40,31 @@ import org.apache.log4j.Logger;
  * @author Oscar Stigter
  */
 public class FileStore {
-	
-	
+    
+    
     /** Default database directory. */
     private static final String DEFAULT_DATA_DIR = "data";
-	
+    
     /** File with the document entries (FAT). */
     private static final String INDEX_FILE = "documents.dbx";
     
     /** File with the document contents. */
     private static final String DATA_FILE = "contents.dbx";
     
-	/** log4j logger. */
+    /** log4j logger. */
     private static final Logger logger = Logger.getLogger(FileStore.class);
-	
-	/** Buffer size. */
-	private static final int BUFFER_SIZE = 8192;  // 8 kB
-	
-	/** Buffer for reading and writing files. */
-	private final byte[] buffer = new byte[BUFFER_SIZE]; 
-
-	/** Document entries mapped by the their ID. */
-	private final Map<Integer, FileEntry> entries;
     
-	/** Indicates whether the FileStore is running. */
-	private boolean isRunning = false;
+    /** Buffer size. */
+    private static final int BUFFER_SIZE = 8192;  // 8 kB
+    
+    /** Buffer for reading and writing files. */
+    private final byte[] buffer = new byte[BUFFER_SIZE]; 
+
+    /** Document entries mapped by the their ID. */
+    private final Map<Integer, FileEntry> entries;
+    
+    /** Indicates whether the FileStore is running. */
+    private boolean isRunning = false;
     
     /** Database directory. */
     private String dataDir;
@@ -110,9 +110,9 @@ public class FileStore {
                     dir.mkdirs();
                 }
             } catch (Exception e) {
-            	String msg = String.format(
-            			"Could not create data directory '%s': %s",
-            			dataDir, e.getMessage());
+                String msg = String.format(
+                        "Could not create data directory '%s': %s",
+                        dataDir, e.getMessage());
                 throw new FileStoreException(msg);
             }
             
@@ -120,18 +120,18 @@ public class FileStore {
                 // Read index file.
                 readIndexFile();
             } catch (IOException e) {
-            	String msg = String.format("Error reading file '%s': %s",
-            			INDEX_FILE, e.getMessage());
+                String msg = String.format("Error reading file '%s': %s",
+                        INDEX_FILE, e.getMessage());
                 throw new FileStoreException(msg);
             }
             
             try {
                 // Open data file.
                 dataFile = new RandomAccessFile(
-                		dataDir + '/' + DATA_FILE, "rw");
+                        dataDir + '/' + DATA_FILE, "rw");
             } catch (IOException e) {
-            	String msg = String.format("Error openen data file '%s': %s",
-            			DATA_FILE, e.getMessage());
+                String msg = String.format("Error openen data file '%s': %s",
+                        DATA_FILE, e.getMessage());
                 throw new FileStoreException(msg);
             }
 
@@ -201,10 +201,10 @@ public class FileStore {
         if (isRunning) {
             logger.debug("Storing document with ID " + id);
             
-        	int length = (int) file.length();
-        	
-        	entries.remove(id);
-        	
+            int length = (int) file.length();
+            
+            entries.remove(id);
+            
             int offset = findFreePosition(length);
             logger.debug("Storing entry with offset " + offset
                     + " and length " + length + "...");
@@ -216,12 +216,12 @@ public class FileStore {
             
             try {
                 dataFile.seek(offset);
-        		InputStream is = new FileInputStream(file);
-        		int bytesRead;
-        		while ((bytesRead = is.read(buffer)) > 0) {
-        			dataFile.write(buffer, 0, bytesRead);
-        		}
-        		is.close();
+                InputStream is = new FileInputStream(file);
+                int bytesRead;
+                while ((bytesRead = is.read(buffer)) > 0) {
+                    dataFile.write(buffer, 0, bytesRead);
+                }
+                is.close();
             } catch (IOException e) {
                 entries.remove(id);
                 String msg = "Could not store document with ID " + id;
@@ -281,7 +281,7 @@ public class FileStore {
                         + entry.getOffset() + " and length "
                         + entry.getLength());
             } else {
-            	logger.warn("WARNING: Entry with ID " + id + " not found");
+                logger.warn("WARNING: Entry with ID " + id + " not found");
             }
         } else {
             throw new FileStoreException("FileStore not running");
@@ -293,22 +293,22 @@ public class FileStore {
      * Deletes ALL files.
      */
     public void deleteAll() throws FileStoreException {
-    	if (isRunning) {
-	        entries.clear();
-	        
-	        sync();
-	        
-	        try {
-	            dataFile.setLength(0L);
-	        } catch (IOException e) {
-	            String msg = "Error clearing data file";
-	            logger.error(msg, e);
-	        }
-	        
-	        logger.debug("Deleted all entries.");
-    	} else {
+        if (isRunning) {
+            entries.clear();
+            
+            sync();
+            
+            try {
+                dataFile.setLength(0L);
+            } catch (IOException e) {
+                String msg = "Error clearing data file";
+                logger.error(msg, e);
+            }
+            
+            logger.debug("Deleted all entries.");
+        } else {
             throw new FileStoreException("FileStore not running");
-    	}
+        }
     }
     
 
@@ -316,18 +316,18 @@ public class FileStore {
      * Writes any volatile meta-data to disk.
      */
     public void sync() throws FileStoreException {
-    	if (isRunning) {
-	        logger.debug("Sync");
-	    	try {
-	    		writeIndexFile();
-	    	} catch (IOException e) {
-	    		String msg = "Error sync'ing to disk: " + e.getMessage();
-	    		logger.error(msg);
-	    		throw new FileStoreException(msg);
-	    	}
-    	} else {
+        if (isRunning) {
+            logger.debug("Sync");
+            try {
+                writeIndexFile();
+            } catch (IOException e) {
+                String msg = "Error sync'ing to disk: " + e.getMessage();
+                logger.error(msg);
+                throw new FileStoreException(msg);
+            }
+        } else {
             throw new FileStoreException("FileStore not running");
-    	}
+        }
     }
   
 
@@ -335,19 +335,19 @@ public class FileStore {
      * Logs a message showing the disk size usage.
      */
     public void printSizeInfo() {
-    	if (isRunning) {
-	        long stored = getStoredSpace();
-	        long used = getUsedSpace();
-	        long wasted = stored - used;
-	        double wastedPerc = 0.0;
-	        if (stored > 0) {
-	            wastedPerc = ((double) wasted / (double) stored) * 100;
-	        }
-	        logger.debug(String.format(Locale.US,
-	        		"Disk usage:  Size: %s, Used: %s, Wasted: %s (%.1f %%)",
-	                diskSizeToString(stored), diskSizeToString(used),
-	                diskSizeToString(wasted), wastedPerc));
-    	}
+        if (isRunning) {
+            long stored = getStoredSpace();
+            long used = getUsedSpace();
+            long wasted = stored - used;
+            double wastedPerc = 0.0;
+            if (stored > 0) {
+                wastedPerc = ((double) wasted / (double) stored) * 100;
+            }
+            logger.debug(String.format(Locale.US,
+                    "Disk usage:  Size: %s, Used: %s, Wasted: %s (%.1f %%)",
+                    diskSizeToString(stored), diskSizeToString(used),
+                    diskSizeToString(wasted), wastedPerc));
+        }
     }
     
 
@@ -414,7 +414,7 @@ public class FileStore {
      */
     private void writeIndexFile() throws IOException {
         DataOutputStream dos = new DataOutputStream(
-        		new FileOutputStream(dataDir + '/' + INDEX_FILE));
+                new FileOutputStream(dataDir + '/' + INDEX_FILE));
         dos.writeInt(entries.size());
         for (FileEntry entry : entries.values()) {
             dos.writeInt(entry.getId());

@@ -7,13 +7,13 @@ package xantippe;
  * @author Oscar Stigter
  */
 public enum MediaType {
-	
-	XML,
-	
-	SCHEMA,
-	
-	PLAIN_TEXT,
-	
-	BINARY,
+    
+    XML,
+    
+    SCHEMA,
+    
+    PLAIN_TEXT,
+    
+    BINARY,
 
 }
