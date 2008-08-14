@@ -162,7 +162,8 @@ public class DatabaseTest {
 					new Key("DocumentType", "Foo"),
 //					new Key("DocumentId",   2),
 			};
-			Set<Document> docs = database.findDocuments(keys);
+			//TODO: Use collection recursion.
+			Set<Document> docs = fooCol.findDocuments(keys);
 			Assert.assertEquals(2, docs.size());
 //			doc = (Document) docs.toArray()[0];
 //			Assert.assertEquals("0001.xml", doc.getName());
