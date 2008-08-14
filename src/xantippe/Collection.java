@@ -1,6 +1,9 @@
 package xantippe;
 
 
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -39,9 +42,12 @@ public class Collection implements Comparable<Collection> {
 	/** Validation mode. */
 	private ValidationMode validationMode = ValidationMode.INHERIT;
 	
-	/** Indices. */
+	/** Index definitions. */
 	private Set<Index> indices;
 	
+    /** Index values mapped by key name. */
+    private Map<String, IndexValue> indexValues;
+    
 	
     //------------------------------------------------------------------------
     //  Constructors
@@ -58,6 +64,7 @@ public class Collection implements Comparable<Collection> {
 		collections = new TreeSet<Integer>();
 		documents = new TreeSet<Integer>();
 		indices = new TreeSet<Index>();
+        indexValues = new HashMap<String, IndexValue>();
 		
 		database.addCollection(this);
 	}
@@ -195,6 +202,66 @@ public class Collection implements Comparable<Collection> {
 	}
 	
 	
+	@SuppressWarnings("unchecked")  // new HashSet[]
+    public Set<Document> findDocuments(Key[] keys) throws XmldbException {
+	    if (keys == null) {
+	    	String msg = "Null key array";
+	    	logger.error(msg);
+	    	throw new IllegalArgumentException(msg);
+	    }
+	    
+        int noOfKeys = keys.length;
+	    if (noOfKeys == 0) {
+	    	String msg = "Empty key array";
+	    	logger.error(msg);
+	    	throw new IllegalArgumentException(msg);
+	    }
+        
+        Set<Integer>[] docsPerKey = new HashSet[noOfKeys];
+        
+        //TODO: Recurse into collections.
+
+        // Find documents (ID's) that match any key.
+        for (int i = 0; i < noOfKeys; i++) {
+            Key key = keys[i];
+            docsPerKey[i] = new HashSet<Integer>();
+            IndexValue value = indexValues.get(key.getName());
+            if (value != null) {
+                docsPerKey[i].addAll(value.findDocuments(key.getValue()));
+            }
+        }
+        
+        // Gather documents by ID's.
+        Set<Document> docs = new HashSet<Document>();
+        if (noOfKeys == 1) {
+            for (int id : docsPerKey[0]) {
+                docs.add(database.getDocument(id));
+            }
+        } else {
+            // Filter out documents that do not match ALL keys.
+            Set<Integer> matchingIds = new HashSet<Integer>();
+            for (int id : docsPerKey[0]) {
+                boolean matches = true;
+                for (int i = 1; i < noOfKeys; i++) {
+                    if (!docsPerKey[i].contains(id)) {
+                        matches = false;
+                        break;
+                    }
+                }
+                if (matches) {
+                    matchingIds.add(id);
+                }
+            }
+            
+            for (int id : matchingIds) {
+                docs.add(database.getDocument(id));
+            }
+        }
+	    
+	    return docs;
+	}
+	
+	
     //------------------------------------------------------------------------
     //  Interface implementation: Comparable
     //------------------------------------------------------------------------
@@ -233,6 +300,19 @@ public class Collection implements Comparable<Collection> {
 
     /* package */ void addCollection(int id) {
         collections.add(id);
+    }
+
+
+    /* package */ void indexDocument(Document doc) {
+        for (Key key : doc.getKeys()) {
+            String keyName = key.getName();
+            IndexValue value = indexValues.get(keyName);
+            if (value == null) {
+                value = new IndexValue();
+                indexValues.put(keyName, value);
+            }
+            value.indexDocument(doc, key.getValue());
+        }
     }
 
 

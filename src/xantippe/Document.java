@@ -235,12 +235,13 @@ public class Document implements Comparable<Document> {
 	
 	
 	private void storeDocument(File file) throws XmldbException {
-        if (mediaType == MediaType.XML) {
-	        database.indexDocument(this);
-        }
-        
 	    try {
 	        database.getFileStore().store(id, file);
+	        
+	        if (mediaType == MediaType.XML) {
+	        	Collection col = getParent();
+		        col.indexDocument(this);
+	        }
 	    } catch (FileStoreException e) {
 	        String msg = "Could not store document: " + this;
 	        logger.error(msg, e);

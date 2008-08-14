@@ -8,7 +8,6 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -26,37 +25,39 @@ import xantippe.filestore.FileStoreException;
 public class DatabaseImpl implements Database {
 	
 	
+	/** Property for the database directory. */
+	private static final String DATA_DIR = "xantippe.data.dir";
+	
+	/** Database file containing general metadata. */
 	private static final String METADATA_FILE = "metadata.dbx";
 	
+	/** Database file containing the collections and documents tree. */
 	private static final String COLLECTIONS_FILE = "collections.dbx";
 	
 	/** log4j logger. */
 	private static final Logger logger = Logger.getLogger(DatabaseImpl.class);
 	
     /** Database directory. */
-    private String dataDir = System.getProperty("xantippe.data.dir", "data");
+    private final String dataDir;
     
     /** File store with the documents. */
-    private FileStore fileStore;
+    private final FileStore fileStore;
     
+    /** Document validator. */
+    private final DocumentValidator validator;
+
+	/** Collections mapped by ID. */
+	private final Map<Integer, Collection> collections;
+    
+	/** Documents mapped by ID. */
+	private final Map<Integer, Document> documents;
+	
 	/** Root collection. */
 	private Collection rootCollection;
 	
-	/** Collections mapped by ID. */
-	private Map<Integer, Collection> collections;
-    
-	/** Documents mapped by ID. */
-	private Map<Integer, Document> documents;
-	
-    /** Indexes mapped by key name. */
-    private Map<String, IndexValue> indexes;
-    
     /** Next document ID. */
     private int nextId;
     
-    /** Document validator. */
-    private DocumentValidator validator;
-
     /** Whether the database is running. */
     private boolean isRunning = false;
     
@@ -72,11 +73,12 @@ public class DatabaseImpl implements Database {
     public DatabaseImpl() {
     	Util.initLog4j();
     	
+    	dataDir = System.getProperty("xantippe.data.dir", "data");
+    	
     	fileStore = new FileStore(dataDir);
     	
     	collections = new HashMap<Integer, Collection>();
     	documents = new HashMap<Integer, Document>();
-        indexes = new HashMap<String, IndexValue>();
         
         validator = new DocumentValidator(this);
         
@@ -155,66 +157,6 @@ public class DatabaseImpl implements Database {
     }
     
     
-	@SuppressWarnings("unchecked")  // new HashSet[]
-    public Set<Document> findDocuments(Key[] keys) throws XmldbException {
-	    checkRunning();
-	    
-	    if (keys == null) {
-	    	String msg = "findDocuments(): Null value for keys";
-	    	logger.error(msg);
-	    	throw new IllegalArgumentException(msg);
-	    }
-	    
-        int noOfKeys = keys.length;
-	    if (noOfKeys == 0) {
-	    	String msg = "findDocuments(): Empty key array";
-	    	logger.error(msg);
-	    	throw new IllegalArgumentException(msg);
-	    }
-        
-        Set<Integer>[] docsPerKey = new HashSet[noOfKeys];
-
-        // Find documents (ID's) that match any key.
-        for (int i = 0; i < noOfKeys; i++) {
-            Key key = keys[i];
-            docsPerKey[i] = new HashSet<Integer>();
-            IndexValue index = indexes.get(key.getName());
-            if (index != null) {
-                docsPerKey[i].addAll(index.findDocuments(key.getValue()));
-            }
-        }
-        
-        // Gather documents by ID's.
-        Set<Document> docs = new HashSet<Document>();
-        if (noOfKeys == 1) {
-            for (int id : docsPerKey[0]) {
-                docs.add(documents.get(id));
-            }
-        } else {
-            // Filter out documents that do not match ALL keys.
-            Set<Integer> matchingIds = new HashSet<Integer>();
-            for (int id : docsPerKey[0]) {
-                boolean matches = true;
-                for (int i = 1; i < noOfKeys; i++) {
-                    if (!docsPerKey[i].contains(id)) {
-                        matches = false;
-                        break;
-                    }
-                }
-                if (matches) {
-                    matchingIds.add(id);
-                }
-            }
-            
-            for (int id : matchingIds) {
-                docs.add(documents.get(id));
-            }
-        }
-	    
-	    return docs;
-	}
-	
-	
     // For debugging purposes only.
 	public void print() {
 	    printCollection(rootCollection);
@@ -256,18 +198,6 @@ public class DatabaseImpl implements Database {
 	}
 	
 	
-    /* package */ void indexDocument(Document doc) {
-        for (Key key : doc.getKeys()) {
-            String keyName = key.getName();
-            IndexValue index = indexes.get(keyName);
-            if (index == null) {
-                index = new IndexValue();
-                indexes.put(keyName, index);
-            }
-            index.indexDocument(doc, key.getValue());
-        }
-    }
-    
     /* package */ FileStore getFileStore() {
         return fileStore;
     }
