@@ -81,7 +81,12 @@ public class Collection implements Comparable<Collection> {
     
     
     public Collection getParent() {
-        return database.getCollection(parent);
+        if (parent != -1) {
+            return database.getCollection(parent);
+        } else {
+            // Root collection has no parent.
+            return null;
+        }
     }
     
     
@@ -95,14 +100,39 @@ public class Collection implements Comparable<Collection> {
     
     
     public Collection getCollection(String name) {
-    	Collection col = null;
     	for (int colId : collections) {
-    		col = database.getCollection(colId);
+    		Collection col = database.getCollection(colId);
     		if (col != null && col.getName().equals(name)) {
-    			break;
+    		    // Found.
+    		    return col;
     		}
     	}
-    	return col;
+    	
+    	// Not found.
+    	return null;
+    }
+    
+    
+    public Set<Document> getDocuments() {
+        Set<Document> docs = new TreeSet<Document>();
+        for (int id : documents) {
+            docs.add(database.getDocument(id));
+        }
+        return docs;
+    }
+    
+    
+    public Document getDocument(String name) {
+        for (int docId : documents) {
+            Document doc = database.getDocument(docId);
+            if (doc != null && doc.getName().equals(name)) {
+                // Found.
+                return doc;
+            }
+        }
+        
+        // Not found.
+        return null;
     }
     
     
@@ -131,15 +161,6 @@ public class Collection implements Comparable<Collection> {
     }
     
 
-    public Set<Document> getDocuments() {
-        Set<Document> docs = new TreeSet<Document>();
-        for (int id : documents) {
-            docs.add(database.getDocument(id));
-        }
-        return docs;
-    }
-    
-    
     public Set<Index> getIndices() {
         Set<Index> indices2 = new TreeSet<Index>();
         

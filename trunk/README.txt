@@ -32,9 +32,9 @@ Features
   tree.
 
 - Queries can be exectued using XQuery modules stored in the database, or by
-  executing queries ad hoc. The XQuery functionality is handled by Saxon-B.
-  Saxon is an open source XQuery/XSLT processor written by Michael Kay
-  (http://www.saxonica.com).
+  executing ad hoc queries. The XQuery functionality is powered by Saxon-B.
+  Saxon is an open source XQuery and XSLT processor written by Michael H. Kay
+  from Saxonica Limited (http://www.saxonica.com).
 
 
 Status

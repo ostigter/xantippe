@@ -198,6 +198,22 @@ public class DatabaseImpl implements Database {
     	checkRunning();
     	
     	Document doc = null;
+    	
+    	int p = uri.lastIndexOf('/');
+    	if (p != -1) {
+    	    String colUri = uri.substring(0, p);
+    	    String docName = uri.substring(p + 1);
+    	    
+    	    Collection col = getCollection(colUri);
+    	    if (col != null) {
+    	        doc = col.getDocument(docName);
+    	        if (doc == null) {
+    	            throw new XmldbException(
+    	                    "Document not found: '" + uri + "'");
+    	        }
+    	    }
+    	}
+    	
     	return doc;
     }
     

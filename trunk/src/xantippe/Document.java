@@ -122,8 +122,10 @@ public class Document implements Comparable<Document> {
         try {
             is = database.getFileStore().retrieve(id);
         } catch (FileStoreException e) {
-            String msg = "Could not retrieve document: " + this;
-            logger.error(msg, e);
+            String msg = String.format(
+                    "Could not retrieve content of document '%s': %s",
+                    this, e.getMessage());
+            logger.error(msg);
             throw new XmldbException(msg, e);
         }
         
