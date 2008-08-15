@@ -26,9 +26,9 @@ public class DatabaseTest {
 
     private static final String DATA_DIR = "test/data";
     
-//  private static final String LARGE_DATASET_DIR =
-//          "D:/Temp/XML_docs/1000"; 
-//          "C:/LocalData/Temp/XML_docs/1000"; 
+//    private static final String LARGE_DATASET_DIR =
+//            "D:/Temp/XML_docs/1000"; 
+//            "C:/LocalData/Temp/XML_docs/1000"; 
     
     private static final String XML_HEADER =
 		"<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
@@ -73,16 +73,13 @@ public class DatabaseTest {
 
 
     @Test
-    public void basics() {
-        logger.debug("Test suite 'basics' started.");
+    public void storage() {
+        logger.debug("Test suite 'storage' started.");
 
         File file;
         
         try {
             database.start();
-            
-            Collection col = database.getCollection("/db");
-            System.out.println("*** col = " + col);
             
             // Create collections.
             Collection rootCol = database.getRootCollection();
@@ -171,6 +168,7 @@ public class DatabaseTest {
             //TODO: Use collection recursion.
             Set<Document> docs = fooCol.findDocuments(keys);
             Assert.assertEquals(2, docs.size());
+            //FIXME: Document order
 //          doc = (Document) docs.toArray()[0];
 //          Assert.assertEquals("0001.xml", doc.getName());
 //          doc = (Document) docs.toArray()[1];
@@ -184,7 +182,7 @@ public class DatabaseTest {
             Assert.fail(e.getMessage());
         }
 
-        logger.debug("Test suite 'basics' finished.");
+        logger.debug("Test suite 'storage' finished.");
     }
     
     
@@ -326,7 +324,15 @@ public class DatabaseTest {
 	        // doc() function.
 	        query = "doc('/db/data/foo/Foo-0001.xml')/element()/Header/Id/text()";
             result = database.executeQuery(query).toString();
-            Assert.assertEquals(XML_HEADER + "\nFoo-0001", result);
+            Assert.assertEquals(XML_HEADER + "Foo-0001", result);
+            
+            // collection() function.
+            query = "count(collection('/db/data/foo'))";
+            result = database.executeQuery(query).toString();
+            Assert.assertEquals(XML_HEADER + "2", result);
+//            query = "collection('/db/data/foo')/element()/Header/Id/text()";
+//            result = database.executeQuery(query).toString();
+//            Assert.assertEquals(XML_HEADER + "Foo-0001Foo-0002", result);
             
             database.shutdown();
             

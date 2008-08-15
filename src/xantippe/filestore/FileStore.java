@@ -255,8 +255,10 @@ public class FileStore {
                     is = new RetrieveStream(
                             dataFile, entry.getOffset(), entry.getLength());
                 } catch (IOException e) {
-                    String msg = "Error retrieving entry with ID " + id;
-                    logger.error(msg, e);
+                    String msg = String.format(
+                            "Error retrieving entry with ID %d: %s",
+                            id, e.getMessage());
+                    logger.error(msg);
                     throw new FileStoreException(msg, e);
                 }
             } else {
@@ -281,7 +283,7 @@ public class FileStore {
                         + entry.getOffset() + " and length "
                         + entry.getLength());
             } else {
-                logger.warn("WARNING: Entry with ID " + id + " not found");
+                logger.warn("Entry with ID " + id + " not found");
             }
         } else {
             throw new FileStoreException("FileStore not running");
