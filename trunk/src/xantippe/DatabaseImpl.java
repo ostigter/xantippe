@@ -7,6 +7,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -48,6 +49,9 @@ public class DatabaseImpl implements Database {
     
     /** Document validator. */
     private final DocumentValidator validator;
+    
+    /** XQuery processor. */
+    private final QueryProcessor queryProcessor;
 
     /** Collections mapped by ID. */
     private final Map<Integer, Collection> collections;
@@ -84,6 +88,8 @@ public class DatabaseImpl implements Database {
         documents = new HashMap<Integer, Document>();
         
         validator = new DocumentValidator(this);
+        
+        queryProcessor = new QueryProcessor(this);
         
         logger.debug(String.format("Database directory: '%s'",
                 new File(dataDir).getAbsolutePath()));
@@ -160,6 +166,48 @@ public class DatabaseImpl implements Database {
     }
     
     
+    public Collection getCollection(String uri) throws XmldbException {
+    	checkRunning();
+    	
+    	String absoluteUri = uri;
+    	
+    	if (uri.startsWith("/db")) {
+    		uri = uri.substring(3);
+    	} else {
+    		throw new XmldbException("Invalid URI: " + uri);
+    	}
+    	
+    	Collection col = rootCollection;
+    	
+    	String[] parts = uri.split("/");
+    	for (String colName : parts) {
+    		if (colName.length() != 0) {
+	    		col = col.getCollection(colName);
+	    		if (col == null) {
+	    			throw new XmldbException(
+	    					"Collection '" + absoluteUri + "' not found");
+	    		}
+    		}
+    	}
+    	
+    	return col;
+    }
+    
+    
+    public Document getDocument(String uri) throws XmldbException {
+    	checkRunning();
+    	
+    	Document doc = null;
+    	return doc;
+    }
+    
+    
+    public OutputStream executeQuery(String query) throws XmldbException {
+        checkRunning();
+    	return queryProcessor.executeQuery(query);
+    }
+    
+    
     // For debugging purposes only.
     public void print() {
         printCollection(rootCollection);
@@ -182,12 +230,22 @@ public class DatabaseImpl implements Database {
     
     
     /* package */ Collection getCollection(int id) {
-        return collections.get(id);
+    	Collection col = collections.get(id);
+    	if (col == null) {
+    		String msg = "Collection with ID " + id + " not found";
+    		logger.error(msg);
+    	}
+        return col;
     }
     
     
     /* package */ Document getDocument(int id) {
-        return documents.get(id);
+    	Document doc =documents.get(id);
+    	if (doc == null) {
+    		String msg = "Document with ID " + id + " not found";
+    		logger.error(msg);
+    	}
+        return doc;
     }
     
     
@@ -209,6 +267,8 @@ public class DatabaseImpl implements Database {
     /* package */ MediaType getMediaType(String fileName) {
         MediaType mediaType = MediaType.BINARY;
         
+        //TODO: Use list of known file extentions.
+        
         int p = fileName.lastIndexOf('.');
         if (p > 0) {
             String extention = fileName.substring(p + 1).toLowerCase();
@@ -216,6 +276,8 @@ public class DatabaseImpl implements Database {
                 mediaType = MediaType.XML;
             } else if (extention.equals("xsd")) { 
                 mediaType = MediaType.SCHEMA;
+            } else if (extention.equals("xqy")) { 
+                mediaType = MediaType.XQUERY;
             } else if (extention.equals("txt")) { 
                 mediaType = MediaType.PLAIN_TEXT;
             }

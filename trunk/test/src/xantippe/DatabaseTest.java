@@ -30,6 +30,9 @@ public class DatabaseTest {
 //          "D:/Temp/XML_docs/1000"; 
 //          "C:/LocalData/Temp/XML_docs/1000"; 
     
+    private static final String XML_HEADER =
+		"<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
+
     private static final int BUFFER_SIZE = 8192;  // 8 kB
 
     private static final Logger logger = Logger.getLogger(DatabaseTest.class);
@@ -77,7 +80,10 @@ public class DatabaseTest {
         
         try {
             database.start();
-
+            
+            Collection col = database.getCollection("/db");
+            System.out.println("*** col = " + col);
+            
             // Create collections.
             Collection rootCol = database.getRootCollection();
             Assert.assertEquals(1, rootCol.getId());
@@ -273,6 +279,65 @@ public class DatabaseTest {
     }
 
 
+    @Test
+    public void xquery() {
+        logger.debug("Test suite 'xquery' started.");
+        
+        File file;
+        Document doc;
+
+        try {
+            database.start();
+
+            // Fill database.
+            Collection rootCol = database.getRootCollection();
+            Collection dataCol = rootCol.createCollection("data");
+            Collection fooCol = dataCol.createCollection("foo");
+            file = new File("test/dat/db/data/foo/Foo-0001.xml");
+            doc = fooCol.createDocument(file.getName());
+            doc.setContent(file);
+            file = new File("test/dat/db/data/foo/Foo-0002.xml");
+            doc = fooCol.createDocument(file.getName());
+            doc.setContent(file);
+            Collection barCol = dataCol.createCollection("bar");
+            file = new File("test/dat/db/data/bar/Bar-0001.xml");
+            doc = barCol.createDocument(file.getName());
+            doc.setContent(file);
+//            Collection modulesCol = rootCol.createCollection("modules");
+//            file = new File("test/dat/db/modules/Math.xqy");
+//            doc = dataCol.createDocument(file.getName());
+//            doc.setContent(file);
+        	
+        	// Simple query.
+            String query = "<Result>{2 + 3}</Result>";
+	        String result = database.executeQuery(query).toString();
+	        Assert.assertEquals(XML_HEADER + "\n<Result>5</Result>", result);
+	        
+	        // Local function call.
+	        query = "declare namespace m = 'urn:math';\n\n" +
+			        "declare function m:sum($x as xs:integer, $y as xs:integer) as xs:integer {\n" +
+			        "  let $result := $x + $y\n" +
+			        "  return $result\n" +
+			        "};\n\n" +
+			        "<Result>{m:sum(2, 3)}</Result>\n";
+            result = database.executeQuery(query).toString();
+            Assert.assertEquals(XML_HEADER + "\n<Result>5</Result>", result);
+            
+	        // doc() function.
+	        query = "doc('/db/data/foo/Foo-0001.xml')/element()/Header/Id/text()";
+            result = database.executeQuery(query).toString();
+            Assert.assertEquals(XML_HEADER + "\nFoo-0001", result);
+            
+            database.shutdown();
+            
+        } catch (Exception e) {
+            Assert.fail(e.getMessage());
+        }
+        
+        logger.debug("Test suite 'xquery' finished.");
+    }
+    
+    
     //------------------------------------------------------------------------
     //  Private methods.
     //------------------------------------------------------------------------
