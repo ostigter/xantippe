@@ -94,6 +94,18 @@ public class Collection implements Comparable<Collection> {
     }
     
     
+    public Collection getCollection(String name) {
+    	Collection col = null;
+    	for (int colId : collections) {
+    		col = database.getCollection(colId);
+    		if (col != null && col.getName().equals(name)) {
+    			break;
+    		}
+    	}
+    	return col;
+    }
+    
+    
     public ValidationMode getValidationMode() {
         ValidationMode vm = validationMode;
         if (vm == ValidationMode.INHERIT) { 

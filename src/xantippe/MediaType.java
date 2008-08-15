@@ -12,6 +12,8 @@ public enum MediaType {
     
     SCHEMA,
     
+    XQUERY,
+    
     PLAIN_TEXT,
     
     BINARY,

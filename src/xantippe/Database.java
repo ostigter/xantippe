@@ -1,5 +1,7 @@
 package xantippe;
 
+import java.io.OutputStream;
+
 
 /**
  * Lightweight XML database with XQuery, validation and indexing,
@@ -16,7 +18,7 @@ interface Database {
      * @throws XmldbException
      *             if the database was already running
      */
-    public void start() throws XmldbException;
+    void start() throws XmldbException;
 
     
     /**
@@ -25,7 +27,7 @@ interface Database {
      * @throws XmldbException
      *             if the database is not running
      */
-    public void shutdown() throws XmldbException;
+    void shutdown() throws XmldbException;
 
     
     /**
@@ -33,7 +35,7 @@ interface Database {
      * 
      * @return whether the database is running
      */
-    public boolean isRunning();
+    boolean isRunning();
 
     
     /**
@@ -44,8 +46,44 @@ interface Database {
      * @throws XmldbException
      *             if the database is not running
      */
-    public Collection getRootCollection() throws XmldbException;
+    Collection getRootCollection() throws XmldbException;
+    
+    
+    /**
+     * Returns the collection with the specified URI.
+     * 
+     * @param uri  the URI
+     * 
+     * @return  the collection, of null it not found
+     * 
+     * @throws XmldbException  if any error occurred
+     */
+    Collection getCollection(String uri) throws XmldbException;
 
+    
+    /**
+     * Returns the document with the specified URI.
+     * 
+     * @param uri  the URI
+     * 
+     * @return  the document, of null it not found
+     * 
+     * @throws XmldbException  if any error occurred
+     */
+    Document getDocument(String uri) throws XmldbException;
+
+    
+    /**
+     * Execute the specified query.
+     * 
+     * @param  query  the query
+     * 
+     * @return  OutputStream with the query results
+     * 
+     * @throws XmldbException  if the query could not be executed
+     */
+    OutputStream executeQuery(String query) throws XmldbException;
+    
     
     // Debug only
     public void print();
