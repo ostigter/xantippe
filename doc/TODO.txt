@@ -1,12 +1,16 @@
 TO DO
 =====
 
-- Index persistency (per collection, inheritance tree)
-- Automatic indexing of XML documents
 - Saxon XQuery support
+- Retrieval by indices (collection inheritance, persistency)
+- Automatic indexing of XML documents
 - Configuration file
-- Management console
+- Client tool
+- Web application
 - WebDAV interface
 - REST interface
 - Compression
 - Document caching
+- Backup & Restore
+- Locking
+- Transactions

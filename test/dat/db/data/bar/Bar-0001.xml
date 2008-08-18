@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<bar:BarDocument xmlns:foo="http://www.example.com/XMLSchema/Bar/v1.0">
+<bar:BarDocument xmlns:bar="http://www.example.com/XMLSchema/Bar/v1.0">
   <Header>
     <Id>Bar-0001</Id>
     <Type>Bar</Type>
