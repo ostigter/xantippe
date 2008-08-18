@@ -168,11 +168,10 @@ public class DatabaseTest {
             //TODO: Use collection recursion.
             Set<Document> docs = fooCol.findDocuments(keys);
             Assert.assertEquals(2, docs.size());
-            //FIXME: Document order
-//          doc = (Document) docs.toArray()[0];
-//          Assert.assertEquals("0001.xml", doc.getName());
-//          doc = (Document) docs.toArray()[1];
-//          Assert.assertEquals("0002.xml", doc.getName());
+            doc = (Document) docs.toArray()[0];
+            Assert.assertEquals("0001.xml", doc.getName());
+            doc = (Document) docs.toArray()[1];
+            Assert.assertEquals("0002.xml", doc.getName());
 
             database.shutdown();
             
@@ -186,50 +185,50 @@ public class DatabaseTest {
     }
     
     
-//  @Test
-//  public void manyDocuments() {
-//      logger.debug("Test suite 'manyDocuments' started.");
+//    @Test
+//    public void manyDocuments() {
+//        logger.debug("Test suite 'manyDocuments' started.");
 //
-//      try {
-//          database.start();
+//        try {
+//            database.start();
 //
-//          Collection col = database.getRootCollection();
+//            Collection col = database.getRootCollection();
 //
-//          File dir = new File(LARGE_DATASET_DIR);
-//          if (!dir.isDirectory() || !dir.canRead()) {
-//              String msg = "Invalid dataset directory: " + dir;
-//              logger.error(msg);
-//              Assert.fail(msg);
-//          }
+//            File dir = new File(LARGE_DATASET_DIR);
+//            if (!dir.isDirectory() || !dir.canRead()) {
+//                String msg = "Invalid dataset directory: " + dir;
+//                logger.error(msg);
+//                Assert.fail(msg);
+//            }
 //
-//          int count = 0;
-//          long size = 0L;
+//            int count = 0;
+//            long size = 0L;
 //
-//          logger.info("Storing documents...");
-//          long startTime = System.currentTimeMillis();
-//          for (File file : dir.listFiles()) {
-//              if (file.isFile()) {
-//                  Document doc =
-//                      col.createDocument(file.getName());
-//                  doc.setContent(file);
-//                  count++;
-//                  size += file.length();
-//              }
-//          }
-//          double duration = (System.currentTimeMillis() - startTime) / 1000.0;
-//          double speed = (size / (1024 * 1024)) / duration;
-//          logger.info(String.format(Locale.US,
-//                  "Stored %d documents in %.3f seconds (%.2f MB/s)",
-//                  count, duration, speed));
+//            logger.info("Storing documents...");
+//            long startTime = System.currentTimeMillis();
+//            for (File file : dir.listFiles()) {
+//                if (file.isFile()) {
+//                    Document doc =
+//                        col.createDocument(file.getName());
+//                    doc.setContent(file);
+//                    count++;
+//                    size += file.length();
+//                }
+//            }
+//            double duration = (System.currentTimeMillis() - startTime) / 1000.0;
+//            double speed = (size / (1024 * 1024)) / duration;
+//            logger.info(String.format(Locale.US,
+//                    "Stored %d documents in %.3f seconds (%.2f MB/s)",
+//                    count, duration, speed));
 //
-//          database.shutdown();
+//            database.shutdown();
 //
-//      } catch (XmldbException e) {
-//          Assert.fail(e.getMessage());
-//      }
+//        } catch (XmldbException e) {
+//            Assert.fail(e.getMessage());
+//        }
 //
-//      logger.debug("Test suite 'manyDocuments' finished.");
-//  }
+//        logger.debug("Test suite 'manyDocuments' finished.");
+//    }
 
 
     @Test
@@ -327,12 +326,12 @@ public class DatabaseTest {
             Assert.assertEquals(XML_HEADER + "Foo-0001", result);
             
             // collection() function.
-            query = "count(collection('/db/data/foo'))";
+            query = "count(collection('/db/data?recurse=yes'))";
             result = database.executeQuery(query).toString();
-            Assert.assertEquals(XML_HEADER + "2", result);
-//            query = "collection('/db/data/foo')/element()/Header/Id/text()";
-//            result = database.executeQuery(query).toString();
-//            Assert.assertEquals(XML_HEADER + "Foo-0001Foo-0002", result);
+            Assert.assertEquals(XML_HEADER + "3", result);
+            query = "collection('/db/data/foo')/element()/Header/Id/text()";
+            result = database.executeQuery(query).toString();
+            Assert.assertEquals(XML_HEADER + "Foo-0001Foo-0002", result);
             
             database.shutdown();
             

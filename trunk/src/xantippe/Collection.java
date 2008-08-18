@@ -265,7 +265,7 @@ public class Collection implements Comparable<Collection> {
         }
         
         // Gather documents by ID's.
-        Set<Document> docs = new HashSet<Document>();
+        Set<Document> docs = new TreeSet<Document>();
         if (noOfKeys == 1) {
             for (int id : docsPerKey[0]) {
                 docs.add(database.getDocument(id));

@@ -3,7 +3,8 @@ package xantippe;
 
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.xml.transform.Result;
 import javax.xml.transform.Source;
@@ -85,15 +86,18 @@ public class QueryProcessor {
     	
         logger.debug("Executing query: \n" + query);
         
+        long startTime = System.currentTimeMillis();
         try {
-        	long startTime = System.currentTimeMillis();
             XQueryExpression expr = staticQueryContext.compileQuery(query);
             long duration = System.currentTimeMillis() - startTime;
             logger.debug("Query compiled in " + duration + " ms");
+            startTime = System.currentTimeMillis();
             dynamicQueryContext.clearParameters();
             OutputStream os = new ByteArrayOutputStream();
             Result result = new StreamResult(os);
             expr.run(dynamicQueryContext, result, null);
+            duration = System.currentTimeMillis() - startTime;
+            logger.debug("Query executed in " + duration + " ms");
             logger.debug("Query result:\n" + os.toString());
             return os;
             
@@ -129,7 +133,7 @@ public class QueryProcessor {
          */
         public Source resolve(String uri, String baseUri)
     			throws TransformerException {
-    		logger.debug("Resolve document URI: '" + uri + "'");
+//    		logger.debug("Resolve document URI: '" + uri + "'");
     		
     		Source source = null;
     		
@@ -168,34 +172,71 @@ public class QueryProcessor {
         
 
         /**
-         * Resolves a collection URI.
+         * Returns the URI's of the documents stored in a specific collection
+         * and its subcollections.
          */
         public SequenceIterator resolve(
-                String uri, String baseUri, XPathContext context)
+                String colUri, String baseUri, XPathContext context)
                 throws XPathException {
-            logger.debug("Resolve collection URI: '" + uri + "'");
+            boolean recurse = false;
+            
+            // Parse query parameters
+            int p = colUri.indexOf('?');
+            if (p != -1) {
+                String params = colUri.substring(p + 1);
+                colUri = colUri.substring(0, p);
+                for (String param : params.split(";")) {
+//                    logger.debug("Query parameter: '" + param + "'");
+                    p = param.indexOf('=');
+                    if (p != -1) {
+                        String name = param.substring(0, p);
+                        String value = param.substring(p + 1);
+                        if (name.equals("recurse")) {
+                            recurse = value.equals("yes") ||
+                                      value.equals("true"); 
+                        }
+                    }
+                }
+            }
             
             SequenceIterator it = null;
             
+//            logger.debug("Resolve collection: '" + colUri + "'");
+            
             try {
-                // Get documents from the collection. 
-                Collection col  = database.getCollection(uri);
-                Set<Document> docs = col.getDocuments();
+                // Get documents from collection. 
+                Collection col  = database.getCollection(colUri);
+                
+                List<String> docUris = new ArrayList<String>();
+                getDocumentUris(col, recurse, docUris);
                 
                 // Build Saxon specific iterator with document URI's.
-                AnyURIValue[] anyUriValues = new AnyURIValue[docs.size()];
+                AnyURIValue[] anyUriValues = new AnyURIValue[docUris.size()];
                 int i = 0;
-                for (Document doc : docs) {
-                    anyUriValues[i++] = new AnyURIValue(doc.getUri());
+                for (String docUri : docUris) {
+                    anyUriValues[i++] = new AnyURIValue(docUri);
                 }
                 it = new ArrayIterator(anyUriValues);
                 
             } catch (XmldbException e) {
                 // Runtime query error (client side)
-                logger.debug("Collection not found: '" + uri + "'");
+                logger.debug("Collection not found: '" + colUri + "'");
             }
             
             return it;
+        }
+        
+        
+        private void getDocumentUris(
+                Collection col, boolean recurse, List<String> docUris) {
+            for (Document doc : col.getDocuments()) {
+                docUris.add(doc.getUri()); 
+            }
+            if (recurse) {
+                for (Collection subCol : col.getCollections()) {
+                    getDocumentUris(subCol, recurse, docUris);
+                }
+            }
         }
         
         
