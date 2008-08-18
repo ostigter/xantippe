@@ -83,15 +83,18 @@ public class QueryProcessor {
     		throw new IllegalArgumentException("Null or empty query");
     	}
     	
-//        logger.debug("Executing query: \n" + query);
+        logger.debug("Executing query: \n" + query);
         
         try {
+        	long startTime = System.currentTimeMillis();
             XQueryExpression expr = staticQueryContext.compileQuery(query);
+            long duration = System.currentTimeMillis() - startTime;
+            logger.debug("Query compiled in " + duration + " ms");
             dynamicQueryContext.clearParameters();
             OutputStream os = new ByteArrayOutputStream();
             Result result = new StreamResult(os);
             expr.run(dynamicQueryContext, result, null);
-//            logger.debug("Query result:\n" + os.toString());
+            logger.debug("Query result:\n" + os.toString());
             return os;
             
         } catch (XPathException e) {
