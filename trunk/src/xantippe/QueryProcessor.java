@@ -19,6 +19,7 @@ import net.sf.saxon.expr.XPathContext;
 import net.sf.saxon.om.ArrayIterator;
 import net.sf.saxon.om.SequenceIterator;
 import net.sf.saxon.query.DynamicQueryContext;
+import net.sf.saxon.query.ModuleURIResolver;
 import net.sf.saxon.query.StaticQueryContext;
 import net.sf.saxon.query.XQueryExpression;
 import net.sf.saxon.trans.XPathException;
@@ -68,6 +69,7 @@ public class QueryProcessor {
 		config = new Configuration();
 		config.setURIResolver(new DocumentURIResolver());
         config.setCollectionURIResolver(new XmldbCollectionURIResolver());
+        config.setModuleURIResolver(new XmldbModuleURIResolver());
 		staticQueryContext = new StaticQueryContext(config);
         dynamicQueryContext = new DynamicQueryContext(config);
 	}
@@ -163,6 +165,8 @@ public class QueryProcessor {
     /**
      * Collection URI resolver.
      * 
+     * Used by the XQuery fn:collection() function.
+     * 
      * @author Oscar Stigter
      */
     private class XmldbCollectionURIResolver implements CollectionURIResolver {
@@ -172,8 +176,7 @@ public class QueryProcessor {
         
 
         /**
-         * Returns the URI's of the documents stored in a specific collection
-         * and its subcollections.
+         * Returns the URI's of the documents stored in a specific collection.
          */
         public SequenceIterator resolve(
                 String colUri, String baseUri, XPathContext context)
@@ -237,6 +240,67 @@ public class QueryProcessor {
                     getDocumentUris(subCol, recurse, docUris);
                 }
             }
+        }
+        
+        
+    }
+
+
+    //------------------------------------------------------------------------
+    
+    
+    /**
+     * Module URI resolver.
+     * 
+     * Used by the XQuery import statement.
+     * 
+     * @author Oscar Stigter
+     */
+    private class XmldbModuleURIResolver implements ModuleURIResolver {
+        
+        
+        private static final long serialVersionUID = 1L;
+
+
+        /**
+         * Returns the contents of an XQuery module specified by its URI. 
+         */
+        public StreamSource[] resolve(
+                String namespace, String baseUri, String[] locationHints)
+                throws XPathException {
+            logger.debug("Resolve module with namespace '" + namespace + "'");
+            
+            Document doc = null;
+            
+            for (String uri : locationHints) {
+                // Cut off protocol declaration.
+                if (uri.startsWith("file:")) {
+                    uri = uri.substring(5);
+                }
+                
+                try {
+                    doc = database.getDocument(uri);
+                    break;
+                } catch (XmldbException e) {
+                    // Invalid URI; try next location hint.
+                }
+            }
+            
+            StreamSource[] sources = null;
+            
+            if (doc != null) {
+                try {
+                    sources = new StreamSource[] {
+                        new StreamSource(doc.getContent(), doc.getUri()),
+                    };
+                } catch (XmldbException e) {
+                    logger.error(String.format(
+                            "Error retrieving content of document '%s': %s",
+                            doc, e.getMessage()));
+                }
+            }
+            
+            return sources;
         }
         
         
