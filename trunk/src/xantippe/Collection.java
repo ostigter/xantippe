@@ -235,8 +235,8 @@ public class Collection implements Comparable<Collection> {
     }
     
     
-    @SuppressWarnings("unchecked")  // new HashSet[]
-    public Set<Document> findDocuments(Key[] keys) throws XmldbException {
+    public Set<Document> findDocuments(Key[] keys, boolean recursive)
+            throws XmldbException {
         if (keys == null) {
             String msg = "Null key array";
             logger.error(msg);
@@ -250,46 +250,9 @@ public class Collection implements Comparable<Collection> {
             throw new IllegalArgumentException(msg);
         }
         
-        Set<Integer>[] docsPerKey = new HashSet[noOfKeys];
-        
-        //TODO: Recurse into collections.
-
-        // Find documents (ID's) that match any key.
-        for (int i = 0; i < noOfKeys; i++) {
-            Key key = keys[i];
-            docsPerKey[i] = new HashSet<Integer>();
-            IndexValue value = indexValues.get(key.getName());
-            if (value != null) {
-                docsPerKey[i].addAll(value.findDocuments(key.getValue()));
-            }
-        }
-        
-        // Gather documents by ID's.
         Set<Document> docs = new TreeSet<Document>();
-        if (noOfKeys == 1) {
-            for (int id : docsPerKey[0]) {
-                docs.add(database.getDocument(id));
-            }
-        } else {
-            // Filter out documents that do not match ALL keys.
-            Set<Integer> matchingIds = new HashSet<Integer>();
-            for (int id : docsPerKey[0]) {
-                boolean matches = true;
-                for (int i = 1; i < noOfKeys; i++) {
-                    if (!docsPerKey[i].contains(id)) {
-                        matches = false;
-                        break;
-                    }
-                }
-                if (matches) {
-                    matchingIds.add(id);
-                }
-            }
-            
-            for (int id : matchingIds) {
-                docs.add(database.getDocument(id));
-            }
-        }
+        
+        findDocuments(keys, recursive, docs);
         
         return docs;
     }
@@ -349,4 +312,60 @@ public class Collection implements Comparable<Collection> {
     }
 
 
+    //------------------------------------------------------------------------
+    //  Package protected methods
+    //------------------------------------------------------------------------
+    
+    
+    @SuppressWarnings("unchecked")  // new HashSet[]
+    private void findDocuments(
+            Key[] keys, boolean recursive, Set<Document> docs) {
+        int noOfKeys = keys.length;
+        
+        Set<Integer>[] docsPerKey = new HashSet[noOfKeys];
+        
+        // Find documents (ID's) that match any key.
+        for (int i = 0; i < noOfKeys; i++) {
+            Key key = keys[i];
+            docsPerKey[i] = new HashSet<Integer>();
+            IndexValue value = indexValues.get(key.getName());
+            if (value != null) {
+                docsPerKey[i].addAll(value.findDocuments(key.getValue()));
+            }
+        }
+        
+        // Gather documents by ID's.
+        if (noOfKeys == 1) {
+            for (int id : docsPerKey[0]) {
+                docs.add(database.getDocument(id));
+            }
+        } else {
+            // Filter out documents that do not match ALL keys.
+            Set<Integer> matchingIds = new HashSet<Integer>();
+            for (int id : docsPerKey[0]) {
+                boolean matches = true;
+                for (int i = 1; i < noOfKeys; i++) {
+                    if (!docsPerKey[i].contains(id)) {
+                        matches = false;
+                        break;
+                    }
+                }
+                if (matches) {
+                    matchingIds.add(id);
+                }
+            }
+            
+            for (int id : matchingIds) {
+                docs.add(database.getDocument(id));
+            }
+        }
+        
+        if (recursive) {
+            for (Collection col : getCollections()) {
+                col.findDocuments(keys, recursive, docs);
+            }
+        }
+    }
+
+    
 }
