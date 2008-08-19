@@ -300,10 +300,10 @@ public class DatabaseTest {
             file = new File("test/dat/db/data/bar/Bar-0001.xml");
             doc = barCol.createDocument(file.getName());
             doc.setContent(file);
-//            Collection modulesCol = rootCol.createCollection("modules");
-//            file = new File("test/dat/db/modules/Math.xqy");
-//            doc = dataCol.createDocument(file.getName());
-//            doc.setContent(file);
+            Collection modulesCol = rootCol.createCollection("modules");
+            file = new File("test/dat/db/modules/greeting.xqy");
+            doc = modulesCol.createDocument(file.getName());
+            doc.setContent(file);
         	
         	// Simple query.
             String query = "<Result>{2 + 3}</Result>";
@@ -312,11 +312,11 @@ public class DatabaseTest {
 	        
 	        // Local function call.
 	        query = "declare namespace m = 'urn:math';\n\n" +
-			        "declare function m:sum($x as xs:integer, $y as xs:integer) as xs:integer {\n" +
-			        "  let $result := $x + $y\n" +
-			        "  return $result\n" +
-			        "};\n\n" +
-			        "<Result>{m:sum(2, 3)}</Result>\n";
+			        "declare function m:sum($x as xs:integer, $y as xs:integer) as xs:integer { \n" +
+			        "  let $result := $x + $y \n" +
+			        "  return $result \n" +
+			        "}; \n\n" +
+			        "<Result>{m:sum(2, 3)}</Result>";
             result = database.executeQuery(query).toString();
             Assert.assertEquals(XML_HEADER + "\n<Result>5</Result>", result);
             
@@ -332,6 +332,13 @@ public class DatabaseTest {
             query = "collection('/db/data/foo')/element()/Header/Id/text()";
             result = database.executeQuery(query).toString();
             Assert.assertEquals(XML_HEADER + "Foo-0001Foo-0002", result);
+            
+            // Stored XQuery module
+            query = "import module namespace gr = 'http://www.example.com/greeting' \n" +
+                    "  at '/db/modules/greeting.xqy'; \n\n" +
+                    "gr:greeting('Mr Smith')";
+            result = database.executeQuery(query).toString();
+            Assert.assertEquals(XML_HEADER + "Hello, Mr Smith!", result);
             
             database.shutdown();
             
