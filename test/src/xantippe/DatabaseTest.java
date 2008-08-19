@@ -160,18 +160,45 @@ public class DatabaseTest {
             os.write("<Document>\n  <Id>3</Id>\n  <Type>Bar</Type>\n</Document>".getBytes());
             os.close();
             
-            // Find documents by keys.
+            
+            // Find documents by keys (using indices).
+            
             Key[] keys = new Key[] {
-                    new Key("DocumentType", "Foo"),
-//                  new Key("DocumentId",   2),
+                    new Key("DocumentId", 2),
             };
-            //TODO: Use collection recursion.
-            Set<Document> docs = fooCol.findDocuments(keys);
+            Set<Document> docs = rootCol.findDocuments(keys, true);
+            Assert.assertEquals(1, docs.size());
+            doc = (Document) docs.toArray()[0];
+            Assert.assertEquals("/db/data/Foo/0002.xml", doc.getUri());
+
+            keys = new Key[] {
+                    new Key("DocumentType", "Foo"),
+            };
+            docs = fooCol.findDocuments(keys, true);
             Assert.assertEquals(2, docs.size());
             doc = (Document) docs.toArray()[0];
-            Assert.assertEquals("0001.xml", doc.getName());
+            Assert.assertEquals("/db/data/Foo/0001.xml", doc.getUri());
             doc = (Document) docs.toArray()[1];
-            Assert.assertEquals("0002.xml", doc.getName());
+            Assert.assertEquals("/db/data/Foo/0002.xml", doc.getUri());
+
+            keys = new Key[] {
+                    new Key("DocumentType", "Foo"),
+            };
+            docs = dataCol.findDocuments(keys, false);
+            Assert.assertEquals(0, docs.size());
+
+            keys = new Key[] {
+                    new Key("DocumentType", "NonExisting"),
+            };
+            docs = rootCol.findDocuments(keys, true);
+            Assert.assertEquals(0, docs.size());
+
+            keys = new Key[] {
+                    new Key("DocumentId", 2),
+                    new Key("DocumentType", "NonExisting"),
+            };
+            docs = rootCol.findDocuments(keys, true);
+            Assert.assertEquals(0, docs.size());
 
             database.shutdown();
             
@@ -183,7 +210,7 @@ public class DatabaseTest {
 
         logger.debug("Test suite 'storage' finished.");
     }
-    
+
     
 //    @Test
 //    public void manyDocuments() {
