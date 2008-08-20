@@ -18,16 +18,20 @@ public class Index implements Comparable<Index> {
     /** Path to the indexed XML element or attribute. */
     private String path;
     
+    /** Type. */
+    private IndexType type;
+    
     
     //------------------------------------------------------------------------
     //  Constructors
     //------------------------------------------------------------------------
 
     
-    public Index(int id, String name, String path) {
+    public Index(int id, String name, String path, IndexType type) {
         this.id = id;
         this.name = name;
         this.path = path;
+        this.type = type;
     }
 
 
@@ -43,6 +47,11 @@ public class Index implements Comparable<Index> {
 
     public String getPath() {
         return path;
+    }
+    
+    
+    public IndexType getType() {
+        return type;
     }
 
 

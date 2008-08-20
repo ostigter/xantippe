@@ -89,7 +89,7 @@ public class DatabaseTest {
             Assert.assertEquals("/db", rootCol.getUri());
             Assert.assertEquals(0, rootCol.getDocuments().size());
             Assert.assertEquals(0, rootCol.getCollections().size());
-            Assert.assertEquals(0, rootCol.getIndices().size());
+            Assert.assertEquals(0, rootCol.getIndices(true).size());
             Collection dataCol = rootCol.createCollection("data");
             Assert.assertEquals(2, dataCol.getId());
             Assert.assertEquals("data", dataCol.getName());
@@ -97,7 +97,7 @@ public class DatabaseTest {
             Assert.assertEquals("/db/data", dataCol.getUri());
             Assert.assertEquals(0, dataCol.getDocuments().size());
             Assert.assertEquals(0, dataCol.getCollections().size());
-            Assert.assertEquals(0, dataCol.getIndices().size());
+            Assert.assertEquals(0, dataCol.getIndices(true).size());
             Collection fooCol = dataCol.createCollection("Foo");
             Assert.assertEquals(3, fooCol.getId());
             Assert.assertEquals("Foo", fooCol.getName());
@@ -105,7 +105,7 @@ public class DatabaseTest {
             Assert.assertEquals("/db/data/Foo", fooCol.getUri());
             Assert.assertEquals(0, fooCol.getDocuments().size());
             Assert.assertEquals(0, fooCol.getCollections().size());
-            Assert.assertEquals(0, fooCol.getIndices().size());
+            Assert.assertEquals(0, fooCol.getIndices(true).size());
             Collection modulesCol = rootCol.createCollection("modules");
             Assert.assertEquals(4, modulesCol.getId());
             Assert.assertEquals("modules", modulesCol.getName());
@@ -113,18 +113,18 @@ public class DatabaseTest {
             Assert.assertEquals("/db/modules", modulesCol.getUri());
             Assert.assertEquals(0, modulesCol.getDocuments().size());
             Assert.assertEquals(0, modulesCol.getCollections().size());
-            Assert.assertEquals(0, modulesCol.getIndices().size());
+            Assert.assertEquals(0, modulesCol.getIndices(true).size());
 
             // Create indices.
-            dataCol.addIndex("DocumentId", "/Document/Id");
-            Assert.assertEquals(1, dataCol.getIndices().size());
+            dataCol.addIndex("DocumentId", "/Document/Id", IndexType.INTEGER);
+            Assert.assertEquals(1, dataCol.getIndices(true).size());
             Index index = dataCol.getIndex("DocumentId");
             Assert.assertNotNull(index);
             Assert.assertEquals(5, index.getId());
             Assert.assertEquals("DocumentId", index.getName());
             Assert.assertEquals("/Document/Id", index.getPath());
-            fooCol.addIndex("DocumentType", "/Document/Type");
-            Assert.assertEquals(2, fooCol.getIndices().size());
+            fooCol.addIndex("DocumentType", "/Document/Type", IndexType.STRING);
+            Assert.assertEquals(2, fooCol.getIndices(true).size());
             index = fooCol.getIndex("DocumentId");
             Assert.assertNotNull(index);
             index = fooCol.getIndex("DocumentType");
@@ -219,7 +219,8 @@ public class DatabaseTest {
 //        try {
 //            database.start();
 //
-//            Collection col = database.getRootCollection();
+//            Collection rootCol = database.getRootCollection();
+//            Collection dataCol = rootCol.createCollection("data"); 
 //
 //            File dir = new File(LARGE_DATASET_DIR);
 //            if (!dir.isDirectory() || !dir.canRead()) {
@@ -236,7 +237,7 @@ public class DatabaseTest {
 //            for (File file : dir.listFiles()) {
 //                if (file.isFile()) {
 //                    Document doc =
-//                        col.createDocument(file.getName());
+//                        dataCol.createDocument(file.getName());
 //                    doc.setContent(file);
 //                    count++;
 //                    size += file.length();
@@ -244,10 +245,14 @@ public class DatabaseTest {
 //            }
 //            double duration = (System.currentTimeMillis() - startTime) / 1000.0;
 //            double speed = (size / (1024 * 1024)) / duration;
-//            logger.info(String.format(Locale.US,
+//            logger.info(String.format(java.util.Locale.US,
 //                    "Stored %d documents in %.3f seconds (%.2f MB/s)",
 //                    count, duration, speed));
-//
+//            
+//            String query = "count(collection('/db/data')[element()/Header/MachineID = '1111'])";
+//            String result = database.executeQuery(query).toString();
+//            logger.debug(result);
+//            
 //            database.shutdown();
 //
 //        } catch (XmldbException e) {

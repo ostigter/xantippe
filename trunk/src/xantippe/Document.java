@@ -82,28 +82,6 @@ public class Document implements Comparable<Document> {
     }
     
     
-    public Key[] getKeys() {
-        return keys.values().toArray(new Key[0]);
-    }
-
-
-    public Object getKey(String name) {
-        Key key = keys.get(name);
-        return (key != null) ? key.getValue() : null;
-    }
-    
-    
-    public void setKey(String name, Object value) {
-        Key key = keys.get(name);
-        if (key == null) {
-            key = new Key(name, value);
-            keys.put(name, key);
-        } else {
-            key.setValue(value);
-        }
-    }
-    
-    
     public String getUri() {
         Collection parent = getParent();
         StringBuilder sb = new StringBuilder();
@@ -200,6 +178,28 @@ public class Document implements Comparable<Document> {
     }
     
     
+    public Key[] getKeys() {
+        return keys.values().toArray(new Key[0]);
+    }
+
+
+    public Object getKey(String name) {
+        Key key = keys.get(name);
+        return (key != null) ? key.getValue() : null;
+    }
+    
+    
+    public void setKey(String name, Object value) {
+        Key key = keys.get(name);
+        if (key == null) {
+            key = new Key(name, value);
+            keys.put(name, key);
+        } else {
+            key.setValue(value);
+        }
+    }
+    
+    
     //------------------------------------------------------------------------
     //  Interface implementation: Comparable
     //------------------------------------------------------------------------
@@ -232,7 +232,7 @@ public class Document implements Comparable<Document> {
     
     
     //------------------------------------------------------------------------
-    //  Package protected methods
+    //  Private methods
     //------------------------------------------------------------------------
     
     
