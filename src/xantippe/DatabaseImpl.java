@@ -395,8 +395,19 @@ public class DatabaseImpl implements Database {
         int id = dis.readInt();
         String name = dis.readUTF();
         col = new Collection(this, id, name, parent);
+
         col.setValidationMode(ValidationMode.values()[dis.readByte()]);
         
+        int noOfIndices = dis.readInt();
+        for (int i = 0; i < noOfIndices; i++) {
+            int indexId = dis.readInt();
+            String indexName = dis.readUTF();
+            String indexPath = dis.readUTF();
+            IndexType indexType = IndexType.values()[dis.readByte()];
+            Index index = new Index(indexId, indexName, indexPath, indexType);
+            col.addIndex(index);
+        }
+
         int noOfDocs = dis.readInt();
         for (int i = 0; i < noOfDocs; i++) {
             int docId = dis.readInt();
@@ -405,6 +416,7 @@ public class DatabaseImpl implements Database {
             Document doc = new Document(this, docId, docName, mediaType, id);
             col.addDocument(doc.getId());
         }
+
         int noOfCols = dis.readInt();
         for (int i = 0; i < noOfCols; i++) {
             Collection childCol = readCollection(dis, id);
@@ -438,6 +450,11 @@ public class DatabaseImpl implements Database {
         dos.writeInt(col.getId());
         dos.writeUTF(col.getName());
         dos.writeByte(col.getValidationMode().ordinal());
+        Set<Index> indices = col.getIndices(false);
+        dos.writeByte(indices.size());
+        for (Index index : indices) {
+            writeIndex(index, dos);
+        }
         Set<Document> docs = col.getDocuments();
         dos.writeInt(docs.size());
         for (Document doc : docs) {
@@ -448,6 +465,14 @@ public class DatabaseImpl implements Database {
         for (Collection c : cols) {
             writeCollection(c, dos);
         }
+    }
+    
+    
+    private void writeIndex(Index index, DataOutputStream dos)
+            throws IOException {
+        dos.writeInt(index.getId());
+        dos.writeUTF(index.getName());
+        dos.writeUTF(index.getPath());
     }
     
     

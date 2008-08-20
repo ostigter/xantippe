@@ -161,16 +161,18 @@ public class Collection implements Comparable<Collection> {
     }
     
 
-    public Set<Index> getIndices() {
+    public Set<Index> getIndices(boolean inherited) {
         Set<Index> indices2 = new TreeSet<Index>();
         
         // Add indices from this collection.
         indices2.addAll(indices);
         
-        // Add inherited indices from parent collections.
-        Collection col = getParent();
-        if (col != null) {
-            indices2.addAll(col.getIndices());
+        if (inherited) {
+            // Add inherited indices from parent collections.
+            Collection col = getParent();
+            if (col != null) {
+                indices2.addAll(col.getIndices(inherited));
+            }
         }
         
         return indices2;
@@ -179,7 +181,7 @@ public class Collection implements Comparable<Collection> {
     
     public Index getIndex(String name) {
         Index index = null;
-        Set<Index> inheritedIndices = getIndices();
+        Set<Index> inheritedIndices = getIndices(true);
         for (Index i : inheritedIndices) {
             if (i.getName().equals(name)) {
                 index = i;
@@ -190,11 +192,11 @@ public class Collection implements Comparable<Collection> {
     }
     
     
-    public void addIndex(String name, String path) {
+    public void addIndex(String name, String path, IndexType type) {
         Index index = getIndex(name);
         if (index == null) {
             int newId = database.getNextId();
-            indices.add(new Index(newId, name, path));
+            indices.add(new Index(newId, name, path, type));
         } else {
             String msg = "Index name already used (possibly inherited)";
             throw new IllegalArgumentException(msg);
@@ -289,6 +291,11 @@ public class Collection implements Comparable<Collection> {
     }
     
     
+    /* package */ void addIndex(Index index) {
+        indices.add(index);
+    }
+
+
     /* package */ void addDocument(int id) {
         documents.add(id);
     }
@@ -313,7 +320,7 @@ public class Collection implements Comparable<Collection> {
 
 
     //------------------------------------------------------------------------
-    //  Package protected methods
+    //  Private methods
     //------------------------------------------------------------------------
     
     

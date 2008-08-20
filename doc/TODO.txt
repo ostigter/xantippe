@@ -1,8 +1,6 @@
 TO DO
 =====
 
-- Saxon XQuery support
-- Retrieval by indices (collection inheritance, persistency)
 - Automatic indexing of XML documents
 - Configuration file
 - Client tool

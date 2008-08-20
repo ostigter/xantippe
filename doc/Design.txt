@@ -141,37 +141,34 @@ indices.dbx
 Structure:
 
   Collection
-    Index
+    indices : Set<Index>
       id
-      name
-      path (element or attribute)
-      type (string, integer, double, date)
-    IndexValue
-      index
-      value
-      documents
+      name (unique in collection inheritance tree)
+      path (to element or attribute)
+      type (STRING | INTEGER | DOUBLE | DATE)
+    indexValues : Map<Integer, Map<Object, Set<Integer>>>
+      index : Integer
+      values : Map<Object, Set<Integer>>
+        value : Object
+        documents : Set<Integer>
 
 Examples:
 
   Collection {"/db/data"}
     indices
-      Index {101, "DocumentId", "/element()/Header/Document/Id", IndexType.STRING}
-      Index {102, "DocumentType", "/element()/Header/Document/Type", IndexType.STRING}
-      Index {103, "DocumentVersion", "/element()/Header/Document/Version", IndexType.STRING}
+      Index {101, "DocumentId", "/element()/Header/DocumentId", IndexType.INTEGER}
+      Index {102, "DocumentType", "/element()/Header/DocumentType", IndexType.STRING}
+      Index {103, "DocumentVersion", "/element()/Header/DocumentVersion", IndexType.STRING}
     indexValues
-      IndexValue {101, "0001", {11}}      // DocumentId
-      IndexValue {101, "0002", {12}}
-      IndexValue {101, "0003", {13}}
-      IndexValue {102, "Foo", {11, 12}}   // DocumentType
-      IndexValue {102, "Bar", {13}}
-      IndexValue {103, "v1.0", {11, 12}}  // DocumentVersion
-      IndexValue {103, "v1.1", {13}}
+      IndexValue {101, { {1, {11}}, {2, {12}}, {3, {13}} } }
+      IndexValue {102, { {"Foo", {11, 12} }, {"Bar", {13} } }
+      IndexValue {103, { {"v1.0", {11, 12} }, {"v1.1", {13} } }
   Collection {"/db/data/results"}
     indices
       Index {104, "TestType", "/element()/Body/Test/Type", IndexType.STRING}
     indexValues
-      IndexValue {101, "0004", {14}}      // DocumentId
-      IndexValue {104, "FooTest", {14}}   // TestType
+      IndexValue {101, { {4, {14} } } }
+      IndexValue {104, { {"FooTest", {14} } } }
 
 
 Configuration file
