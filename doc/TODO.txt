@@ -1,14 +1,26 @@
 TO DO
 =====
 
+
+Must have:
+
+- Persistent index values
 - Automatic indexing of XML documents
+- Admin tool (local database)
 - Configuration file
-- Client tool
-- Web application
-- WebDAV interface
-- REST interface
-- Compression
-- Document caching
+- WebDAV interface (web deployment, Tomcat, Jetty?)
+- Database interface from XQuery
 - Backup & Restore
-- Locking
-- Transactions
+- Locking (multi clients, thread-safety)
+
+
+Nice to have:
+
+- Health checking
+- Defragmentation
+- Client/Server deployment (RMI?)
+- REST interface?
+- Compression
+- Caching (documents, collections, indices)
+- Transactions (journaling)
+- Encryption
