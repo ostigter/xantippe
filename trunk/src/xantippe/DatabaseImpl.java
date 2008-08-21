@@ -473,6 +473,7 @@ public class DatabaseImpl implements Database {
         dos.writeInt(index.getId());
         dos.writeUTF(index.getName());
         dos.writeUTF(index.getPath());
+        dos.writeByte(index.getType().ordinal());
     }
     
     
