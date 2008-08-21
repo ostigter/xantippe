@@ -38,6 +38,9 @@ public class DatabaseImpl implements Database {
     /** Database file containing the collections and documents tree. */
     private static final String COLLECTIONS_FILE = "collections.dbx";
 
+    /** Database file containing the indexed document key values. */
+    private static final String INDICES_FILE = "indices.dbx";
+
     /** log4j logger. */
     private static final Logger logger = Logger.getLogger(DatabaseImpl.class);
     
@@ -146,6 +149,8 @@ public class DatabaseImpl implements Database {
         writeMetaData();
         
         writeCollections();
+        
+        writeIndices();
         
         validator.writeSchemas(dataDir);
         
@@ -482,6 +487,47 @@ public class DatabaseImpl implements Database {
         dos.writeInt(doc.getId());
         dos.writeUTF(doc.getName());
         dos.writeByte(doc.getMediaType().ordinal());
+    }
+    
+    
+    private void writeIndices() {
+        logger.debug(
+                String.format("Write database file '%s'", INDICES_FILE));
+        File file = new File(dataDir + '/' + INDICES_FILE);
+        try {
+            DataOutputStream dos = new DataOutputStream(
+                    new FileOutputStream(file));
+            writeIndices(rootCollection, dos);
+            dos.close();
+        } catch (IOException e) {
+            String msg = String.format(
+                    "Error writing database file '%s': %s",
+                    INDICES_FILE, e.getMessage());
+            logger.error(msg);
+        }
+    }
+    
+    
+    private void writeIndices(Collection col, DataOutputStream dos)
+            throws IOException {
+        dos.writeInt(col.getId());
+        Map<String, IndexValue> indexValues = col.getIndexValues();
+        dos.writeInt(indexValues.size());
+        for (String keyName : indexValues.keySet()) {
+            dos.writeUTF(keyName);
+            IndexValue iv = indexValues.get(keyName);
+            Set<Object> values = iv.getValues();
+            dos.writeInt(values.size());
+            for (Object value : values) {
+                //FIXME: Write key value as Object instead of String.
+                dos.writeUTF(value.toString());
+                Set<Integer> docs = iv.getDocuments(value);
+                dos.writeInt(docs.size());
+                for (int docId : docs) {
+                    dos.writeInt(docId);
+                }
+            }
+        }
     }
     
     

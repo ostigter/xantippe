@@ -331,6 +331,11 @@ public class Collection implements Comparable<Collection> {
                 "Indexed document '%s' with key '%s', value '%s'.",
                 doc, keyName, keyValue));
     }
+    
+    
+    /* package */ Map<String, IndexValue> getIndexValues() {
+        return indexValues;
+    }
 
 
     //------------------------------------------------------------------------
