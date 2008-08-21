@@ -201,7 +201,7 @@ public class Collection implements Comparable<Collection> {
             int newId = database.getNextId();
             indices.add(new Index(newId, name, path, type));
             logger.debug(String.format(
-                    "Added index '%s' for collection '%s'.", name, this));
+                    "Added index '%s' for collection '%s'", name, this));
         } else {
             String msg = "Index name already used (possibly inherited)";
             throw new IllegalArgumentException(msg);
@@ -225,7 +225,7 @@ public class Collection implements Comparable<Collection> {
         int colId = database.getNextId(); 
         Collection col = new Collection(database, colId, name, id);
         collections.add(colId);
-        logger.debug(String.format("Created collection '%s'.", this));
+        logger.debug(String.format("Created collection '%s'", this));
         return col;
     }
     
@@ -239,7 +239,7 @@ public class Collection implements Comparable<Collection> {
         int docId = database.getNextId();
         Document doc = new Document(database, docId, name, mediaType, id);
         documents.add(docId);
-        logger.debug(String.format("Created document '%s'.", doc));
+        logger.debug(String.format("Created document '%s'", doc));
         return doc;
     }
     
@@ -328,7 +328,7 @@ public class Collection implements Comparable<Collection> {
         }
         iv.indexDocument(doc, keyValue);
         logger.debug(String.format(
-                "Indexed document '%s' with key '%s', value '%s'.",
+                "Indexed document '%s' with key '%s', value '%s'",
                 doc, keyName, keyValue));
     }
     

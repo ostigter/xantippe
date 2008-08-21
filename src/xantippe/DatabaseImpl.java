@@ -97,7 +97,7 @@ public class DatabaseImpl implements Database {
         logger.debug(String.format("Database directory: '%s'",
                 new File(dataDir).getAbsolutePath()));
         
-        logger.debug("Database created.");
+        logger.debug("Database created");
     }
     
     
@@ -111,7 +111,7 @@ public class DatabaseImpl implements Database {
             throw new XmldbException("Database already running");
         }
         
-        logger.debug("Database starting....");
+        logger.debug("Database starting...");
         
         try {
             fileStore.start();
@@ -125,11 +125,13 @@ public class DatabaseImpl implements Database {
         
         readCollections();
         
+        readIndices();
+        
         validator.readSchemas(dataDir);
         
         isRunning = true;
 
-        logger.info("Database started.");
+        logger.info("Database started");
     }
     
     
@@ -156,7 +158,7 @@ public class DatabaseImpl implements Database {
         
         isRunning = false;
         
-        logger.info("Database shut down.");
+        logger.info("Database shut down");
     }
     
     
@@ -456,7 +458,7 @@ public class DatabaseImpl implements Database {
         dos.writeUTF(col.getName());
         dos.writeByte(col.getValidationMode().ordinal());
         Set<Index> indices = col.getIndices(false);
-        dos.writeByte(indices.size());
+        dos.writeInt(indices.size());
         for (Index index : indices) {
             writeIndex(index, dos);
         }
@@ -487,6 +489,24 @@ public class DatabaseImpl implements Database {
         dos.writeInt(doc.getId());
         dos.writeUTF(doc.getName());
         dos.writeByte(doc.getMediaType().ordinal());
+    }
+    
+    
+    private void readIndices() {
+        logger.debug(String.format("Read database file '%s'", INDICES_FILE));
+        File file = new File(dataDir + '/' + INDICES_FILE);
+        if (file.exists()) {
+            try {
+                DataInputStream dis =
+                        new DataInputStream(new FileInputStream(file));
+                dis.close();
+            } catch (IOException e) {
+                String msg = String.format(
+                        "Error reading database file '%s': %s",
+                        INDICES_FILE, e.getMessage());
+                logger.error(msg);
+            }
+        }
     }
     
     

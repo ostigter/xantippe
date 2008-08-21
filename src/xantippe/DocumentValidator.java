@@ -98,6 +98,7 @@ public class DocumentValidator {
     public void clearSchemas() {
         schemaFiles.clear();
         validators.clear();
+        logger.debug("Cleared all schema's");
     }
     
     
@@ -187,8 +188,8 @@ public class DocumentValidator {
     
     
     public void readSchemas(String dataDir) {
-        logger.debug(String.format("Read database file '%s'", SCHEMAS_FILE));
         clearSchemas();
+        logger.debug(String.format("Read database file '%s'", SCHEMAS_FILE));
         File file = new File(dataDir + '/' + SCHEMAS_FILE);
         if (file.exists()) {
             try {
@@ -279,7 +280,7 @@ public class DocumentValidator {
                 logger.debug("No matching schema file found (ignored)");
             }
         } else {
-            logger.debug("Precompiled schema found");
+            logger.debug("Found precompiled schema");
         }
         
         return validator;
