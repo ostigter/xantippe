@@ -34,13 +34,13 @@ class IndexValue {
     //------------------------------------------------------------------------
     
     
-    public void indexDocument(Document doc, Object value) {
+    public void indexDocument(int docId, Object value) {
         Set<Integer> docs = documents.get(value);
         if (docs == null) {
             docs = new TreeSet<Integer>();
             documents.put(value, docs);
         }
-        docs.add(doc.getId());
+        docs.add(docId);
     }
     
     

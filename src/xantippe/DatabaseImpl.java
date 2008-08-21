@@ -499,6 +499,25 @@ public class DatabaseImpl implements Database {
             try {
                 DataInputStream dis =
                         new DataInputStream(new FileInputStream(file));
+                int noOfCols = dis.readInt();
+                for (int i = 0; i < noOfCols; i++) {
+                	int colId = dis.readInt();
+                	Collection col = getCollection(colId);
+                	int noOfIndices = dis.readInt();
+                	for (int j = 0; j < noOfIndices; j++) {
+                		String keyName = dis.readUTF();
+                		int noOfValues = dis.readInt();
+                		for (int k = 0; k < noOfValues; k++) {
+                			//FIXME: Use key value as Object instead of String.
+                			Object keyValue = dis.readUTF();
+                			int noOfDocs = dis.readInt();
+                			for (int m = 0; m < noOfDocs; m++) {
+                				int docId = dis.readInt();
+                				col.addIndexValue(keyName, keyValue, docId);
+                			}
+                		}
+                	}
+                }
                 dis.close();
             } catch (IOException e) {
                 String msg = String.format(
@@ -517,36 +536,33 @@ public class DatabaseImpl implements Database {
         try {
             DataOutputStream dos = new DataOutputStream(
                     new FileOutputStream(file));
-            writeIndices(rootCollection, dos);
+            dos.writeInt(collections.size());
+            for (Collection col : collections.values()) {
+            	dos.writeInt(col.getId());
+                Map<String, IndexValue> indexValues = col.getIndexValues();
+                dos.writeInt(indexValues.size());
+                for (String keyName : indexValues.keySet()) {
+                    dos.writeUTF(keyName);
+                    IndexValue iv = indexValues.get(keyName);
+                    Set<Object> values = iv.getValues();
+                    dos.writeInt(values.size());
+                    for (Object value : values) {
+                        //FIXME: Write key value as Object instead of String.
+                        dos.writeUTF(value.toString());
+                        Set<Integer> docs = iv.getDocuments(value);
+                        dos.writeInt(docs.size());
+                        for (int docId : docs) {
+                            dos.writeInt(docId);
+                        }
+                    }
+                }
+            }
             dos.close();
         } catch (IOException e) {
             String msg = String.format(
                     "Error writing database file '%s': %s",
                     INDICES_FILE, e.getMessage());
             logger.error(msg);
-        }
-    }
-    
-    
-    private void writeIndices(Collection col, DataOutputStream dos)
-            throws IOException {
-        dos.writeInt(col.getId());
-        Map<String, IndexValue> indexValues = col.getIndexValues();
-        dos.writeInt(indexValues.size());
-        for (String keyName : indexValues.keySet()) {
-            dos.writeUTF(keyName);
-            IndexValue iv = indexValues.get(keyName);
-            Set<Object> values = iv.getValues();
-            dos.writeInt(values.size());
-            for (Object value : values) {
-                //FIXME: Write key value as Object instead of String.
-                dos.writeUTF(value.toString());
-                Set<Integer> docs = iv.getDocuments(value);
-                dos.writeInt(docs.size());
-                for (int docId : docs) {
-                    dos.writeInt(docId);
-                }
-            }
         }
     }
     
