@@ -74,7 +74,7 @@ public class DatabaseTest {
 
     @Test
     public void storage() {
-        logger.debug("Test suite 'storage' started.");
+        logger.debug("Test suite 'storage' started");
 
         File file;
         
@@ -96,20 +96,20 @@ public class DatabaseTest {
             Assert.assertEquals(0, dataCol.getDocuments().size());
             Assert.assertEquals(0, dataCol.getCollections().size());
             Assert.assertEquals(0, dataCol.getIndices(true).size());
-            Collection fooCol = dataCol.createCollection("Foo");
-            Assert.assertEquals("Foo", fooCol.getName());
-            Assert.assertEquals("/db/data/Foo", fooCol.getUri());
+            Collection fooCol = dataCol.createCollection("foo");
+            Assert.assertEquals("foo", fooCol.getName());
+            Assert.assertEquals("/db/data/foo", fooCol.getUri());
             Assert.assertEquals("/db/data", fooCol.getParent().getUri());
             Assert.assertEquals(0, fooCol.getDocuments().size());
             Assert.assertEquals(0, fooCol.getCollections().size());
             Assert.assertEquals(0, fooCol.getIndices(true).size());
-            Collection modulesCol = rootCol.createCollection("modules");
-            Assert.assertEquals("modules", modulesCol.getName());
-            Assert.assertEquals("/db/modules", modulesCol.getUri());
-            Assert.assertEquals("/db", modulesCol.getParent().getUri());
-            Assert.assertEquals(0, modulesCol.getDocuments().size());
-            Assert.assertEquals(0, modulesCol.getCollections().size());
-            Assert.assertEquals(0, modulesCol.getIndices(true).size());
+            Collection barCol = dataCol.createCollection("bar");
+            Assert.assertEquals("bar", barCol.getName());
+            Assert.assertEquals("/db/data/bar", barCol.getUri());
+            Assert.assertEquals("/db/data", barCol.getParent().getUri());
+            Assert.assertEquals(0, barCol.getDocuments().size());
+            Assert.assertEquals(0, barCol.getCollections().size());
+            Assert.assertEquals(0, barCol.getIndices(true).size());
 
             // Create indices.
             dataCol.addIndex("DocumentId", "/Document/Id", IndexType.INTEGER);
@@ -129,54 +129,76 @@ public class DatabaseTest {
             Assert.assertEquals("/Document/Type", index.getPath());
 
             // Add documents.
-            Document doc = fooCol.createDocument("0001.xml");
-            Assert.assertEquals("0001.xml", doc.getName());
-            Assert.assertEquals("/db/modules", modulesCol.getUri());
+            file = new File("test/dat/db/data/foo/Foo-0001.xml");
+            Document doc = fooCol.createDocument(file.getName());
+            Assert.assertEquals("Foo-0001.xml", doc.getName());
             doc.setKey("DocumentId", 1);
             doc.setKey("DocumentType", "Foo");
-            file = new File("test/docs/0001.xml");
+            doc.setKey("DocumentVersion", "v1.0");
             doc.setContent(file);
             assertEqual(doc.getContent(), file);
             
-            doc = fooCol.createDocument("0002.xml");
+            file = new File("test/dat/db/data/foo/Foo-0002.xml");
+            doc = fooCol.createDocument(file.getName());
             doc.setKey("DocumentId", 2);
             doc.setKey("DocumentType", "Foo");
-            file = new File("test/docs/0002.xml");
+            doc.setKey("DocumentVersion", "v1.1");
             doc.setContent(file);
             assertEqual(doc.getContent(), file);
 
-            doc = fooCol.createDocument("0003.xml");
+            doc = barCol.createDocument("Bar-0001.xml");
             doc.setKey("DocumentId", 3);
             doc.setKey("DocumentType", "Bar");
+            doc.setKey("DocumentVersion", "v1.0");
             OutputStream os = doc.setContent();
             os.write("<Document>\n  <Id>3</Id>\n  <Type>Bar</Type>\n</Document>".getBytes());
             os.close();
+
+            
+            // Shutdown and restart database to test persistency.
+//            database.shutdown();
+//            database.start();
             
             
             // Find documents by keys (using indices).
             
             Key[] keys = new Key[] {
-                    new Key("DocumentId", 2),
+            		new Key("DocumentId", 2)
             };
             Set<Document> docs = rootCol.findDocuments(keys, true);
             Assert.assertEquals(1, docs.size());
             doc = (Document) docs.toArray()[0];
-            Assert.assertEquals("/db/data/Foo/0002.xml", doc.getUri());
+            Assert.assertEquals("/db/data/foo/Foo-0002.xml", doc.getUri());
 
             keys = new Key[] {
-                    new Key("DocumentType", "Foo"),
+                    new Key("DocumentType", "Foo")
             };
             docs = rootCol.findDocuments(keys, true);
             Assert.assertEquals(2, docs.size());
             doc = (Document) docs.toArray()[0];
-            Assert.assertEquals("/db/data/Foo/0001.xml", doc.getUri());
+            Assert.assertEquals("/db/data/foo/Foo-0001.xml", doc.getUri());
             doc = (Document) docs.toArray()[1];
-            Assert.assertEquals("/db/data/Foo/0002.xml", doc.getUri());
+            Assert.assertEquals("/db/data/foo/Foo-0002.xml", doc.getUri());
             docs = fooCol.findDocuments(keys, false);
             Assert.assertEquals(2, docs.size());
 
             keys = new Key[] {
-                    new Key("DocumentType", "Foo"),
+                    new Key("DocumentVersion", "v1.0")
+            };
+            docs = rootCol.findDocuments(keys, true);
+            Assert.assertEquals(2, docs.size());
+            doc = (Document) docs.toArray()[0];
+            Assert.assertEquals("/db/data/bar/Bar-0001.xml", doc.getUri());
+            doc = (Document) docs.toArray()[1];
+            Assert.assertEquals("/db/data/foo/Foo-0001.xml", doc.getUri());
+            
+            docs = fooCol.findDocuments(keys, true);
+            Assert.assertEquals(1, docs.size());
+            doc = (Document) docs.toArray()[0];
+            Assert.assertEquals("/db/data/foo/Foo-0001.xml", doc.getUri());
+            
+            keys = new Key[] {
+                    new Key("DocumentType", "Foo")
             };
             docs = dataCol.findDocuments(keys, false);
             Assert.assertEquals(0, docs.size());
@@ -202,13 +224,13 @@ public class DatabaseTest {
             Assert.fail(e.getMessage());
         }
 
-        logger.debug("Test suite 'storage' finished.");
+        logger.debug("Test suite 'storage' finished");
     }
 
     
 //    @Test
 //    public void manyDocuments() {
-//        logger.debug("Test suite 'manyDocuments' started.");
+//        logger.debug("Test suite 'manyDocuments' started");
 //
 //        try {
 //            database.start();
@@ -253,13 +275,13 @@ public class DatabaseTest {
 //            Assert.fail(e.getMessage());
 //        }
 //
-//        logger.debug("Test suite 'manyDocuments' finished.");
+//        logger.debug("Test suite 'manyDocuments' finished");
 //    }
 
 
     @Test
     public void validation() {
-        logger.debug("Test suite 'validation' started.");
+        logger.debug("Test suite 'validation' started");
         
         File file;
         Document doc;
@@ -271,24 +293,30 @@ public class DatabaseTest {
             col.setValidationMode(ValidationMode.ON);
             
             // Self-contained schema.
-            file = new File("test/schemas/Address_v1.0.xsd");
+            file = new File("test/dat/db/schemas/Address_v1.0.xsd");
             doc = col.createDocument(file.getName());
             doc.setContent(file);
-            file = new File("test/docs/Address_0001.xml");
+            file = new File("test/dat/db/data/addressbook/Address_0001.xml");
             doc = col.createDocument(file.getName());
             doc.setContent(file);
-            file = new File("test/docs/Address_0002.xml");
+            file = new File("test/dat/db/data/addressbook/Address_0002.xml");
             doc = col.createDocument(file.getName());
             doc.setContent(file);
             
             // Multi-file schema (with 'include' statement).
-            file = new File("test/schemas/Generic_v1.0.xsd");
+            file = new File("test/dat/db/schemas/Generic_v1.0.xsd");
             doc = col.createDocument(file.getName());
             doc.setContent(file);
-            file = new File("test/schemas/TestResult_v1.0.xsd");
+            file = new File("test/dat/db/schemas/TestResult_v1.0.xsd");
             doc = col.createDocument(file.getName());
             doc.setContent(file);
-            file = new File("test/docs/TestResult_0001.xml");
+            file = new File("test/dat/db/data/testresults/TestResult_0001.xml");
+            doc = col.createDocument(file.getName());
+            doc.setContent(file);
+            file = new File("test/dat/db/data/testresults/TestResult_0002.xml");
+            doc = col.createDocument(file.getName());
+            doc.setContent(file);
+            file = new File("test/dat/db/data/testresults/TestResult_0003.xml");
             doc = col.createDocument(file.getName());
             doc.setContent(file);
             
@@ -298,13 +326,13 @@ public class DatabaseTest {
             Assert.fail(e.getMessage());
         }
 
-        logger.debug("Test suite 'validation' finished.");
+        logger.debug("Test suite 'validation' finished");
     }
 
 
     @Test
     public void xquery() {
-        logger.debug("Test suite 'xquery' started.");
+        logger.debug("Test suite 'xquery' started");
         
         File file;
         Document doc;
@@ -372,7 +400,7 @@ public class DatabaseTest {
             Assert.fail(e.getMessage());
         }
         
-        logger.debug("Test suite 'xquery' finished.");
+        logger.debug("Test suite 'xquery' finished");
     }
     
     
@@ -382,8 +410,6 @@ public class DatabaseTest {
 
 
     private static void assertEqual(InputStream is, File file) {
-        logger.debug("Verifying document content...");
-        long startTime = System.currentTimeMillis();
         try {
             InputStream is2 = new FileInputStream(file);
             byte[] buffer1 = new byte[BUFFER_SIZE];
@@ -397,8 +423,6 @@ public class DatabaseTest {
             }
             is2.close();
             is.close();
-            long duration = System.currentTimeMillis() - startTime;
-            logger.debug("Document verified in " + duration + " ms");
         } catch (IOException e) {
             Assert.fail(e.getMessage());
         }

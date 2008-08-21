@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <tr:TestResult xmlns:tr="http://www.example.com/XMLSchema/TestResult/v1.0">
   <Header>
-    <Id>0001</Id>
+    <Id>13</Id>
     <Type>TestResult</Type>
     <Version>v1.0</Version>
     <Title>My TestResult document</Title>
@@ -11,18 +11,18 @@
     <Test>
       <Type>LaserCalibration</Type>
       <Version>v1.0</Version>
-      <Value>1.2345</Value>
+      <Value>9.9999</Value>
       <Result>Passed</Result>
     </Test>
 
     <Test>
       <Type>LensCalibration</Type>
       <Version>v1.0</Version>
-      <Value>9.8765</Value>
-      <Result>Failed</Result>
+      <Value>9.11</Value>
+      <Result>Passed</Result>
     </Test>
 
-    <OverallResult>Failed</OverallResult>
+    <OverallResult>Passed</OverallResult>
   </Body>
 
 </tr:TestResult>
