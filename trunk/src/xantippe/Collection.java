@@ -320,16 +320,16 @@ public class Collection implements Comparable<Collection> {
     
     
     /* package */ void addIndexValue(
-            String keyName, Object keyValue, Document doc) {
+            String keyName, Object keyValue, int docId) {
         IndexValue iv = indexValues.get(keyName);
         if (iv == null) {
             iv = new IndexValue();
             indexValues.put(keyName, iv);
         }
-        iv.indexDocument(doc, keyValue);
-        logger.debug(String.format(
-                "Indexed document '%s' with key '%s', value '%s'",
-                doc, keyName, keyValue));
+        iv.indexDocument(docId, keyValue);
+//        logger.debug(String.format(
+//                "Indexed document '%s' with key '%s', value '%s'",
+//                doc, keyName, keyValue));
     }
     
     

@@ -168,9 +168,9 @@ Structure:
   noOfCollections : int
   Collection*
   | colId : int
-  | noOfIndexValues
-  | IndexValue*
-  | | indexId : int
+  | noOfIndices
+  | Index*
+  | | name : String
   | | noOfValues : int
   | | value*
   | | | value : Object

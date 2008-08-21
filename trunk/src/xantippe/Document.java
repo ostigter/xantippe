@@ -173,7 +173,7 @@ public class Document implements Comparable<Document> {
     
     public void setKey(String name, Object value) {
         Collection col = getParent();
-        col.addIndexValue(name, value, this);
+        col.addIndexValue(name, value, id);
     }
     
     

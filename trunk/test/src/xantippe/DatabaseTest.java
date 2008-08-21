@@ -112,21 +112,36 @@ public class DatabaseTest {
             Assert.assertEquals(0, barCol.getIndices(true).size());
 
             // Create indices.
+            Assert.assertEquals(0, rootCol.getIndices(true).size());
+            Assert.assertEquals(0, dataCol.getIndices(true).size());
+            Assert.assertEquals(0, fooCol.getIndices(true).size());
             dataCol.addIndex("DocumentId", "/Document/Id", IndexType.INTEGER);
             Assert.assertEquals(1, dataCol.getIndices(true).size());
             Index index = dataCol.getIndex("DocumentId");
             Assert.assertNotNull(index);
             Assert.assertEquals("DocumentId", index.getName());
             Assert.assertEquals("/Document/Id", index.getPath());
-            fooCol.addIndex("DocumentType", "/Document/Type", IndexType.STRING);
-            Assert.assertEquals(1, fooCol.getIndices(false).size());
-            Assert.assertEquals(2, fooCol.getIndices(true).size());
+            Assert.assertEquals(IndexType.INTEGER, index.getType());
+            dataCol.addIndex("DocumentType", "/Document/Type", IndexType.STRING);
+            dataCol.addIndex("DocumentVersion", "/Document/Version", IndexType.STRING);
+            Assert.assertEquals(3, dataCol.getIndices(false).size());
+            Assert.assertEquals(3, dataCol.getIndices(true).size());
+            Assert.assertEquals(0, fooCol.getIndices(false).size());
+            Assert.assertEquals(3, fooCol.getIndices(true).size());
             index = fooCol.getIndex("DocumentId");
             Assert.assertNotNull(index);
+            Assert.assertEquals("DocumentId", index.getName());
+            Assert.assertEquals("/Document/Id", index.getPath());
             index = fooCol.getIndex("DocumentType");
             Assert.assertNotNull(index);
             Assert.assertEquals("DocumentType", index.getName());
             Assert.assertEquals("/Document/Type", index.getPath());
+            index = fooCol.getIndex("DocumentVersion");
+            Assert.assertNotNull(index);
+            Assert.assertEquals("DocumentVersion", index.getName());
+            Assert.assertEquals("/Document/Version", index.getPath());
+            index = fooCol.getIndex("NonExisting");
+            Assert.assertNull(index);
 
             // Add documents.
             file = new File("test/dat/db/data/foo/Foo-0001.xml");
@@ -156,14 +171,14 @@ public class DatabaseTest {
 
             
             // Shutdown and restart database to test persistency.
-//            database.shutdown();
-//            database.start();
+            database.shutdown();
+            database.start();
             
             
             // Find documents by keys (using indices).
             
             Key[] keys = new Key[] {
-            		new Key("DocumentId", 2)
+            		new Key("DocumentId", "2")
             };
             Set<Document> docs = rootCol.findDocuments(keys, true);
             Assert.assertEquals(1, docs.size());
@@ -210,7 +225,7 @@ public class DatabaseTest {
             Assert.assertEquals(0, docs.size());
 
             keys = new Key[] {
-                    new Key("DocumentId", 2),
+                    new Key("DocumentId", "2"),
                     new Key("DocumentType", "NonExisting"),
             };
             docs = rootCol.findDocuments(keys, true);

@@ -4,7 +4,6 @@ TO DO
 
 Must have:
 
-- Persistent index values
 - Automatic indexing of XML documents
 - Admin tool (local database)
 - Configuration file
