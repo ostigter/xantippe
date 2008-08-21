@@ -24,7 +24,7 @@ import org.junit.Test;
 public class DatabaseTest {
 
 
-    private static final String DATA_DIR = "test/data";
+    private static final String DATA_DIR = "test/dat/data.tmp";
     
 //    private static final String LARGE_DATASET_DIR =
 //            "D:/Temp/XML_docs/1000"; 
@@ -166,12 +166,14 @@ public class DatabaseTest {
             keys = new Key[] {
                     new Key("DocumentType", "Foo"),
             };
-            docs = fooCol.findDocuments(keys, true);
+            docs = rootCol.findDocuments(keys, true);
             Assert.assertEquals(2, docs.size());
             doc = (Document) docs.toArray()[0];
             Assert.assertEquals("/db/data/Foo/0001.xml", doc.getUri());
             doc = (Document) docs.toArray()[1];
             Assert.assertEquals("/db/data/Foo/0002.xml", doc.getUri());
+            docs = fooCol.findDocuments(keys, false);
+            Assert.assertEquals(2, docs.size());
 
             keys = new Key[] {
                     new Key("DocumentType", "Foo"),

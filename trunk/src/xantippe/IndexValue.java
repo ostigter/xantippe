@@ -56,4 +56,20 @@ class IndexValue {
     }
     
     
+    public int size() {
+        return documents.size();
+    }
+    
+    
+    
+    public Set<Object> getValues() {
+        return documents.keySet();
+    }
+    
+    
+    public Set<Integer> getDocuments(Object value) {
+        return documents.get(value);
+    }
+    
+    
 }
