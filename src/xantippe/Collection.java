@@ -154,9 +154,12 @@ public class Collection implements Comparable<Collection> {
     
     public void setValidationMode(ValidationMode vm) {
         if (parent == -1 && vm == ValidationMode.INHERIT) {
-            logger.debug("Invalid validation mode on root collection");
+            logger.error("Invalid validation mode on root collection");
         } else {
             validationMode = vm;
+            logger.debug(String.format(
+                    "Validtation mode for collection '%s' set to '%s'",
+                    this, vm));
         }
     }
     
@@ -197,6 +200,8 @@ public class Collection implements Comparable<Collection> {
         if (index == null) {
             int newId = database.getNextId();
             indices.add(new Index(newId, name, path, type));
+            logger.debug(String.format(
+                    "Added index '%s' for collection '%s'.", name, this));
         } else {
             String msg = "Index name already used (possibly inherited)";
             throw new IllegalArgumentException(msg);
@@ -220,6 +225,7 @@ public class Collection implements Comparable<Collection> {
         int colId = database.getNextId(); 
         Collection col = new Collection(database, colId, name, id);
         collections.add(colId);
+        logger.debug(String.format("Created collection '%s'.", this));
         return col;
     }
     
@@ -233,6 +239,7 @@ public class Collection implements Comparable<Collection> {
         int docId = database.getNextId();
         Document doc = new Document(database, docId, name, mediaType, id);
         documents.add(docId);
+        logger.debug(String.format("Created document '%s'.", doc));
         return doc;
     }
     
@@ -307,15 +314,22 @@ public class Collection implements Comparable<Collection> {
 
 
     /* package */ void indexDocument(Document doc) {
-        for (Key key : doc.getKeys()) {
-            String keyName = key.getName();
-            IndexValue value = indexValues.get(keyName);
-            if (value == null) {
-                value = new IndexValue();
-                indexValues.put(keyName, value);
-            }
-            value.indexDocument(doc, key.getValue());
+        logger.debug(String.format("Indexing XML document '%s'", doc));
+        //TODO: Index XML documents based on their content. 
+    }
+    
+    
+    /* package */ void addIndexValue(
+            String keyName, Object keyValue, Document doc) {
+        IndexValue iv = indexValues.get(keyName);
+        if (iv == null) {
+            iv = new IndexValue();
+            indexValues.put(keyName, iv);
         }
+        iv.indexDocument(doc, keyValue);
+        logger.debug(String.format(
+                "Indexed document '%s' with key '%s', value '%s'.",
+                doc, keyName, keyValue));
     }
 
 

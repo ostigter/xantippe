@@ -83,7 +83,6 @@ public class DatabaseTest {
             
             // Create collections.
             Collection rootCol = database.getRootCollection();
-            Assert.assertEquals(1, rootCol.getId());
             Assert.assertEquals("db", rootCol.getName());
             Assert.assertNull(rootCol.getParent());
             Assert.assertEquals("/db", rootCol.getUri());
@@ -91,26 +90,23 @@ public class DatabaseTest {
             Assert.assertEquals(0, rootCol.getCollections().size());
             Assert.assertEquals(0, rootCol.getIndices(true).size());
             Collection dataCol = rootCol.createCollection("data");
-            Assert.assertEquals(2, dataCol.getId());
             Assert.assertEquals("data", dataCol.getName());
-            Assert.assertEquals(1, dataCol.getParent().getId());
             Assert.assertEquals("/db/data", dataCol.getUri());
+            Assert.assertEquals("/db", dataCol.getParent().getUri());
             Assert.assertEquals(0, dataCol.getDocuments().size());
             Assert.assertEquals(0, dataCol.getCollections().size());
             Assert.assertEquals(0, dataCol.getIndices(true).size());
             Collection fooCol = dataCol.createCollection("Foo");
-            Assert.assertEquals(3, fooCol.getId());
             Assert.assertEquals("Foo", fooCol.getName());
-            Assert.assertEquals(2, fooCol.getParent().getId());
             Assert.assertEquals("/db/data/Foo", fooCol.getUri());
+            Assert.assertEquals("/db/data", fooCol.getParent().getUri());
             Assert.assertEquals(0, fooCol.getDocuments().size());
             Assert.assertEquals(0, fooCol.getCollections().size());
             Assert.assertEquals(0, fooCol.getIndices(true).size());
             Collection modulesCol = rootCol.createCollection("modules");
-            Assert.assertEquals(4, modulesCol.getId());
             Assert.assertEquals("modules", modulesCol.getName());
-            Assert.assertEquals(1, modulesCol.getParent().getId());
             Assert.assertEquals("/db/modules", modulesCol.getUri());
+            Assert.assertEquals("/db", modulesCol.getParent().getUri());
             Assert.assertEquals(0, modulesCol.getDocuments().size());
             Assert.assertEquals(0, modulesCol.getCollections().size());
             Assert.assertEquals(0, modulesCol.getIndices(true).size());
@@ -120,26 +116,22 @@ public class DatabaseTest {
             Assert.assertEquals(1, dataCol.getIndices(true).size());
             Index index = dataCol.getIndex("DocumentId");
             Assert.assertNotNull(index);
-            Assert.assertEquals(5, index.getId());
             Assert.assertEquals("DocumentId", index.getName());
             Assert.assertEquals("/Document/Id", index.getPath());
             fooCol.addIndex("DocumentType", "/Document/Type", IndexType.STRING);
+            Assert.assertEquals(1, fooCol.getIndices(false).size());
             Assert.assertEquals(2, fooCol.getIndices(true).size());
             index = fooCol.getIndex("DocumentId");
             Assert.assertNotNull(index);
             index = fooCol.getIndex("DocumentType");
             Assert.assertNotNull(index);
-            Assert.assertEquals(6, index.getId());
             Assert.assertEquals("DocumentType", index.getName());
             Assert.assertEquals("/Document/Type", index.getPath());
 
             // Add documents.
             Document doc = fooCol.createDocument("0001.xml");
-            Assert.assertEquals(7, doc.getId());
             Assert.assertEquals("0001.xml", doc.getName());
-            Assert.assertEquals(3, doc.getParent().getId());
             Assert.assertEquals("/db/modules", modulesCol.getUri());
-            Assert.assertEquals(0, doc.getKeys().length);
             doc.setKey("DocumentId", 1);
             doc.setKey("DocumentType", "Foo");
             file = new File("test/docs/0001.xml");
