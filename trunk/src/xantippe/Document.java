@@ -5,8 +5,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.HashMap;
-import java.util.Map;
 
 import org.apache.log4j.Logger;
 
@@ -39,9 +37,6 @@ public class Document implements Comparable<Document> {
     /** Parent collection ID. */
     private int parent;
     
-    /** Keys mapped by their name. */
-    private Map<String, Key> keys;
-    
     
     //------------------------------------------------------------------------
     //  Constructors
@@ -55,8 +50,6 @@ public class Document implements Comparable<Document> {
         this.name = name;
         this.mediaType = mediaType;
         this.parent = parent;
-        
-        keys = new HashMap<String, Key>();
         
         database.addDocument(this);
     }
@@ -178,25 +171,9 @@ public class Document implements Comparable<Document> {
     }
     
     
-    public Key[] getKeys() {
-        return keys.values().toArray(new Key[0]);
-    }
-
-
-    public Object getKey(String name) {
-        Key key = keys.get(name);
-        return (key != null) ? key.getValue() : null;
-    }
-    
-    
     public void setKey(String name, Object value) {
-        Key key = keys.get(name);
-        if (key == null) {
-            key = new Key(name, value);
-            keys.put(name, key);
-        } else {
-            key.setValue(value);
-        }
+        Collection col = getParent();
+        col.addIndexValue(name, value, this);
     }
     
     
@@ -206,6 +183,7 @@ public class Document implements Comparable<Document> {
 
     
     public int compareTo(Document doc) {
+        //FIXME: Maybe compare documents by URI (slower)?
         return name.compareTo(doc.getName());
     }
     
@@ -241,8 +219,7 @@ public class Document implements Comparable<Document> {
             database.getFileStore().store(id, file);
             
             if (mediaType == MediaType.XML) {
-                Collection col = getParent();
-                col.indexDocument(this);
+                getParent().indexDocument(this);
             }
         } catch (FileStoreException e) {
             String msg = "Could not store document: " + this;

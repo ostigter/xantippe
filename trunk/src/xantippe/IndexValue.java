@@ -16,7 +16,7 @@ class IndexValue {
     
 
     /** Document ID's by key values. */
-    private Map<Object, Set<Integer>> documents;
+    private final Map<Object, Set<Integer>> documents;
     
     
     //------------------------------------------------------------------------
@@ -24,7 +24,7 @@ class IndexValue {
     //------------------------------------------------------------------------
 
     
-    public IndexValue() {
+    /* package */ IndexValue() {
         documents = new TreeMap<Object, Set<Integer>>();
     }
     
