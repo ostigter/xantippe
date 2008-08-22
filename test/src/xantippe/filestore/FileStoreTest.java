@@ -25,9 +25,6 @@ public class FileStoreTest {
     /** Temporary database directory. */ 
     private static final String DATA_DIR = "test/data";
 
-    /** Directory with input documents. */
-    private static final String DOCS_DIR = "test/docs";
-    
     
     //------------------------------------------------------------------------
     //  JUnit methods
@@ -65,33 +62,34 @@ public class FileStoreTest {
             Assert.assertEquals(0, store.size());
             
             // Add file.
-            store.store(1, new File(DOCS_DIR + "/0001.xml"));
+            file = new File("test/dat/db/data/foo/Foo-0001.xml");
+            store.store(1, file);
             Assert.assertEquals(1, store.size());
             
             // Retrieve file.
             InputStream is = store.retrieve(1);
             Assert.assertNotNull(is);
-            Assert.assertEquals(181, is.available());
+            Assert.assertEquals(320, is.available());
             Assert.assertEquals('<', (char) is.read());
-            Assert.assertEquals(180, is.available());
+            Assert.assertEquals(319, is.available());
             Assert.assertEquals('?', (char) is.read());
-            Assert.assertEquals(179, is.available());
+            Assert.assertEquals(318, is.available());
             Assert.assertEquals('x', (char) is.read());
-            Assert.assertEquals(178, is.available());
+            Assert.assertEquals(317, is.available());
             Assert.assertEquals('m', (char) is.read());
-            Assert.assertEquals(177, is.available());
+            Assert.assertEquals(316, is.available());
             Assert.assertEquals('l', (char) is.read());
-            Assert.assertEquals(176, is.available());
-            byte[] buffer = new byte[176];
+            Assert.assertEquals(315, is.available());
+            byte[] buffer = new byte[315];
             int read = is.read(buffer, 0, 8);
             Assert.assertEquals(8, read);
             Assert.assertEquals(" version", new String(buffer, 0, read));
             read = is.read(buffer);
-            Assert.assertEquals(168, read);
+            Assert.assertEquals(307, read);
             is.close();
             
             // Add file.
-            file = new File(DOCS_DIR + "/0002.xml");
+            file = new File("test/dat/db/data/foo/Foo-0002.xml");
             store.store(2, file);
             Assert.assertEquals(2, store.size());
             assertEqual(store.retrieve(2), file);
@@ -102,7 +100,7 @@ public class FileStoreTest {
             assertEqual(store.retrieve(2), file);
             
             // Add file.
-            file = new File(DOCS_DIR + "/0003.xml");
+            file = new File("test/dat/db/data/bar/Bar-0001.xml");
             store.store(3, file);
             Assert.assertEquals(3, store.size());
             assertEqual(store.retrieve(3), file);
