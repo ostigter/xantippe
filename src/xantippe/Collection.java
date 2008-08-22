@@ -157,9 +157,9 @@ public class Collection implements Comparable<Collection> {
             logger.error("Invalid validation mode on root collection");
         } else {
             validationMode = vm;
-            logger.debug(String.format(
-                    "Validtation mode for collection '%s' set to '%s'",
-                    this, vm));
+//            logger.debug(String.format(
+//                    "Validtation mode for collection '%s' set to '%s'",
+//                    this, vm));
         }
     }
     
@@ -295,6 +295,12 @@ public class Collection implements Comparable<Collection> {
     
     /* package */ int getId() {
         return id;
+    }
+    
+    
+    /* package */ ValidationMode getExplicitValidationMode() {
+        return validationMode;
+        
     }
     
     

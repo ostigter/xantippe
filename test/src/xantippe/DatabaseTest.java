@@ -178,7 +178,7 @@ public class DatabaseTest {
             // Find documents by keys (using indices).
             
             Key[] keys = new Key[] {
-            		new Key("DocumentId", "2")
+            		new Key("DocumentId", 2)
             };
             Set<Document> docs = rootCol.findDocuments(keys, true);
             Assert.assertEquals(1, docs.size());
@@ -225,7 +225,7 @@ public class DatabaseTest {
             Assert.assertEquals(0, docs.size());
 
             keys = new Key[] {
-                    new Key("DocumentId", "2"),
+                    new Key("DocumentId", 2),
                     new Key("DocumentType", "NonExisting"),
             };
             docs = rootCol.findDocuments(keys, true);
