@@ -149,15 +149,16 @@ public class Document implements Comparable<Document> {
                 throw new XmldbException(msg);
             }
         } else if (mediaType == MediaType.XML) {
+            String uri = getUri();
             ValidationMode vm = getParent().getValidationMode();
             switch (vm) {
                 case ON:
                     // Validate document against mandatory schema. 
-                    database.getValidator().validate(file, true);
+                    database.getValidator().validate(file, uri, true);
                     break;
                 case AUTO:
                     // Validate document if possible (namespace and schema).
-                    database.getValidator().validate(file, false);
+                    database.getValidator().validate(file, uri, false);
                     break;
                 case OFF:
                     // No validation.

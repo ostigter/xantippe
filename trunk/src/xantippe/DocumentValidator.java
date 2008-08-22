@@ -134,7 +134,8 @@ public class DocumentValidator {
      * 
      * @return  true if the document is valid, otherwise false
      */
-    public void validate(File file, boolean required) throws XmldbException {
+    public void validate(File file, String uri, boolean required)
+            throws XmldbException {
         long startTime = System.currentTimeMillis();
         
         String namespace;
@@ -143,11 +144,11 @@ public class DocumentValidator {
         } catch (IOException e) {
             String msg = String.format(
                     "Error reading file: '%s': ", file, e.getMessage());
-            logger.error(msg);
+            logger.error(msg, e);
             throw new XmldbException(msg);
         } catch (SAXException e) {
             String msg = String.format(
-                    "Invalid document: '%s': ", file, e.getMessage());
+                    "Invalid document: '%s': ", uri, e.getMessage());
             logger.warn(msg);
             throw new XmldbException(msg);
         }
@@ -159,19 +160,18 @@ public class DocumentValidator {
                     validator.validate(new StreamSource(file));
                     long duration = System.currentTimeMillis() - startTime;
                     logger.debug(String.format(
-                        "Document '%s' validated in %d ms", file, duration));
+                        "Validated document '%s' in %d ms", uri, duration));
                 } catch (Exception e) {
                     String msg = String.format(
-                        "Invalid document: '%s': %s", file, e.getMessage());
+                        "Invalid document: '%s': %s", uri, e.getMessage());
                     logger.warn(msg);
                     throw new XmldbException(msg);
                 }
             } else {
                 if (required) {
                     String msg = String.format(
-                            "Invalid document: '%s'; "
-                            + "no schema found for namespace '%s'",
-                            file, namespace);
+                            "Invalid document: '%s'; no schema found for namespace '%s'",
+                            uri, namespace);
                     logger.warn(msg);
                     throw new XmldbException(msg);
                 }
@@ -272,7 +272,7 @@ public class DocumentValidator {
                         throw new XmldbException(msg);
                     }
                 } else {
-                    String msg = "Stored schema file no longer found";
+                    String msg = "Could not find stored schema file";
                     logger.error(msg);
                     throw new XmldbException(msg);
                 }
@@ -280,7 +280,7 @@ public class DocumentValidator {
                 logger.debug("No matching schema file found (ignored)");
             }
         } else {
-            logger.debug("Found precompiled schema");
+            logger.debug("Precompiled schema found");
         }
         
         return validator;

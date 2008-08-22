@@ -314,7 +314,7 @@ public class Collection implements Comparable<Collection> {
 
 
     /* package */ void indexDocument(Document doc) {
-        logger.debug(String.format("Indexing XML document '%s'", doc));
+//        logger.debug(String.format("Indexing XML document '%s'", doc));
         //TODO: Index XML documents based on their content. 
     }
     

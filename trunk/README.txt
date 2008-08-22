@@ -41,4 +41,4 @@ Status
 ------
 
 This product is under heavy development, highly unstable and nowhere near
-completion. Please use it or the code at your own risk!
+completion. Please use at your own risk!
