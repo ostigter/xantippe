@@ -8,6 +8,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -456,7 +457,7 @@ public class DatabaseImpl implements Database {
             throws IOException {
         dos.writeInt(col.getId());
         dos.writeUTF(col.getName());
-        dos.writeByte(col.getValidationMode().ordinal());
+        dos.writeByte(col.getExplicitValidationMode().ordinal());
         Set<Index> indices = col.getIndices(false);
         dos.writeInt(indices.size());
         for (Index index : indices) {
@@ -508,8 +509,7 @@ public class DatabaseImpl implements Database {
                 		String keyName = dis.readUTF();
                 		int noOfValues = dis.readInt();
                 		for (int k = 0; k < noOfValues; k++) {
-                			//FIXME: Use key value as Object instead of String.
-                			Object keyValue = dis.readUTF();
+                			Object keyValue = readIndexValue(dis);
                 			int noOfDocs = dis.readInt();
                 			for (int m = 0; m < noOfDocs; m++) {
                 				int docId = dis.readInt();
@@ -526,6 +526,29 @@ public class DatabaseImpl implements Database {
                 logger.error(msg);
             }
         }
+    }
+    
+    
+    private Object readIndexValue(DataInputStream dis) throws IOException {
+        Object value = null;
+        IndexType type = IndexType.values()[dis.readByte()];
+        if (type == IndexType.STRING) {
+            value = dis.readUTF();
+        } else if (type == IndexType.INTEGER) { 
+            value = dis.readInt();
+        } else if (type == IndexType.LONG) { 
+            value = dis.readLong();
+        } else if (type == IndexType.FLOAT) { 
+            value = dis.readFloat();
+        } else if (type == IndexType.DOUBLE) { 
+            value = dis.readDouble();
+        } else if (type == IndexType.DATE) {
+            value = new Date(dis.readLong());
+        } else {
+            throw new IOException(
+                    "Error deserializing index value; invalid type: " + type);
+        }
+        return value;
     }
     
     
@@ -547,8 +570,7 @@ public class DatabaseImpl implements Database {
                     Set<Object> values = iv.getValues();
                     dos.writeInt(values.size());
                     for (Object value : values) {
-                        //FIXME: Write key value as Object instead of String.
-                        dos.writeUTF(value.toString());
+                        writeIndexValue(value, dos);
                         Set<Integer> docs = iv.getDocuments(value);
                         dos.writeInt(docs.size());
                         for (int docId : docs) {
@@ -563,6 +585,33 @@ public class DatabaseImpl implements Database {
                     "Error writing database file '%s': %s",
                     INDICES_FILE, e.getMessage());
             logger.error(msg);
+        }
+    }
+    
+    
+    private void writeIndexValue(Object value, DataOutputStream dos)
+            throws IOException {
+        if (value instanceof String) {
+            dos.writeByte(IndexType.STRING.ordinal());
+            dos.writeUTF((String) value);
+        } else if (value instanceof Integer) {
+            dos.writeByte(IndexType.INTEGER.ordinal());
+            dos.writeInt((Integer) value);
+        } else if (value instanceof Long) {
+            dos.writeByte(IndexType.LONG.ordinal());
+            dos.writeLong((Long) value);
+        } else if (value instanceof Float) {
+            dos.writeByte(IndexType.FLOAT.ordinal());
+            dos.writeFloat((Float) value);
+        } else if (value instanceof Double) {
+            dos.writeByte(IndexType.DOUBLE.ordinal());
+            dos.writeDouble((Double) value);
+        } else if (value instanceof Date) {
+            dos.writeByte(IndexType.DATE.ordinal());
+            dos.writeLong(((Date) value).getTime());
+        } else {
+            throw new IOException(
+                    "Error serializing index value; invalid type");
         }
     }
     
