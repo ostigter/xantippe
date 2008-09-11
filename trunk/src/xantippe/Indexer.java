@@ -2,7 +2,6 @@ package xantippe;
 
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -49,25 +48,27 @@ public class Indexer {
     
     
     public void index(Document doc, File file, Collection col) {
-        logger.debug(String.format("Index document '%s'", doc));
-        
-        long startTime = System.currentTimeMillis();
-        
-    	handler.setDocument(doc);
-    	handler.setCollection(col);
-    	
-        try {
-            parser.parse(file, handler);
-        } catch (Exception e) {
-        	// Should never happen; document has already been validated.
-            String msg = String.format(
-            		"Error while indexing document '%s': %s",
-            		doc, e.getMessage());
-            logger.error(msg, e);
+        if (col.getIndices(true).size() > 0) {
+            logger.debug(String.format("Index document '%s'", doc));
+            
+            long startTime = System.currentTimeMillis();
+            
+            handler.setDocument(doc);
+            handler.setCollection(col);
+            
+            try {
+                parser.parse(file, handler);
+            } catch (Exception e) {
+                // Should never happen; document has already been validated.
+                String msg = String.format(
+                        "Error while indexing document '%s': %s",
+                        doc, e.getMessage());
+                logger.error(msg, e);
+            }
+            
+            long duration = System.currentTimeMillis() - startTime;
+            logger.debug(String.format("Indexed document in %d ms.", duration));
         }
-        
-        long duration = System.currentTimeMillis() - startTime;
-        logger.debug(String.format("Indexed document in %d ms.", duration));
     }
     
     
