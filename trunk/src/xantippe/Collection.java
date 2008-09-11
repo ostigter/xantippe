@@ -1,6 +1,7 @@
 package xantippe;
 
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -319,9 +320,9 @@ public class Collection implements Comparable<Collection> {
     }
 
 
-    /* package */ void indexDocument(Document doc) {
-//        logger.debug(String.format("Indexing XML document '%s'", doc));
-        //TODO: Index XML documents based on their content. 
+    /* package */ void indexDocument(Document doc, File file) {
+        database.getIndexer().index(doc, file, this);
+        
     }
     
     
@@ -334,8 +335,8 @@ public class Collection implements Comparable<Collection> {
         }
         iv.indexDocument(docId, keyValue);
 //        logger.debug(String.format(
-//                "Indexed document '%s' with key '%s', value '%s'",
-//                doc, keyName, keyValue));
+//        		"Added index value '%s' for index '%s' for document ID %d.",
+//        		keyValue, keyName, docId));
     }
     
     
@@ -349,6 +350,7 @@ public class Collection implements Comparable<Collection> {
     //------------------------------------------------------------------------
     
     
+    //FIXME: Get rid of "unchecked" warning
     @SuppressWarnings("unchecked")  // new HashSet[]
     private void findDocuments(
             Key[] keys, boolean recursive, Set<Document> docs) {
