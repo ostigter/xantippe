@@ -168,7 +168,17 @@ public class Document implements Comparable<Document> {
             }
         }
         
-        storeDocument(file);
+        try {
+            database.getFileStore().store(id, file);
+            
+            if (mediaType == MediaType.XML) {
+            	getParent().indexDocument(this, file);
+            }
+        } catch (FileStoreException e) {
+            String msg = "Could not store document: " + this;
+            logger.error(msg, e);
+            throw new XmldbException(msg, e);
+        }
     }
     
     
@@ -207,26 +217,6 @@ public class Document implements Comparable<Document> {
     
     /* package */ int getId() {
         return id;
-    }
-    
-    
-    //------------------------------------------------------------------------
-    //  Private methods
-    //------------------------------------------------------------------------
-    
-    
-    private void storeDocument(File file) throws XmldbException {
-        try {
-            database.getFileStore().store(id, file);
-            
-            if (mediaType == MediaType.XML) {
-                getParent().indexDocument(this);
-            }
-        } catch (FileStoreException e) {
-            String msg = "Could not store document: " + this;
-            logger.error(msg, e);
-            throw new XmldbException(msg, e);
-        }
     }
     
     

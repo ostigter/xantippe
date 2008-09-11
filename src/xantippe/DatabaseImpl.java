@@ -54,6 +54,9 @@ public class DatabaseImpl implements Database {
     /** Document validator. */
     private final DocumentValidator validator;
     
+    /** XML document indexer. */
+    private final Indexer indexer;
+    
     /** XQuery processor. */
     private final QueryProcessor queryProcessor;
 
@@ -85,14 +88,13 @@ public class DatabaseImpl implements Database {
         Util.initLog4j();
         
         dataDir = System.getProperty(DATA_DIR_PROPERTY, DEFAULT_DATA_DIR);
-        
         fileStore = new FileStore(dataDir);
         
         collections = new HashMap<Integer, Collection>();
         documents = new HashMap<Integer, Document>();
         
         validator = new DocumentValidator(this);
-        
+        indexer = new Indexer();
         queryProcessor = new QueryProcessor(this);
         
         logger.debug(String.format("Database directory: '%s'",
@@ -288,6 +290,16 @@ public class DatabaseImpl implements Database {
     }
     
     
+    /* package */ DocumentValidator getValidator() {
+        return validator;
+    }
+    
+    
+    /* package */ Indexer getIndexer() {
+        return indexer;
+    }
+    
+    
     /* package */ MediaType getMediaType(String fileName) {
         MediaType mediaType = MediaType.BINARY;
         
@@ -313,11 +325,6 @@ public class DatabaseImpl implements Database {
     
     /* package */ boolean isSchemaFile(String fileName) {
         return fileName.toLowerCase().endsWith(".xsd");
-    }
-    
-    
-    /* package */ DocumentValidator getValidator() {
-        return validator;
     }
     
     
