@@ -9,7 +9,7 @@ import java.io.OutputStream;
  * 
  * @author Oscar Stigter
  */
-interface Database {
+public interface Database {
 
 
     /**
