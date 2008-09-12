@@ -171,7 +171,6 @@ public class DatabaseTest {
             
             // Find documents by keys (using indices).
             
-            //FIXME: Use actual index value types instead of always String
             Key[] keys = new Key[] {
             		new Key("DocumentId", 2)
             };
@@ -246,7 +245,9 @@ public class DatabaseTest {
 //            database.start();
 //
 //            Collection rootCol = database.getRootCollection();
-//            Collection dataCol = rootCol.createCollection("data"); 
+//            Collection dataCol = rootCol.createCollection("data");
+////            dataCol.addIndex("DocumentId", "//Header/DocumentId", IndexType.STRING);
+//            dataCol.addIndex("MachineId", "//Header/MachineID", IndexType.STRING);
 //
 //            File dir = new File(LARGE_DATASET_DIR);
 //            if (!dir.isDirectory() || !dir.canRead()) {
@@ -275,9 +276,25 @@ public class DatabaseTest {
 //                    "Stored %d documents in %.3f seconds (%.2f MB/s)",
 //                    count, duration, speed));
 //            
-//            String query = "count(collection('/db/data')[element()/Header/MachineID = '1111'])";
-//            String result = database.executeQuery(query).toString();
-//            logger.debug(result);
+////            logger.info("Finding documents using brute-force search...");
+////            String query = "count(collection('/db/data')[element()/Header/MachineID = '1111'])";
+////            startTime = System.currentTimeMillis();
+////            String result = database.executeQuery(query).toString();
+////            duration = (System.currentTimeMillis() - startTime) / 1000.0;
+////            Assert.assertEquals(XML_HEADER + "10", result);
+////            logger.info(String.format(java.util.Locale.US,
+////                    "Searched %d documents in %.3f seconds", count, duration));
+//            
+//            logger.info("Finding documents using indices...");
+//            Key[] keys = new Key[] {
+//                    new Key("MachineId", "1111"),
+//            };
+//            startTime = System.currentTimeMillis();
+//            Set<Document> docs = rootCol.findDocuments(keys, true);
+//            duration = (System.currentTimeMillis() - startTime) / 1000.0;
+//            Assert.assertEquals(10, docs.size());
+//            logger.info(String.format(java.util.Locale.US,
+//                    "Searched %d documents in %.3f seconds", count, duration));
 //            
 //            database.shutdown();
 //
