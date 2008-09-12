@@ -4,11 +4,14 @@ TO DO
 
 Must have:
 
+- Delete/Rename/Copy/Move documents and collections
+- Index bookkeeping
 - Admin tool (local database)
+- Compression
 - Configuration file
-- WebDAV interface (web deployment, Tomcat, Jetty?)
-- Database interface from XQuery
 - Backup & Restore
+- Database interface from XQuery
+- WebDAV interface (web deployment, Tomcat, Jetty?)
 - Locking (multi clients, thread-safety)
 
 
@@ -18,7 +21,7 @@ Nice to have:
 - Defragmentation
 - Client/Server deployment (RMI?)
 - REST interface?
-- Compression
 - Caching (documents, collections, indices)
 - Transactions (journaling)
+- Authentication & Authorization
 - Encryption

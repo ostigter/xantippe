@@ -4,6 +4,8 @@ package xantippe;
 public enum IndexType {
     
     
+    STRING,
+    
     INTEGER,
     
     LONG,
@@ -11,8 +13,6 @@ public enum IndexType {
     FLOAT,
     
     DOUBLE,
-    
-    STRING,
     
     DATE,
 
