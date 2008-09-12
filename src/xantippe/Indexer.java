@@ -49,7 +49,7 @@ public class Indexer {
     
     public void index(Document doc, File file, Collection col) {
         if (col.getIndices(true).size() > 0) {
-            logger.debug(String.format("Index document '%s'", doc));
+            logger.debug(String.format("Indexing document '%s'", doc));
             
             long startTime = System.currentTimeMillis();
             

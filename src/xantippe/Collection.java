@@ -158,9 +158,6 @@ public class Collection implements Comparable<Collection> {
             logger.error("Invalid validation mode on root collection");
         } else {
             validationMode = vm;
-//            logger.debug(String.format(
-//                    "Validtation mode for collection '%s' set to '%s'",
-//                    this, vm));
         }
     }
     
@@ -212,35 +209,60 @@ public class Collection implements Comparable<Collection> {
     
     public String getUri() {
         StringBuilder sb = new StringBuilder();
+        
         Collection col = this;
         while (col != null) {
             sb.insert(0, '/'); 
             sb.insert(1, col.getName());
             col = col.getParent();
         }
+        
         return sb.toString();
     }
     
     
-    public Collection createCollection(String name) {
-        int colId = database.getNextId(); 
-        Collection col = new Collection(database, colId, name, id);
-        collections.add(colId);
-        logger.debug(String.format("Created collection '%s'", this));
+    public Collection createCollection(String name) throws XmldbException {
+    	if (name == null && name.length() == 0) {
+    		throw new IllegalArgumentException("Null or empty name");
+    	}
+    	
+    	Collection col = getCollection(name);
+    	if (col == null) {
+	        int colId = database.getNextId(); 
+	        col = new Collection(database, colId, name, id);
+	        collections.add(colId);
+	        logger.debug(String.format("Created collection '%s'", this));
+    	} else {
+    		String msg = String.format("Collection already exists: '%s'", col);
+    		throw new XmldbException(msg);
+    	}
+    	
         return col;
     }
     
     
-    public Document createDocument(String name) {
+    public Document createDocument(String name) throws XmldbException {
         return createDocument(name, database.getMediaType(name));
     }
     
     
-    public Document createDocument(String name, MediaType mediaType) {
-        int docId = database.getNextId();
-        Document doc = new Document(database, docId, name, mediaType, id);
-        documents.add(docId);
-        logger.debug(String.format("Created document '%s'", doc));
+    public Document createDocument(String name, MediaType mediaType)
+    		throws XmldbException {
+    	if (name == null) {
+    		throw new IllegalArgumentException("Null name");
+    	}
+    	
+    	Document doc = getDocument(name);
+    	if (doc == null) {
+	        int docId = database.getNextId();
+	        doc = new Document(database, docId, name, mediaType, id);
+	        documents.add(docId);
+	        logger.debug(String.format("Created document '%s'", doc));
+    	} else {
+    		String msg = String.format("Document already exists: '%s'", doc);
+    		throw new XmldbException(msg);
+    	}
+    	
         return doc;
     }
     
