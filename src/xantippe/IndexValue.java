@@ -1,9 +1,9 @@
 package xantippe;
 
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeMap;
 import java.util.TreeSet;
 
 
@@ -25,7 +25,7 @@ class IndexValue {
 
     
     /* package */ IndexValue() {
-        documents = new TreeMap<Object, Set<Integer>>();
+        documents = new HashMap<Object, Set<Integer>>();
     }
     
     

@@ -356,15 +356,13 @@ public class Collection implements Comparable<Collection> {
             Key[] keys, boolean recursive, Set<Document> docs) {
         int noOfKeys = keys.length;
         
+        // Find documents (ID's) that match any key, sorted per key.
         Set<Integer>[] docsPerKey = new HashSet[noOfKeys];
-        
-        // Find documents (ID's) that match any key.
         for (int i = 0; i < noOfKeys; i++) {
-            Key key = keys[i];
             docsPerKey[i] = new HashSet<Integer>();
-            IndexValue value = indexValues.get(key.getName());
+            IndexValue value = indexValues.get(keys[i].getName());
             if (value != null) {
-                docsPerKey[i].addAll(value.findDocuments(key.getValue()));
+                docsPerKey[i].addAll(value.findDocuments(keys[i].getValue()));
             }
         }
         
@@ -374,7 +372,7 @@ public class Collection implements Comparable<Collection> {
                 docs.add(database.getDocument(id));
             }
         } else {
-            // Filter out documents that do not match ALL keys.
+            // Only keep documents that match all keys.
             Set<Integer> matchingIds = new HashSet<Integer>();
             for (int id : docsPerKey[0]) {
                 boolean matches = true;
@@ -389,11 +387,13 @@ public class Collection implements Comparable<Collection> {
                 }
             }
             
+            // Add matching documents to final set.
             for (int id : matchingIds) {
                 docs.add(database.getDocument(id));
             }
         }
         
+        // Optionally search subcollections.
         if (recursive) {
             for (Collection col : getCollections()) {
                 col.findDocuments(keys, recursive, docs);

@@ -122,25 +122,16 @@ public class Indexer {
 //            System.out.println("Current path: " + path);
             for (Index index : indices) {
 //                System.out.println("Index path:   " + index.getPath());
-                if (index.getPath().startsWith("//")) {
-                    if (path.endsWith(index.getPath().substring(1))) {
-                        String text = sb.toString().trim();
-                        if (text.length() != 0) {
-                        	//TODO: Support other index value types than String
-                            Object value = text; 
-                        	collection.addIndexValue(
-                        			index.getName(), value, document.getId());
-                        }
-                    }
-                } else {
-                    if (path.equals(index.getPath())) {
-                        String text = sb.toString().trim();
-                        if (text.length() != 0) {
-                        	//TODO: Support other index value types than String
-                            Object value = text; 
-                        	collection.addIndexValue(
-                        			index.getName(), value, document.getId());
-                        }
+            	if (path.equals(index.getPath()) ||
+            			(index.getPath().startsWith("//") &&
+            				path.endsWith(index.getPath().substring(1)))) {
+            		String text = sb.toString().trim();
+            		if (text.length() != 0) {
+            			Object value = getIndexValue(text, index.getType());
+            			if (value != null) {
+            				collection.addIndexValue(
+            						index.getName(), value, document.getId());
+            			}
                     }
                 }
             }
@@ -165,7 +156,53 @@ public class Indexer {
             return sb2.toString();
         }
         
-
+        
+        private Object getIndexValue(String text, IndexType type) {
+        	Object value = null;
+        	
+			switch (type) {
+				case STRING:
+					value = text;
+					break;
+				case INTEGER:
+					try {
+						value = Integer.parseInt(text);
+					} catch (Exception e) {
+						// Ignore.
+					}
+					break;
+				case LONG:
+					try {
+						value = Long.parseLong(text);
+					} catch (Exception e) {
+						// Ignore.
+					}
+					break;
+				case DOUBLE:
+					try {
+						value = Double.parseDouble(text);
+					} catch (Exception e) {
+						// Ignore.
+					}
+					break;
+				case FLOAT:
+					try {
+						value = Float.parseFloat(text);
+					} catch (Exception e) {
+						// Ignore.
+					}
+					break;
+				case DATE:
+					//TODO: Parse date
+					break;
+				default:
+					// Invalid index type; ignore.
+			}
+			
+        	return value;
+        }
+        
+        
     }
 
 
