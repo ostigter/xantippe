@@ -69,23 +69,23 @@ public class FileStoreTest {
             // Retrieve file.
             InputStream is = store.retrieve(1);
             Assert.assertNotNull(is);
-            Assert.assertEquals(320, is.available());
+            Assert.assertEquals(313, is.available());
             Assert.assertEquals('<', (char) is.read());
-            Assert.assertEquals(319, is.available());
+            Assert.assertEquals(312, is.available());
             Assert.assertEquals('?', (char) is.read());
-            Assert.assertEquals(318, is.available());
+            Assert.assertEquals(311, is.available());
             Assert.assertEquals('x', (char) is.read());
-            Assert.assertEquals(317, is.available());
+            Assert.assertEquals(310, is.available());
             Assert.assertEquals('m', (char) is.read());
-            Assert.assertEquals(316, is.available());
+            Assert.assertEquals(309, is.available());
             Assert.assertEquals('l', (char) is.read());
-            Assert.assertEquals(315, is.available());
-            byte[] buffer = new byte[315];
+            Assert.assertEquals(308, is.available());
+            byte[] buffer = new byte[308];
             int read = is.read(buffer, 0, 8);
             Assert.assertEquals(8, read);
             Assert.assertEquals(" version", new String(buffer, 0, read));
             read = is.read(buffer);
-            Assert.assertEquals(307, read);
+            Assert.assertEquals(300, read);
             is.close();
             
             // Add file.
