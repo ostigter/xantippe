@@ -222,7 +222,7 @@ public class Collection implements Comparable<Collection> {
     
     
     public Collection createCollection(String name) throws XmldbException {
-    	if (name == null && name.length() == 0) {
+    	if (name == null || name.length() == 0) {
     		throw new IllegalArgumentException("Null or empty name");
     	}
     	
