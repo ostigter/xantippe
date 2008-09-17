@@ -2,20 +2,27 @@ TO DO
 =====
 
 
-Must have:
+High priority
+-------------
 
-- Delete/Rename/Copy/Move documents and collections
 - Index bookkeeping
-- Admin tool (local database)
-- Compression
+- Manager tool (GUI)
 - Configuration file
-- Backup & Restore
-- Database interface from XQuery
+- Compression
+
+
+Medium priority
+---------------
+
+- Rename/Copy/Move documents and collections
+- Locking (thread-safety)
+- Backup & Restore (Manager tool)
+- Database interface from within XQuery
 - WebDAV interface (web deployment, Tomcat, Jetty?)
-- Locking (multi clients, thread-safety)
 
 
-Nice to have:
+Low priority
+------------
 
 - Health checking
 - Defragmentation

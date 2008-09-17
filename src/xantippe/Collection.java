@@ -117,7 +117,13 @@ public class Collection implements Comparable<Collection> {
     public Set<Document> getDocuments() {
         Set<Document> docs = new TreeSet<Document>();
         for (int id : documents) {
-            docs.add(database.getDocument(id));
+            Document doc = database.getDocument(id); 
+            if (doc != null) {
+                docs.add(doc);
+            } else {
+                logger.error(String.format(
+                        "Document with ID %d not found", id));
+            }
         }
         return docs;
     }
@@ -267,6 +273,36 @@ public class Collection implements Comparable<Collection> {
     }
     
     
+    public boolean deleteCollection(String name) {
+        if (name == null) {
+            throw new IllegalArgumentException("Null name");
+        }
+        
+        boolean deleted = false;
+        Collection col = getCollection(name);
+        if (col != null) {
+            deleteCollection(col);
+            deleted = true;
+        }
+        return deleted;
+    }
+    
+    
+    public boolean deleteDocument(String name) {
+        if (name == null) {
+            throw new IllegalArgumentException("Null name");
+        }
+        
+        boolean deleted = false;
+        Document doc = getDocument(name);
+        if (doc != null) {
+            deleteDocument(doc);
+            deleted = true;
+        }
+        return deleted;
+    }
+    
+    
     public Set<Document> findDocuments(Key[] keys, boolean recursive)
             throws XmldbException {
         if (keys == null) {
@@ -370,6 +406,26 @@ public class Collection implements Comparable<Collection> {
     //------------------------------------------------------------------------
     //  Private methods
     //------------------------------------------------------------------------
+    
+    
+    private void deleteCollection(Collection col) {
+        for (Document doc : col.getDocuments()) {
+            deleteDocument(doc);
+        }
+        for (Collection c : col.getCollections()) {
+            collections.remove(c.getId());
+            deleteCollection(c);
+        }
+        indexValues.clear();
+        indices.clear();
+        database.deleteCollection(this);
+    }
+    
+    
+    private void deleteDocument(Document doc) {
+        documents.remove(doc.getId());
+        database.deleteDocument(doc);
+    }
     
     
     //FIXME: Get rid of "unchecked" warning
