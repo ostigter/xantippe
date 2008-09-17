@@ -77,6 +77,7 @@ public class DatabaseTest {
         logger.debug("Test suite 'storage' started");
 
         File file;
+        Document doc;
         
         try {
             database.start();
@@ -149,7 +150,7 @@ public class DatabaseTest {
             // Add documents.
             
             file = new File("test/dat/db/data/foo/Foo-0001.xml");
-            Document doc = fooCol.createDocument(file.getName());
+            doc = fooCol.createDocument(file.getName());
             Assert.assertEquals("Foo-0001.xml", doc.getName());
             doc.setContent(file);
             assertEqual(doc.getContent(), file);
@@ -224,7 +225,28 @@ public class DatabaseTest {
             };
             docs = rootCol.findDocuments(keys, true);
             Assert.assertEquals(0, docs.size());
+            
+            // Delete documents and collections.
+            
+//            Assert.assertFalse(fooCol.deleteDocument("NonExisting"));
+//            Assert.assertFalse(fooCol.deleteCollection("NonExisting"));
+//            
+            Assert.assertTrue(fooCol.deleteDocument("Foo-0001.xml"));
+            try {
+                database.getDocument("/db/data/foo/Foo-0001.xml");
+                Assert.fail("No exception thrown!");
+            } catch (XmldbException e) {
+                // OK
+            }
 
+//            Assert.assertTrue(dataCol.deleteCollection("foo"));
+//            try {
+//                database.getCollection("/db/data/foo");
+//                Assert.fail("No exception thrown!");
+//            } catch (XmldbException e) {
+//                // OK
+//            }
+            
             database.shutdown();
             
         } catch (XmldbException e) {

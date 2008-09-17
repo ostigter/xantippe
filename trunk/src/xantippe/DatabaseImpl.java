@@ -285,6 +285,24 @@ public class DatabaseImpl implements Database {
     }
     
     
+    /* package */ void deleteCollection(Collection col) {
+        collections.remove(col.getId());
+    }
+    
+    
+    /* package */ void deleteDocument(Document doc) {
+        int docId = doc.getId();
+        documents.remove(docId);
+        try {
+            fileStore.delete(docId);
+        } catch (FileStoreException e) {
+            String msg = String.format(
+                    "Error deleting document '%s': %s", doc, e.getMessage());
+            logger.error(msg, e);
+        }
+    }
+    
+    
     /* package */ FileStore getFileStore() {
         return fileStore;
     }
