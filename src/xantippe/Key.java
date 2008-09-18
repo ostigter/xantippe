@@ -12,10 +12,10 @@ public class Key {
     
     
     /** Key name. */
-    private String name;
+    private final String name;
     
     /** Key value. */
-    private Object value;
+    private final Object value;
     
     
     //------------------------------------------------------------------------
@@ -41,11 +41,6 @@ public class Key {
     
     public Object getValue() {
         return value;
-    }
-    
-    
-    public void setValue(Object value) {
-        this.value = value;
     }
     
     

@@ -10,16 +10,16 @@ public class Index implements Comparable<Index> {
     
     
     /** ID. */
-    private int id;
+    private final int id;
     
     /** Name. */
-    private String name;
+    private final String name;
     
     /** Path to the indexed XML element or attribute. */
-    private String path;
+    private final String path;
     
     /** Type. */
-    private IndexType type;
+    private final IndexType type;
     
     
     //------------------------------------------------------------------------
@@ -55,22 +55,12 @@ public class Index implements Comparable<Index> {
     }
 
 
-    //------------------------------------------------------------------------
-    //  Interface implementation: Comparable
-    //------------------------------------------------------------------------
-
-    
     public int compareTo(Index index) {
         return name.compareTo(index.getName());
     }
     
 
-    //------------------------------------------------------------------------
-    //  Overriden methods: Object
-    //------------------------------------------------------------------------
-
-    
-    @Override
+    @Override // Object
     public String toString() {
         return name;
     }

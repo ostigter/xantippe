@@ -282,8 +282,6 @@ public class FileStore {
                 logger.debug("Deleted entry with ID " + id + " with offset "
                         + entry.getOffset() + " and length "
                         + entry.getLength());
-            } else {
-                logger.warn("Entry with ID " + id + " not found");
             }
         } else {
             throw new FileStoreException("FileStore not running");
@@ -465,7 +463,7 @@ public class FileStore {
      * 
      * @return  the human-friendly representation of the file size
      */
-    private String diskSizeToString(long size) {
+    private static String diskSizeToString(long size) {
         String s = null;
         if (size >= 1073741824L) {
             s = String.format(Locale.US, "%.2f GB", size / 1073741824.0);

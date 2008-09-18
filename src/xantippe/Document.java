@@ -23,10 +23,10 @@ public class Document implements Comparable<Document> {
     private static final Logger logger = Logger.getLogger(Document.class);
     
     /** Back-reference to the database. */
-    private DatabaseImpl database;
+    private final DatabaseImpl database;
 
     /** ID. */
-    private int id;
+    private final int id;
     
     /** Name. */
     private String name;
@@ -217,6 +217,13 @@ public class Document implements Comparable<Document> {
     
     /* package */ int getId() {
         return id;
+    }
+    
+    
+    /* package */ void delete() {
+        database.deleteDocument(this);
+        String msg = String.format("Deleted document '%s'", this);
+        logger.debug(msg);
     }
     
     
