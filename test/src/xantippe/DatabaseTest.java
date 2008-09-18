@@ -166,9 +166,14 @@ public class DatabaseTest {
             		+ "<Version>v1.0</Version></Header></BarDocument>").getBytes());
             os.close();
             
-//            // Shutdown and restart database to test persistency.
+            // Shutdown and restart database to test persistency.
             database.shutdown();
             database.start();
+            
+            // Refresh collection references.
+            rootCol = database.getRootCollection();
+            dataCol = database.getCollection("/db/data");
+            fooCol = dataCol.getCollection("foo");
             
             // Find documents by keys (using indices).
             
@@ -228,9 +233,9 @@ public class DatabaseTest {
             
             // Delete documents and collections.
             
-//            Assert.assertFalse(fooCol.deleteDocument("NonExisting"));
-//            Assert.assertFalse(fooCol.deleteCollection("NonExisting"));
-//            
+            Assert.assertFalse(fooCol.deleteDocument("NonExisting"));
+            Assert.assertFalse(fooCol.deleteCollection("NonExisting"));
+            
             Assert.assertTrue(fooCol.deleteDocument("Foo-0001.xml"));
             try {
                 database.getDocument("/db/data/foo/Foo-0001.xml");
@@ -239,9 +244,19 @@ public class DatabaseTest {
                 // OK
             }
 
+//            // Delete a single, non-empty collection.
 //            Assert.assertTrue(dataCol.deleteCollection("foo"));
 //            try {
 //                database.getCollection("/db/data/foo");
+//                Assert.fail("No exception thrown!");
+//            } catch (XmldbException e) {
+//                // OK
+//            }
+//            
+//            // Delete a non-empty collection tree (recursive).
+//            Assert.assertTrue(rootCol.deleteCollection("data"));
+//            try {
+//                database.getCollection("/db/data");
 //                Assert.fail("No exception thrown!");
 //            } catch (XmldbException e) {
 //                // OK
