@@ -23,10 +23,22 @@ public class Collection implements Comparable<Collection> {
     private static final Logger logger = Logger.getLogger(Collection.class);
     
     /** Back-reference to the database. */
-    private DatabaseImpl database;
+    private final DatabaseImpl database;
 
     /** ID. */
-    private int id;
+    private final int id;
+    
+    /** Child collections. */
+    private final Set<Integer> collections;
+    
+    /** Documents. */
+    private final Set<Integer> documents;
+    
+    /** Index definitions. */
+    private final Set<Index> indices;
+    
+    /** Index values mapped by key name. */
+    private final Map<String, IndexValue> indexValues;
     
     /** Name. */
     private String name;
@@ -34,20 +46,8 @@ public class Collection implements Comparable<Collection> {
     /** Parent collection. */
     private int parent;
     
-    /** Child collections. */
-    private Set<Integer> collections;
-    
-    /** Documents. */
-    private Set<Integer> documents;
-    
     /** Validation mode. */
     private ValidationMode validationMode = ValidationMode.INHERIT;
-    
-    /** Index definitions. */
-    private Set<Index> indices;
-    
-    /** Index values mapped by key name. */
-    private Map<String, IndexValue> indexValues;
     
     
     //------------------------------------------------------------------------
@@ -227,6 +227,32 @@ public class Collection implements Comparable<Collection> {
     }
     
     
+    public Document createDocument(String name) throws XmldbException {
+        return createDocument(name, database.getMediaType(name));
+    }
+    
+    
+    public Document createDocument(String name, MediaType mediaType)
+            throws XmldbException {
+        if (name == null) {
+            throw new IllegalArgumentException("Null name");
+        }
+        
+        Document doc = getDocument(name);
+        if (doc == null) {
+            int docId = database.getNextId();
+            doc = new Document(database, docId, name, mediaType, id);
+            documents.add(docId);
+            logger.debug(String.format("Created document '%s'", doc));
+        } else {
+            String msg = String.format("Document already exists: '%s'", doc);
+            throw new XmldbException(msg);
+        }
+        
+        return doc;
+    }
+    
+    
     public Collection createCollection(String name) throws XmldbException {
     	if (name == null || name.length() == 0) {
     		throw new IllegalArgumentException("Null or empty name");
@@ -247,29 +273,18 @@ public class Collection implements Comparable<Collection> {
     }
     
     
-    public Document createDocument(String name) throws XmldbException {
-        return createDocument(name, database.getMediaType(name));
-    }
-    
-    
-    public Document createDocument(String name, MediaType mediaType)
-    		throws XmldbException {
-    	if (name == null) {
-    		throw new IllegalArgumentException("Null name");
-    	}
-    	
-    	Document doc = getDocument(name);
-    	if (doc == null) {
-	        int docId = database.getNextId();
-	        doc = new Document(database, docId, name, mediaType, id);
-	        documents.add(docId);
-	        logger.debug(String.format("Created document '%s'", doc));
-    	} else {
-    		String msg = String.format("Document already exists: '%s'", doc);
-    		throw new XmldbException(msg);
-    	}
-    	
-        return doc;
+    public boolean deleteDocument(String name) {
+        if (name == null) {
+            throw new IllegalArgumentException("Null name");
+        }
+        
+        boolean deleted = false;
+        Document doc = getDocument(name);
+        if (doc != null) {
+            deleteDocument(doc);
+            deleted = true;
+        }
+        return deleted;
     }
     
     
@@ -281,22 +296,8 @@ public class Collection implements Comparable<Collection> {
         boolean deleted = false;
         Collection col = getCollection(name);
         if (col != null) {
-            deleteCollection(col);
-            deleted = true;
-        }
-        return deleted;
-    }
-    
-    
-    public boolean deleteDocument(String name) {
-        if (name == null) {
-            throw new IllegalArgumentException("Null name");
-        }
-        
-        boolean deleted = false;
-        Document doc = getDocument(name);
-        if (doc != null) {
-            deleteDocument(doc);
+            col.delete();
+            collections.remove(col.getId());
             deleted = true;
         }
         return deleted;
@@ -401,31 +402,27 @@ public class Collection implements Comparable<Collection> {
     /* package */ Map<String, IndexValue> getIndexValues() {
         return indexValues;
     }
+    
+    
+    /* package */ void delete() {
+        for (Document doc : getDocuments()) {
+            deleteDocument(doc);
+        }
+        for (Collection col : getCollections()) {
+            collections.remove(col.getId());
+            col.delete();
+        }
+        indexValues.clear();
+        indices.clear();
+        database.deleteCollection(this);
+        String msg = String.format("Deleted collection '%s'", this);
+        logger.debug(msg);
+    }
 
 
     //------------------------------------------------------------------------
     //  Private methods
     //------------------------------------------------------------------------
-    
-    
-    private void deleteCollection(Collection col) {
-        for (Document doc : col.getDocuments()) {
-            deleteDocument(doc);
-        }
-        for (Collection c : col.getCollections()) {
-            collections.remove(c.getId());
-            deleteCollection(c);
-        }
-        indexValues.clear();
-        indices.clear();
-        database.deleteCollection(this);
-    }
-    
-    
-    private void deleteDocument(Document doc) {
-        documents.remove(doc.getId());
-        database.deleteDocument(doc);
-    }
     
     
     //FIXME: Get rid of "unchecked" warning
@@ -477,6 +474,12 @@ public class Collection implements Comparable<Collection> {
                 col.findDocuments(keys, recursive, docs);
             }
         }
+    }
+    
+    
+    private void deleteDocument(Document doc) {
+        documents.remove(doc.getId());
+        doc.delete();
     }
 
     

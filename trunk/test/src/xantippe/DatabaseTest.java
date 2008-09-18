@@ -41,7 +41,7 @@ public class DatabaseTest {
 
 
     //------------------------------------------------------------------------
-    //  JUnit methods
+    //  Setup & cleanup methods
     //------------------------------------------------------------------------
 
 
@@ -111,6 +111,8 @@ public class DatabaseTest {
             Assert.assertEquals(0, barCol.getDocuments().size());
             Assert.assertEquals(0, barCol.getCollections().size());
             Assert.assertEquals(0, barCol.getIndices(true).size());
+            Collection emptyCol = dataCol.createCollection("empty");
+            Assert.assertEquals("/db/data/empty", emptyCol.getUri());
 
             // Create indices.
             Assert.assertEquals(0, rootCol.getIndices(true).size());
@@ -244,23 +246,32 @@ public class DatabaseTest {
                 // OK
             }
 
-//            // Delete a single, non-empty collection.
-//            Assert.assertTrue(dataCol.deleteCollection("foo"));
-//            try {
-//                database.getCollection("/db/data/foo");
-//                Assert.fail("No exception thrown!");
-//            } catch (XmldbException e) {
-//                // OK
-//            }
-//            
-//            // Delete a non-empty collection tree (recursive).
-//            Assert.assertTrue(rootCol.deleteCollection("data"));
-//            try {
-//                database.getCollection("/db/data");
-//                Assert.fail("No exception thrown!");
-//            } catch (XmldbException e) {
-//                // OK
-//            }
+            // Delete an empty collection.
+            Assert.assertTrue(dataCol.deleteCollection("empty"));
+            try {
+                database.getCollection("/db/data/empty");
+                Assert.fail("No exception thrown!");
+            } catch (XmldbException e) {
+                // OK
+            }
+
+            // Delete a single, non-empty collection.
+            Assert.assertTrue(dataCol.deleteCollection("foo"));
+            try {
+                database.getCollection("/db/data/foo");
+                Assert.fail("No exception thrown!");
+            } catch (XmldbException e) {
+                // OK
+            }
+
+            // Delete a non-empty collection tree (recursive).
+            Assert.assertTrue(rootCol.deleteCollection("data"));
+            try {
+                database.getCollection("/db/data");
+                Assert.fail("No exception thrown!");
+            } catch (XmldbException e) {
+                // OK
+            }
             
             database.shutdown();
             
