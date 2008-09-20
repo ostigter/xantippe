@@ -151,7 +151,7 @@ public class FileStore {
      */
     public void shutdown() throws FileStoreException {
         if (isRunning) {
-            logger.debug("Shutting down...");
+            logger.debug("Shutting down");
             
             sync();
             
@@ -162,6 +162,9 @@ public class FileStore {
             } finally {
                 isRunning = false;
             }
+            
+            entries.clear();
+            
             logger.debug("Shut down");
         } else {
             throw new FileStoreException("FileStore not started");
@@ -478,4 +481,88 @@ public class FileStore {
     }
  
 
-}
+    //------------------------------------------------------------------------
+    //  Inner classes
+    //------------------------------------------------------------------------
+    
+
+    /**
+     * Administrative entry of a stored file.
+     * 
+     * Each entry has a name, offset and length.
+     * 
+     * @author Oscar Stigter
+     */
+    private class FileEntry implements Comparable<FileEntry> {
+        
+
+        private int id;
+        
+        private int offset;
+        
+        private int length;
+        
+
+        public FileEntry(int id) {
+            this.id = id;
+        }
+
+
+        public int getId() {
+            return id;
+        }
+
+
+        public int getOffset() {
+            return offset;
+        }
+
+
+        public void setOffset(int offset) {
+            this.offset = offset;
+        }
+
+
+        public int getLength() {
+            return length;
+        }
+
+
+        public void setLength(int length) {
+            this.length = length;
+        }
+
+
+        @Override
+        public String toString() {
+            return "{'" + id + "', " + offset + ", " + length + "}";
+        }
+
+
+        @Override
+        public boolean equals(Object obj) {
+            if (obj instanceof FileEntry) {
+                FileEntry entry = (FileEntry) obj;
+                return entry.getId() == id;
+            } else {
+                return false;
+            }
+        }
+
+
+        public int compareTo(FileEntry entry) {
+            int otherOffset = entry.getOffset();
+            if (offset > otherOffset) {
+                return 1;
+            } else if (offset < otherOffset) {
+                return -1;
+            } else {
+                return 0;
+            }
+        }
+
+
+    } // FileEntry
+
+
+} // FileStore
