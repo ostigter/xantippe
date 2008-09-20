@@ -159,6 +159,11 @@ public class DatabaseImpl implements Database {
         
         validator.writeSchemas(dataDir);
         
+        documents.clear();
+        collections.clear();
+        
+        validator.clearSchemas();
+        
         isRunning = false;
         
         logger.info("Database shut down");

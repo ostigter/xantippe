@@ -152,7 +152,7 @@ public class RetrieveStream extends InputStream {
         if (length < 0) {
             throw new IllegalArgumentException("Invalid length (negative)");
         }
-        if (offset > buffer.length) {
+        if (offset >= buffer.length) {
             throw new IllegalArgumentException("Invalid offset (too large)");
         }
         if ((offset + length) > buffer.length) {
