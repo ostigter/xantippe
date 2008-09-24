@@ -5,7 +5,6 @@ TO DO
 High priority
 -------------
 
-- Index bookkeeping
 - Manager tool (GUI)
 - Configuration file
 - Compression
@@ -14,7 +13,9 @@ High priority
 Medium priority
 ---------------
 
-- Rename/Copy/Move documents and collections
+- Rename documents and collections
+- Move documents and collections
+- Copy documents and collections
 - Locking (thread-safety)
 - Backup & Restore (Manager tool)
 - Database interface from within XQuery

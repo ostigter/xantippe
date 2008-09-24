@@ -387,15 +387,18 @@ public class Collection implements Comparable<Collection> {
     
     /* package */ void addIndexValue(
             String keyName, Object keyValue, int docId) {
-        IndexValue iv = indexValues.get(keyName);
-        if (iv == null) {
-            iv = new IndexValue();
-            indexValues.put(keyName, iv);
+        // Check that document really is in this collection.
+        if (documents.contains(docId)) {
+            IndexValue iv = indexValues.get(keyName);
+            if (iv == null) {
+                iv = new IndexValue();
+                indexValues.put(keyName, iv);
+            }
+            iv.indexDocument(docId, keyValue);
+        } else {
+            // For debugging only.
+            logger.warn("Indexed document not found in collection");
         }
-        iv.indexDocument(docId, keyValue);
-//        logger.debug(String.format(
-//        		"Added index value '%s' for index '%s' for document ID %d.",
-//        		keyValue, keyName, docId));
     }
     
     
@@ -425,7 +428,7 @@ public class Collection implements Comparable<Collection> {
     //------------------------------------------------------------------------
     
     
-    //FIXME: Get rid of "unchecked" warning
+    // FIXME: Get rid of "unchecked" warning
     @SuppressWarnings("unchecked")  // new HashSet[]
     private void findDocuments(
             Key[] keys, boolean recursive, Set<Document> docs) {
@@ -444,7 +447,10 @@ public class Collection implements Comparable<Collection> {
         // Gather documents by ID's.
         if (noOfKeys == 1) {
             for (int id : docsPerKey[0]) {
-                docs.add(database.getDocument(id));
+                // Check document to be really in this collection.
+                if (documents.contains(id)) {
+                    docs.add(database.getDocument(id));
+                }
             }
         } else {
             // Only keep documents that match all keys.
@@ -464,7 +470,10 @@ public class Collection implements Comparable<Collection> {
             
             // Add matching documents to final set.
             for (int id : matchingIds) {
-                docs.add(database.getDocument(id));
+                // Check document to be really in this collection.
+                if (documents.contains(id)) {
+                    docs.add(database.getDocument(id));
+                }
             }
         }
         

@@ -270,6 +270,11 @@ public class DatabaseImpl implements Database {
     }
     
     
+    /* package */ boolean documentExists(int id) {
+        return documents.containsKey(id);
+    }
+    
+    
     /* package */ Document getDocument(int id) {
     	Document doc =documents.get(id);
     	if (doc == null) {
