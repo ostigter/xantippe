@@ -97,6 +97,7 @@ public class DatabaseTest {
             Assert.assertEquals(0, dataCol.getDocuments().size());
             Assert.assertEquals(0, dataCol.getCollections().size());
             Assert.assertEquals(0, dataCol.getIndices(true).size());
+            dataCol.setCompressionMode(CompressionMode.DEFLATE);
             Collection fooCol = dataCol.createCollection("foo");
             Assert.assertEquals("foo", fooCol.getName());
             Assert.assertEquals("/db/data/foo", fooCol.getUri());
@@ -104,6 +105,7 @@ public class DatabaseTest {
             Assert.assertEquals(0, fooCol.getDocuments().size());
             Assert.assertEquals(0, fooCol.getCollections().size());
             Assert.assertEquals(0, fooCol.getIndices(true).size());
+            fooCol.setCompressionMode(CompressionMode.NONE);
             Collection barCol = dataCol.createCollection("bar");
             Assert.assertEquals("bar", barCol.getName());
             Assert.assertEquals("/db/data/bar", barCol.getUri());

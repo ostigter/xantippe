@@ -2,9 +2,13 @@ package xantippe;
 
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.zip.DeflaterOutputStream;
+import java.util.zip.InflaterInputStream;
 
 import org.apache.log4j.Logger;
 
@@ -22,6 +26,12 @@ public class Document implements Comparable<Document> {
     /** log4j logger. */
     private static final Logger logger = Logger.getLogger(Document.class);
     
+    /** Buffer size for byte stream operations. */
+    private static final int BUFFER_SIZE = 8192;  // 8 kB
+    
+    /** Buffer for byte stream operations. */
+    private final byte[] buffer = new byte[BUFFER_SIZE];
+    
     /** Back-reference to the database. */
     private final DatabaseImpl database;
 
@@ -36,6 +46,9 @@ public class Document implements Comparable<Document> {
     
     /** Parent collection ID. */
     private int parent;
+    
+    /** Compression mode. */
+    private CompressionMode compressionMode;
     
     
     //------------------------------------------------------------------------
@@ -92,6 +105,9 @@ public class Document implements Comparable<Document> {
         
         try {
             is = database.getFileStore().retrieve(id);
+            if (compressionMode == CompressionMode.DEFLATE) {
+                is = new InflaterInputStream(is);
+            }
         } catch (FileStoreException e) {
             String msg = String.format(
                     "Could not retrieve content of document '%s': %s",
@@ -117,24 +133,17 @@ public class Document implements Comparable<Document> {
     
     public void setContent(File file) throws XmldbException {
         if (file == null) {
-            throw new IllegalArgumentException("file is null");
-        }
-        
-        if (!file.exists()) {
-            String msg = String.format("File not found: '%s'", file);
-            logger.error(msg);
-            throw new XmldbException(msg);
+            throw new IllegalArgumentException("Null file");
         }
         
         if (!file.isFile()) {
-            String msg = String.format("Not a file: '%s'", file);
+            String msg = "File not found: " + file;
             logger.error(msg);
             throw new XmldbException(msg);
         }
         
         if (!file.canRead()) {
-            String msg =
-                    String.format("No permission to read file: '%s'", file);
+            String msg = "No permission to read file: " + file;
             logger.error(msg);
             throw new XmldbException(msg);
         }
@@ -164,20 +173,65 @@ public class Document implements Comparable<Document> {
                     // No validation.
                     break;
                 default:
+                    // Should never happen.
                     logger.error("Invalid validation mode: " + vm);
             }
         }
         
+        // Use compression mode as configured for collection.
+        compressionMode = getParent().getCompressionMode(true);
+
+        File storedFile = null;
+        
         try {
-            database.getFileStore().store(id, file);
+            if (compressionMode != CompressionMode.NONE) {
+                // Compress document to a temporary file.
+                storedFile = File.createTempFile("xantippe-", null);
+                OutputStream os;
+                if (compressionMode == CompressionMode.DEFLATE) {
+                    os = new DeflaterOutputStream(
+                            new FileOutputStream(storedFile));
+                } else {
+                    // Should never happen.
+                    String msg = "Invalid compression mode: " + compressionMode;
+                    logger.error(msg);
+                    throw new XmldbException(msg);
+                }
+                InputStream is = new FileInputStream(file);
+                int length;
+                while ((length = is.read(buffer, 0, buffer.length)) > 0) {
+                    os.write(buffer, 0, length);
+                }
+                os.close();
+                is.close();
+            } else {
+                // No compression; store document as-is.
+                storedFile = file;
+            }
+        	
+            database.getFileStore().store(id, storedFile);
             
             if (mediaType == MediaType.XML) {
             	getParent().indexDocument(this, file);
             }
+        } catch (IOException e) {
+            String msg = String.format(
+                    "Error while compressing document '%s': %s",
+                    this, e.getMessage());
+        	logger.error(msg, e);
+        	throw new XmldbException(msg, e);
         } catch (FileStoreException e) {
-            String msg = "Could not store document: " + this;
+            String msg = String.format(
+                    "Error while storing document '%s': %s",
+                    this, e.getMessage());
             logger.error(msg, e);
             throw new XmldbException(msg, e);
+        } finally {
+            if (compressionMode != CompressionMode.NONE
+                    && storedFile != null) {
+                // Always clean up temporary (compressed) file.
+                storedFile.delete();
+            }
         }
     }
     
@@ -194,7 +248,8 @@ public class Document implements Comparable<Document> {
 
     
     public int compareTo(Document doc) {
-        //FIXME: Maybe compare documents by URI (slower)?
+        //TODO: Maybe compare documents by URI (slower)?
+//        return name.compareTo(doc.getUri());
         return name.compareTo(doc.getName());
     }
     
@@ -217,6 +272,16 @@ public class Document implements Comparable<Document> {
     
     /* package */ int getId() {
         return id;
+    }
+    
+    
+    /* package */ CompressionMode getCompressionMode() {
+        return compressionMode;
+    }
+    
+    
+    /* package */ void setCompressionMode(CompressionMode compressionMode) {
+        this.compressionMode = compressionMode;
     }
     
     

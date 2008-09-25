@@ -49,6 +49,9 @@ public class Collection implements Comparable<Collection> {
     /** Validation mode. */
     private ValidationMode validationMode = ValidationMode.INHERIT;
     
+    /** Whether documents in this collection should be compressed. */  
+    private CompressionMode compressionMode = CompressionMode.INHERIT;
+    
     
     //------------------------------------------------------------------------
     //  Constructors
@@ -159,11 +162,38 @@ public class Collection implements Comparable<Collection> {
     }
     
     
-    public void setValidationMode(ValidationMode vm) {
-        if (parent == -1 && vm == ValidationMode.INHERIT) {
-            logger.error("Invalid validation mode on root collection");
+    public void setValidationMode(ValidationMode validationMode) {
+        if (parent == -1 && validationMode == ValidationMode.INHERIT) {
+            logger.error("Invalid validation mode for root collection");
         } else {
-            validationMode = vm;
+            this.validationMode = validationMode;
+        }
+    }
+    
+    
+    public CompressionMode getCompressionMode(boolean inherited) {
+        CompressionMode cm = compressionMode;
+        
+        if (inherited && cm == CompressionMode.INHERIT) {
+            Collection col = getParent();
+            if (col != null) {
+                cm = col.getCompressionMode(true);
+            } else {
+                // Root collection cannot inherit! 
+                logger.error("Invalid compression mode for root collection");
+                cm = CompressionMode.NONE;
+            }
+        }
+        
+        return cm;
+    }
+    
+    
+    public void setCompressionMode(CompressionMode compressionMode) {
+        if (parent == -1 && compressionMode == CompressionMode.INHERIT) {
+            logger.error("Invalid compression mode for root collection");
+        } else {
+            this.compressionMode = compressionMode;
         }
     }
     

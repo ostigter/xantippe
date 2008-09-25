@@ -7,7 +7,6 @@ High priority
 
 - Manager tool (GUI)
 - Configuration file
-- Compression
 
 
 Medium priority
