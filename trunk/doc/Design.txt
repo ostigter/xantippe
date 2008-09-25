@@ -204,12 +204,10 @@ Configuration file
 <?xml version="1.0" encoding="UTF-8"?>
 <xc:Configuration xmlns:xc="http://www.xantippe.org/XMLSchema/Configuration/v1.0">
 
-  <Database dir="data" />
+  <Database dir="data" validation="auto" compression="deflate"/>
 
-  <Validation default="off" />
-  
-  <WebDavInterface enabled="true" port="8081" />
-  
-  <RestInterface enabled="true" port="8082" />
-  
+    <WebDavInterface enabled="true" port="8081" />
+
+    <RestInterface enabled="true" port="8082" />
+
 </xc:Configuration>

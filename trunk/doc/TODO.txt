@@ -5,30 +5,33 @@ TO DO
 High priority
 -------------
 
-- Manager tool (GUI)
-- Configuration file
+- document size (original and stored)
+- Created and LastModified timestamps
+- manager tool (GUI)
+- configuration file
 
 
 Medium priority
 ---------------
 
+- use term 'resources' for non-XML documents
 - Rename documents and collections
 - Move documents and collections
 - Copy documents and collections
 - Locking (thread-safety)
 - Backup & Restore (Manager tool)
-- Database interface from within XQuery
+- database interface from within XQuery
 - WebDAV interface (web deployment, Tomcat, Jetty?)
 
 
 Low priority
 ------------
 
-- Health checking
-- Defragmentation
-- Client/Server deployment (RMI?)
+- health checking
+- defragmentation
+- client/server deployment (RMI?)
 - REST interface?
-- Caching (documents, collections, indices)
-- Transactions (journaling)
-- Authentication & Authorization
-- Encryption
+- Authentication & Authorization (users, roles, permissions)
+- caching (documents, collections, indices)
+- transactions (journaling)
+- encryption
