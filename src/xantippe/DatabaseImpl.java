@@ -425,8 +425,9 @@ public class DatabaseImpl implements Database {
         } else {
             int id = getNextId();
             rootCollection = new Collection(this, id, "db", -1);
-            // Validation disabled by default.
+            // Validation and compession disabled by default.
             rootCollection.setValidationMode(ValidationMode.OFF);
+            rootCollection.setCompressionMode(CompressionMode.NONE);
         }
     }
     
@@ -440,6 +441,7 @@ public class DatabaseImpl implements Database {
         col = new Collection(this, id, name, parent);
 
         col.setValidationMode(ValidationMode.values()[dis.readByte()]);
+        col.setCompressionMode(CompressionMode.values()[dis.readByte()]);
         
         int noOfIndices = dis.readInt();
         for (int i = 0; i < noOfIndices; i++) {
@@ -457,6 +459,7 @@ public class DatabaseImpl implements Database {
             String docName = dis.readUTF();
             MediaType mediaType = MediaType.values()[dis.readByte()];
             Document doc = new Document(this, docId, docName, mediaType, id);
+            doc.setCompressionMode(CompressionMode.values()[dis.readByte()]);
             col.addDocument(doc.getId());
         }
 
@@ -493,6 +496,7 @@ public class DatabaseImpl implements Database {
         dos.writeInt(col.getId());
         dos.writeUTF(col.getName());
         dos.writeByte(col.getExplicitValidationMode().ordinal());
+        dos.writeByte(col.getCompressionMode(false).ordinal());
         Set<Index> indices = col.getIndices(false);
         dos.writeInt(indices.size());
         for (Index index : indices) {
@@ -525,6 +529,7 @@ public class DatabaseImpl implements Database {
         dos.writeInt(doc.getId());
         dos.writeUTF(doc.getName());
         dos.writeByte(doc.getMediaType().ordinal());
+        dos.writeByte(doc.getCompressionMode().ordinal());
     }
     
     
