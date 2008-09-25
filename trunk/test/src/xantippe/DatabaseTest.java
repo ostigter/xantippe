@@ -296,6 +296,7 @@ public class DatabaseTest {
 //
 //            Collection rootCol = database.getRootCollection();
 //            Collection dataCol = rootCol.createCollection("data");
+//            dataCol.setCompressionMode(CompressionMode.DEFLATE);
 ////            dataCol.addIndex("DocumentId", "//Header/DocumentId", IndexType.STRING);
 //            dataCol.addIndex("MachineId", "//Header/MachineID", IndexType.STRING);
 //
