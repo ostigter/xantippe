@@ -158,17 +158,22 @@ public class DatabaseTest {
             Assert.assertEquals("Foo-0001.xml", doc.getName());
             doc.setContent(file);
             assertEqual(doc.getContent(), file);
+            Assert.assertEquals(file.length(), doc.getLength());
+            Assert.assertEquals(file.length(), doc.getStoredLength());  // no compression
             
             file = new File("test/dat/db/data/foo/Foo-0002.xml");
             doc = fooCol.createDocument(file.getName());
             doc.setContent(file);
             assertEqual(doc.getContent(), file);
+            doc.setKey("My_Manual_Key", "Foo-0002_manual_key");
             
             doc = barCol.createDocument("Bar-0001.xml");
             OutputStream os = doc.setContent();
             os.write(("<BarDocument><Header><Id>3</Id><Type>Bar</Type>"
             		+ "<Version>v1.0</Version></Header></BarDocument>").getBytes());
             os.close();
+            Assert.assertEquals(93, doc.getLength());
+            Assert.assertTrue(doc.getStoredLength() < 93);  // compressed
             
             // Shutdown and restart database to test persistency.
             database.shutdown();
@@ -216,6 +221,30 @@ public class DatabaseTest {
             doc = (Document) docs.toArray()[0];
             Assert.assertEquals("/db/data/foo/Foo-0001.xml", doc.getUri());
             
+            keys = new Key[] {
+                    new Key("My_Manual_Key", "Foo-0002_manual_key")
+            };
+            docs = rootCol.findDocuments(keys, true);
+            Assert.assertEquals(1, docs.size());
+            doc = (Document) docs.toArray()[0];
+            Assert.assertEquals("/db/data/foo/Foo-0002.xml", doc.getUri());
+
+            keys = new Key[] {
+                    new Key("DocumentType", "Foo"),
+                    new Key("My_Manual_Key", "Foo-0002_manual_key")
+            };
+            docs = rootCol.findDocuments(keys, true);
+            Assert.assertEquals(1, docs.size());
+            doc = (Document) docs.toArray()[0];
+            Assert.assertEquals("/db/data/foo/Foo-0002.xml", doc.getUri());
+
+            keys = new Key[] {
+                    new Key("DocumentType", "Bar"),
+                    new Key("My_Manual_Key", "Foo-0002_manual_key")
+            };
+            docs = rootCol.findDocuments(keys, true);
+            Assert.assertEquals(0, docs.size());
+
             keys = new Key[] {
                     new Key("DocumentType", "Foo")
             };
