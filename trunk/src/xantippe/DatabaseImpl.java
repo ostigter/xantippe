@@ -331,7 +331,7 @@ public class DatabaseImpl implements Database {
     /* package */ MediaType getMediaType(String fileName) {
         MediaType mediaType = MediaType.BINARY;
         
-        //TODO: Use list of known file extentions.
+        //TODO: Use configurable mapping of file extentions to media types.
         
         int p = fileName.lastIndexOf('.');
         if (p > 0) {
@@ -424,7 +424,9 @@ public class DatabaseImpl implements Database {
             }
         } else {
             int id = getNextId();
-            rootCollection = new Collection(this, id, "db", -1);
+            long timestamp = System.currentTimeMillis();
+            rootCollection = new Collection(
+                    this, id, "db", timestamp, timestamp, -1);
             // Validation and compession disabled by default.
             rootCollection.setValidationMode(ValidationMode.OFF);
             rootCollection.setCompressionMode(CompressionMode.NONE);
@@ -436,40 +438,58 @@ public class DatabaseImpl implements Database {
             throws IOException {
         Collection col;
         
-        int id = dis.readInt();
+        int colId = dis.readInt();
         String name = dis.readUTF();
-        col = new Collection(this, id, name, parent);
+        long created = dis.readLong();
+        long modified = dis.readLong();
+        col = new Collection(this, colId, name, created, modified, parent);
 
         col.setValidationMode(ValidationMode.values()[dis.readByte()]);
         col.setCompressionMode(CompressionMode.values()[dis.readByte()]);
         
         int noOfIndices = dis.readInt();
         for (int i = 0; i < noOfIndices; i++) {
-            int indexId = dis.readInt();
-            String indexName = dis.readUTF();
-            String indexPath = dis.readUTF();
-            IndexType indexType = IndexType.values()[dis.readByte()];
-            Index index = new Index(indexId, indexName, indexPath, indexType);
-            col.addIndex(index);
+            col.addIndex(readIndex(dis));
         }
 
         int noOfDocs = dis.readInt();
         for (int i = 0; i < noOfDocs; i++) {
-            int docId = dis.readInt();
-            String docName = dis.readUTF();
-            MediaType mediaType = MediaType.values()[dis.readByte()];
-            Document doc = new Document(this, docId, docName, mediaType, id);
-            doc.setCompressionMode(CompressionMode.values()[dis.readByte()]);
-            col.addDocument(doc.getId());
+            Document doc = readDocument(dis, colId);
+            int docId = doc.getId();
+            documents.put(docId, doc);
+            col.addDocument(docId);
         }
 
         int noOfCols = dis.readInt();
         for (int i = 0; i < noOfCols; i++) {
-            Collection childCol = readCollection(dis, id);
+            Collection childCol = readCollection(dis, colId);
             col.addCollection(childCol.getId());
         }
         
         return col;
+    }
+    
+    
+    private Document readDocument(DataInputStream dis, int colId)
+            throws IOException {
+        int docId = dis.readInt();
+        String docName = dis.readUTF();
+        MediaType mediaType = MediaType.values()[dis.readByte()];
+        long created2 = dis.readLong();
+        long modified2 = dis.readLong();
+        Document doc = new Document(
+                this, docId, docName, mediaType, created2, modified2, colId);
+        doc.setCompressionMode(CompressionMode.values()[dis.readByte()]);
+        return doc;
+    }
+    
+    
+    private Index readIndex(DataInputStream dis) throws IOException {
+        int id = dis.readInt();
+        String name = dis.readUTF();
+        String path = dis.readUTF();
+        IndexType type = IndexType.values()[dis.readByte()];
+        return new Index(id, name, path, type);
     }
     
     
@@ -495,6 +515,8 @@ public class DatabaseImpl implements Database {
             throws IOException {
         dos.writeInt(col.getId());
         dos.writeUTF(col.getName());
+        dos.writeLong(col.getCreated());
+        dos.writeLong(col.getModified());
         dos.writeByte(col.getExplicitValidationMode().ordinal());
         dos.writeByte(col.getCompressionMode(false).ordinal());
         Set<Index> indices = col.getIndices(false);
@@ -529,6 +551,8 @@ public class DatabaseImpl implements Database {
         dos.writeInt(doc.getId());
         dos.writeUTF(doc.getName());
         dos.writeByte(doc.getMediaType().ordinal());
+        dos.writeLong(doc.getCreated());
+        dos.writeLong(doc.getModified());
         dos.writeByte(doc.getCompressionMode().ordinal());
     }
     

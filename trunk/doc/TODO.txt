@@ -6,7 +6,6 @@ High priority
 -------------
 
 - document size (original and stored)
-- Created and LastModified timestamps
 - manager tool (GUI)
 - configuration file
 
@@ -27,6 +26,7 @@ Medium priority
 Low priority
 ------------
 
+- use Long (64 bit) instead of Integer (32 bit) for ID's and file sizes
 - health checking
 - defragmentation
 - client/server deployment (RMI?)
