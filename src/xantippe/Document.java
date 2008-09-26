@@ -44,6 +44,12 @@ public class Document implements Comparable<Document> {
     /** Media type. */
     private MediaType mediaType;
     
+    /** Creation timestamp. */
+    private long created;
+    
+    /** Modification timestamp. */
+    private long modified;
+    
     /** Parent collection ID. */
     private int parent;
     
@@ -57,11 +63,13 @@ public class Document implements Comparable<Document> {
 
     
     /* package */ Document(DatabaseImpl database, int id, String name,
-            MediaType mediaType, int parent) {
+            MediaType mediaType, long created, long modified, int parent) {
         this.database = database;
         this.id = id;
         this.name = name;
         this.mediaType = mediaType;
+        this.created = created;
+        this.modified = modified;
         this.parent = parent;
         
         database.addDocument(this);
@@ -85,6 +93,16 @@ public class Document implements Comparable<Document> {
     
     public MediaType getMediaType() {
         return mediaType;
+    }
+    
+    
+    public long getCreated() {
+        return created;
+    }
+    
+    
+    public long getModified() {
+        return modified;
     }
     
     
@@ -148,6 +166,8 @@ public class Document implements Comparable<Document> {
             throw new XmldbException(msg);
         }
         
+        Collection parentCol = getParent();
+        
         if (mediaType == MediaType.SCHEMA) {
             try {
                 database.getValidator().addSchema(file, id);
@@ -159,7 +179,7 @@ public class Document implements Comparable<Document> {
             }
         } else if (mediaType == MediaType.XML) {
             String uri = getUri();
-            ValidationMode vm = getParent().getValidationMode();
+            ValidationMode vm = parentCol.getValidationMode(true);
             switch (vm) {
                 case ON:
                     // Validate document against mandatory schema. 
@@ -179,7 +199,7 @@ public class Document implements Comparable<Document> {
         }
         
         // Use compression mode as configured for collection.
-        compressionMode = getParent().getCompressionMode(true);
+        compressionMode = parentCol.getCompressionMode(true);
 
         File storedFile = null;
         
@@ -212,20 +232,25 @@ public class Document implements Comparable<Document> {
             database.getFileStore().store(id, storedFile);
             
             if (mediaType == MediaType.XML) {
-            	getParent().indexDocument(this, file);
+            	parentCol.indexDocument(this, file);
             }
+            
+            updateModified();
+            
         } catch (IOException e) {
             String msg = String.format(
                     "Error while compressing document '%s': %s",
                     this, e.getMessage());
         	logger.error(msg, e);
         	throw new XmldbException(msg, e);
+        	
         } catch (FileStoreException e) {
             String msg = String.format(
                     "Error while storing document '%s': %s",
                     this, e.getMessage());
             logger.error(msg, e);
             throw new XmldbException(msg, e);
+            
         } finally {
             if (compressionMode != CompressionMode.NONE
                     && storedFile != null) {
@@ -236,10 +261,10 @@ public class Document implements Comparable<Document> {
     }
     
     
-    public void setKey(String name, Object value) {
-        Collection col = getParent();
-        col.addIndexValue(name, value, id);
-    }
+//    public void setKey(String name, Object value) {
+//        Collection col = getParent();
+//        col.addIndexValue(name, value, id);
+//    }
     
     
     //------------------------------------------------------------------------
@@ -291,5 +316,15 @@ public class Document implements Comparable<Document> {
         logger.debug(msg);
     }
     
+    
+    //------------------------------------------------------------------------
+    //  Private methods
+    //------------------------------------------------------------------------
+    
+    
+    private void updateModified() {
+        modified = System.currentTimeMillis();
+    }
+
     
 }

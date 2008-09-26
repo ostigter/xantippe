@@ -43,6 +43,12 @@ public class Collection implements Comparable<Collection> {
     /** Name. */
     private String name;
     
+    /** Creation timestamp. */
+    private long created;
+    
+    /** Modification timestamp. */
+    private long modified;
+    
     /** Parent collection. */
     private int parent;
     
@@ -59,10 +65,13 @@ public class Collection implements Comparable<Collection> {
 
     
     /* package */ Collection(
-            DatabaseImpl database, int id, String name, int parent) {
+            DatabaseImpl database, int id, String name, long created,
+            long modified, int parent) {
         this.id = id;
         this.database = database;
         this.name = name;
+        this.created = created;
+        this.modified = modified;
         this.parent = parent;
         
         collections = new TreeSet<Integer>();
@@ -81,6 +90,16 @@ public class Collection implements Comparable<Collection> {
     
     public String getName() {
         return name;
+    }
+    
+    
+    public long getCreated() {
+        return created;
+    }
+    
+    
+    public long getModified() {
+        return modified;
     }
     
     
@@ -146,17 +165,10 @@ public class Collection implements Comparable<Collection> {
     }
     
     
-    public ValidationMode getValidationMode() {
+    public ValidationMode getValidationMode(boolean inherit) {
         ValidationMode vm = validationMode;
-        if (vm == ValidationMode.INHERIT) { 
-            Collection col = getParent();
-            if (col != null) {
-                vm = col.getValidationMode();
-            } else {
-                // Root collection cannot inherit! 
-                logger.error("Invalid validation mode on root collection");
-                vm = ValidationMode.OFF;
-            }
+        if (inherit && vm == ValidationMode.INHERIT) { 
+            vm = getParent().getValidationMode(true);
         }
         return vm;
     }
@@ -167,24 +179,16 @@ public class Collection implements Comparable<Collection> {
             logger.error("Invalid validation mode for root collection");
         } else {
             this.validationMode = validationMode;
+            updateModified();
         }
     }
     
     
     public CompressionMode getCompressionMode(boolean inherited) {
         CompressionMode cm = compressionMode;
-        
         if (inherited && cm == CompressionMode.INHERIT) {
-            Collection col = getParent();
-            if (col != null) {
-                cm = col.getCompressionMode(true);
-            } else {
-                // Root collection cannot inherit! 
-                logger.error("Invalid compression mode for root collection");
-                cm = CompressionMode.NONE;
-            }
+            cm = getParent().getCompressionMode(true);
         }
-        
         return cm;
     }
     
@@ -194,6 +198,7 @@ public class Collection implements Comparable<Collection> {
             logger.error("Invalid compression mode for root collection");
         } else {
             this.compressionMode = compressionMode;
+            updateModified();
         }
     }
     
@@ -234,6 +239,7 @@ public class Collection implements Comparable<Collection> {
         if (index == null) {
             int newId = database.getNextId();
             indices.add(new Index(newId, name, path, type));
+            updateModified();
             logger.debug(String.format(
                     "Added index '%s' for collection '%s'", name, this));
         } else {
@@ -271,8 +277,11 @@ public class Collection implements Comparable<Collection> {
         Document doc = getDocument(name);
         if (doc == null) {
             int docId = database.getNextId();
-            doc = new Document(database, docId, name, mediaType, id);
+            long timestamp = System.currentTimeMillis();
+            doc = new Document(
+                    database, docId, name, mediaType, timestamp, timestamp, id);
             documents.add(docId);
+            updateModified();
             logger.debug(String.format("Created document '%s'", doc));
         } else {
             String msg = String.format("Document already exists: '%s'", doc);
@@ -290,9 +299,12 @@ public class Collection implements Comparable<Collection> {
     	
     	Collection col = getCollection(name);
     	if (col == null) {
-	        int colId = database.getNextId(); 
-	        col = new Collection(database, colId, name, id);
+	        int colId = database.getNextId();
+	        long timestamp = System.currentTimeMillis();
+	        col = new Collection(
+	                database, colId, name, timestamp, timestamp, id);
 	        collections.add(colId);
+            updateModified();
 	        logger.debug(String.format("Created collection '%s'", this));
     	} else {
     		String msg = String.format("Collection already exists: '%s'", col);
@@ -328,6 +340,7 @@ public class Collection implements Comparable<Collection> {
         if (col != null) {
             col.delete();
             collections.remove(col.getId());
+            updateModified();
             deleted = true;
         }
         return deleted;
@@ -518,7 +531,13 @@ public class Collection implements Comparable<Collection> {
     
     private void deleteDocument(Document doc) {
         documents.remove(doc.getId());
+        updateModified();
         doc.delete();
+    }
+    
+    
+    private void updateModified() {
+        modified = System.currentTimeMillis();
     }
 
     
