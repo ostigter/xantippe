@@ -44,6 +44,9 @@ public class Document implements Comparable<Document> {
     /** Media type. */
     private MediaType mediaType;
     
+    /** Document length. */
+    private int length = 0;
+    
     /** Creation timestamp. */
     private long created;
     
@@ -93,6 +96,16 @@ public class Document implements Comparable<Document> {
     
     public MediaType getMediaType() {
         return mediaType;
+    }
+    
+    
+    public int getLength() {
+        return length;
+    }
+    
+    
+    public int getStoredLength() {
+        return database.getFileStore().getLength(id); 
     }
     
     
@@ -235,6 +248,8 @@ public class Document implements Comparable<Document> {
             	parentCol.indexDocument(this, file);
             }
             
+            length = (int) file.length();
+            
             updateModified();
             
         } catch (IOException e) {
@@ -261,28 +276,23 @@ public class Document implements Comparable<Document> {
     }
     
     
-//    public void setKey(String name, Object value) {
-//        Collection col = getParent();
-//        col.addIndexValue(name, value, id);
-//    }
-    
-    
-    //------------------------------------------------------------------------
-    //  Interface implementation: Comparable
-    //------------------------------------------------------------------------
-
-    
-    public int compareTo(Document doc) {
-        //TODO: Maybe compare documents by URI (slower)?
-//        return name.compareTo(doc.getUri());
-        return name.compareTo(doc.getName());
+    public void setKey(String name, Object value) {
+        Collection col = getParent();
+        col.addIndexValue(name, value, id);
     }
     
-
-    //------------------------------------------------------------------------
-    //  Overriden methods: Object
-    //------------------------------------------------------------------------
-
+    
+    @Override // Object
+    public boolean equals(Object obj) {
+        if (obj instanceof Document) {
+            Document doc = (Document) obj;
+            return doc.getId() == id;
+            
+        } else {
+            return false;
+        }
+    }
+    
     
     @Override
     public String toString() {
@@ -290,6 +300,12 @@ public class Document implements Comparable<Document> {
     }
     
     
+    public int compareTo(Document doc) {
+        //TODO: Maybe compare documents by URI (slower)?
+        return name.compareTo(doc.getName());
+    }
+    
+
     //------------------------------------------------------------------------
     //  Package protected methods
     //------------------------------------------------------------------------

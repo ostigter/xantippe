@@ -277,6 +277,16 @@ public class FileStore {
     }
     
     
+    public int getLength(int id) {
+        FileEntry entry = entries.get(id);
+        if (entry != null) {
+            return entry.getLength();
+        } else {
+            return -1;
+        }
+    }
+    
+    
     public void delete(int id) throws FileStoreException {
         if (isRunning) {
             FileEntry entry = entries.get(id);

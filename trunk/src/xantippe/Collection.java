@@ -370,24 +370,26 @@ public class Collection implements Comparable<Collection> {
     }
     
     
-    //------------------------------------------------------------------------
-    //  Interface implementation: Comparable
-    //------------------------------------------------------------------------
-
-    
-    public int compareTo(Collection col) {
-        return name.compareTo(col.getName());
+    @Override // Object
+    public boolean equals(Object obj) {
+        if (obj instanceof Collection) {
+            Collection col = (Collection) obj;
+            return col.getId() == id;
+            
+        } else {
+            return false;
+        }
     }
     
-
-    //------------------------------------------------------------------------
-    //  Overriden methods: Object
-    //------------------------------------------------------------------------
-
     
     @Override
     public String toString() {
         return getUri();
+    }
+    
+
+    public int compareTo(Collection col) {
+        return name.compareTo(col.getName());
     }
     
 
