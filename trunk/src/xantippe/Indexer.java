@@ -32,7 +32,7 @@ public class Indexer {
     private final SAXParser parser;
     
     /** Content handler to extract the index values. */
-    private final XPathHandler handler = new XPathHandler(); 
+    private final IndexHandler handler = new IndexHandler(); 
     
     
     public Indexer() {
@@ -77,7 +77,7 @@ public class Indexer {
     //------------------------------------------------------------------------
     
     
-    private class XPathHandler extends DefaultHandler {
+    private static class IndexHandler extends DefaultHandler {
         
         
         private final List<String> elements;
@@ -91,7 +91,7 @@ public class Indexer {
         private StringBuilder sb;
         
         
-        public XPathHandler() {
+        public IndexHandler() {
             elements = new ArrayList<String>();
         }
         
@@ -193,7 +193,7 @@ public class Indexer {
 					}
 					break;
 				case DATE:
-					//TODO: Parse date
+					//TODO: Parse Date index value
 					break;
 				default:
 					// Invalid index type; ignore.

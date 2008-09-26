@@ -493,7 +493,7 @@ public class FileStore {
      * 
      * @author Oscar Stigter
      */
-    private class FileEntry implements Comparable<FileEntry> {
+    private static class FileEntry implements Comparable<FileEntry> {
         
 
         private int id;
