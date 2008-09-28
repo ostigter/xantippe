@@ -187,10 +187,10 @@ public class DocumentValidator {
     }
     
     
-    public void readSchemas(String dataDir) {
+    public void readSchemas(File dataDir) {
         clearSchemas();
         logger.debug(String.format("Read database file '%s'", SCHEMAS_FILE));
-        File file = new File(dataDir + '/' + SCHEMAS_FILE);
+        File file = new File(dataDir, SCHEMAS_FILE);
         if (file.exists()) {
             try {
                 DataInputStream dis =
@@ -212,9 +212,9 @@ public class DocumentValidator {
     }
     
     
-    public void writeSchemas(String dataDir) {
+    public void writeSchemas(File dataDir) {
         logger.debug(String.format("Write database file '%s'", SCHEMAS_FILE));
-        File file = new File(dataDir + '/' + SCHEMAS_FILE);
+        File file = new File(dataDir, SCHEMAS_FILE);
         try {
             DataOutputStream dos = new DataOutputStream(
                     new FileOutputStream(file));

@@ -53,9 +53,10 @@ public class FileStoreTest {
     public void test() {
         File file;
         
-        FileStore store = new FileStore(DATA_DIR);
+        FileStore store = new FileStore();
 
         try {
+            store.setDataDir(DATA_DIR);
             
             store.start();
             

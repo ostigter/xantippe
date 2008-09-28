@@ -27,9 +27,6 @@ import xantippe.filestore.FileStoreException;
 public class DatabaseImpl implements Database {
     
     
-    /** Property for the database directory. */
-    private static final String DATA_DIR_PROPERTY = "xantippe.data.dir";
-    
     /** Default database directory. */
     private static final String DEFAULT_DATA_DIR = "data";
     
@@ -44,9 +41,6 @@ public class DatabaseImpl implements Database {
 
     /** log4j logger. */
     private static final Logger logger = Logger.getLogger(DatabaseImpl.class);
-    
-    /** Database directory. */
-    private final String dataDir;
     
     /** File store with the documents. */
     private final FileStore fileStore;
@@ -65,6 +59,9 @@ public class DatabaseImpl implements Database {
     
     /** Documents mapped by ID. */
     private final Map<Integer, Document> documents;
+    
+    /** Database directory. */
+    private File dataDir = new File(DEFAULT_DATA_DIR);
     
     /** Root collection. */
     private Collection rootCollection;
@@ -87,8 +84,7 @@ public class DatabaseImpl implements Database {
     public DatabaseImpl() {
         Util.initLog4j();
         
-        dataDir = System.getProperty(DATA_DIR_PROPERTY, DEFAULT_DATA_DIR);
-        fileStore = new FileStore(dataDir);
+        fileStore = new FileStore();
         
         collections = new HashMap<Integer, Collection>();
         documents = new HashMap<Integer, Document>();
@@ -96,9 +92,6 @@ public class DatabaseImpl implements Database {
         validator = new DocumentValidator(this);
         indexer = new Indexer();
         queryProcessor = new QueryProcessor(this);
-        
-        logger.debug(String.format("Database directory: '%s'",
-                new File(dataDir).getAbsolutePath()));
         
         logger.debug("Database created");
     }
@@ -108,6 +101,20 @@ public class DatabaseImpl implements Database {
     //  Interface implementation: Database
     //------------------------------------------------------------------------
     
+    
+    public void setDatabaseLocation(String path) {
+        if (path == null || path.length() == 0) {
+            throw new IllegalArgumentException(
+                    "Null or empty database location");
+        }
+        
+        if (isRunning) {
+            throw new IllegalStateException("Database is running");
+        }
+        
+        dataDir = new File(path);
+    }
+    
 
     public void start() throws XmldbException {
         if (isRunning) {
@@ -116,7 +123,12 @@ public class DatabaseImpl implements Database {
         
         logger.debug("Starting database");
         
+        prepareDatabaseDir();
+        
+        logger.debug("Database location: " + dataDir.getAbsolutePath());
+        
         try {
+            fileStore.setDataDir(dataDir.getAbsolutePath());
             fileStore.start();
         } catch (FileStoreException e) {
             String msg = "Could not start FileStore";
@@ -250,9 +262,9 @@ public class DatabaseImpl implements Database {
     //------------------------------------------------------------------------
     
     
-    /* package */ String getDatabaseDir() {
-        return dataDir;
-    }
+//    /* package */ String getDatabaseLocation() {
+//        return dataDir;
+//    }
     
     
     /* package */ int getNextId() {
@@ -368,9 +380,25 @@ public class DatabaseImpl implements Database {
     }
     
     
+    private void prepareDatabaseDir() throws XmldbException {
+        if (!dataDir.isDirectory()) {
+            if (!dataDir.mkdirs()) {
+                String msg = "Could not create database directory: " + dataDir;
+                logger.error(msg);
+                throw new XmldbException(msg);
+            }
+        }
+        if (!dataDir.canWrite()) {
+            String msg = "Database directory not writable: " + dataDir;
+            logger.error(msg);
+            throw new XmldbException(msg);
+        }
+    }
+    
+    
     private void readMetaData() {
         logger.debug(String.format("Read database file '%s'", METADATA_FILE));
-        File file = new File(dataDir + '/' + METADATA_FILE);
+        File file = new File(dataDir, METADATA_FILE);
         if (file.exists()) {
             try {
                 DataInputStream dis =
@@ -391,7 +419,7 @@ public class DatabaseImpl implements Database {
     
     private void writeMetaData() {
         logger.debug(String.format("Write database file '%s'", METADATA_FILE));
-        File file = new File(dataDir + '/' + METADATA_FILE);
+        File file = new File(dataDir, METADATA_FILE);
         try {
             DataOutputStream dos =
                     new DataOutputStream(new FileOutputStream(file));
@@ -409,7 +437,7 @@ public class DatabaseImpl implements Database {
     private void readCollections() {
         logger.debug(
                 String.format("Read database file '%s'", COLLECTIONS_FILE));
-        File file = new File(dataDir + '/' + COLLECTIONS_FILE);
+        File file = new File(dataDir, COLLECTIONS_FILE);
         if (file.exists()) {
             try {
                 DataInputStream dis = new DataInputStream(
@@ -496,7 +524,7 @@ public class DatabaseImpl implements Database {
     private void writeCollections() {
         logger.debug(
                 String.format("Write database file '%s'", COLLECTIONS_FILE));
-        File file = new File(dataDir + '/' + COLLECTIONS_FILE);
+        File file = new File(dataDir, COLLECTIONS_FILE);
         try {
             DataOutputStream dos = new DataOutputStream(
                     new FileOutputStream(file));
@@ -559,7 +587,7 @@ public class DatabaseImpl implements Database {
     
     private void readIndices() {
         logger.debug(String.format("Read database file '%s'", INDICES_FILE));
-        File file = new File(dataDir + '/' + INDICES_FILE);
+        File file = new File(dataDir, INDICES_FILE);
         if (file.exists()) {
             try {
                 DataInputStream dis =
@@ -619,7 +647,7 @@ public class DatabaseImpl implements Database {
     private void writeIndices() {
         logger.debug(
                 String.format("Write database file '%s'", INDICES_FILE));
-        File file = new File(dataDir + '/' + INDICES_FILE);
+        File file = new File(dataDir, INDICES_FILE);
         try {
             DataOutputStream dos = new DataOutputStream(
                     new FileOutputStream(file));
