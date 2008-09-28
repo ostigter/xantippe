@@ -1,15 +1,24 @@
 package xantippe;
 
+
 import java.io.OutputStream;
 
 
 /**
- * Lightweight XML database with XQuery, validation and indexing,
- * using a plain file system store.
+ * Lightweight XML database with validation, XQuery and indexing, using a plain
+ * file system store.
  * 
  * @author Oscar Stigter
  */
 public interface Database {
+    
+    
+    /**
+     * Sets the database location.
+     * 
+     * @param path  the database location
+     */
+    void setDatabaseLocation(String path);
 
 
     /**

@@ -66,54 +66,70 @@ public class FileStore {
     /** Indicates whether the FileStore is running. */
     private boolean isRunning = false;
     
-    /** Database directory. */
-    private String dataDir;
+    /** Data directory. */
+    private File dataDir = new File(DEFAULT_DATA_DIR);
     
     /** Data file with the document contents. */ 
     private RandomAccessFile dataFile;
     
 
     //------------------------------------------------------------------------
-    //  Constructors
+    //  Constructor
     //------------------------------------------------------------------------
     
 
     public FileStore() {
-        this(DEFAULT_DATA_DIR);
-    }
-    
-
-    public FileStore(String dataDir) {
-        this.dataDir = dataDir;
         entries = new TreeMap<Integer, FileEntry>();
     }
     
-
+    
     //------------------------------------------------------------------------
     //  Public methods
     //------------------------------------------------------------------------
     
 
+    public String getDataDir() {
+        return dataDir.getAbsolutePath();
+    }
+    
+
+    /**
+     * Sets the data directory.
+     *
+     * @param  path  the data directory path
+     *
+     * @throws  IllegalArgumentException  if the path is null or empty
+     * @throws  IllegalStateException     if the FileStore is running
+     */
+    public void setDataDir(String path) {
+        if (path == null || path.length() == 0) {
+            throw new IllegalArgumentException("Null or empty path");
+        }
+
+        if (isRunning) {
+            throw new IllegalStateException("FileStore is running");
+        }
+
+        dataDir = new File(path);
+    }
+
+
     /**
      * Starts the <code>FileStore</code>.
-     * 
+     *
      * @throws FileStoreException  if the FileStore could not be started
      */
     public void start() throws FileStoreException {
         if (!isRunning) {
             logger.debug("Starting");
             
-            try {
-                // Create data directory.
-                File dir = new File(dataDir);
-                if (!dir.exists()) {
-                    dir.mkdirs();
+            // Create data directory.
+            if (!dataDir.exists()) {
+                if (!dataDir.mkdirs()) {
+                    String msg = "Could not create data directory: " + dataDir;
+                    logger.error(msg);
+                    throw new FileStoreException(msg);
                 }
-            } catch (Exception e) {
-                String msg = String.format(
-                        "Could not create data directory '%s': %s",
-                        dataDir, e.getMessage());
-                throw new FileStoreException(msg);
             }
             
             try {
@@ -128,9 +144,9 @@ public class FileStore {
             try {
                 // Open data file.
                 dataFile = new RandomAccessFile(
-                        dataDir + '/' + DATA_FILE, "rw");
+                        new File(dataDir, DATA_FILE), "rw");
             } catch (IOException e) {
-                String msg = String.format("Error openen data file '%s': %s",
+                String msg = String.format("Error opening data file '%s': %s",
                         DATA_FILE, e.getMessage());
                 throw new FileStoreException(msg);
             }
@@ -401,7 +417,7 @@ public class FileStore {
      */
     private void readIndexFile() throws IOException {
         entries.clear();
-        File file = new File(dataDir + '/' + INDEX_FILE);
+        File file = new File(dataDir, INDEX_FILE);
         if (file.exists()) {
             DataInputStream dis =
                     new DataInputStream(new FileInputStream(file));
@@ -426,8 +442,9 @@ public class FileStore {
      * @throws  IOException  if the file could not be written
      */
     private void writeIndexFile() throws IOException {
-        DataOutputStream dos = new DataOutputStream(
-                new FileOutputStream(dataDir + '/' + INDEX_FILE));
+        File file = new File(dataDir, INDEX_FILE);
+        DataOutputStream dos =
+                new DataOutputStream(new FileOutputStream(file));
         dos.writeInt(entries.size());
         for (FileEntry entry : entries.values()) {
             dos.writeInt(entry.getId());

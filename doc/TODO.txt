@@ -2,31 +2,33 @@ TO DO
 =====
 
 
-High priority
--------------
-
-- document size (original and stored)
-- manager tool (GUI)
-- configuration file
-
-
-Medium priority
+Current release
 ---------------
 
-- use term 'resources' for non-XML documents
+- file headers with license info
+- JavaDoc
+- Xantippe 0.1a release (embedded library)
+
+
+Next release
+------------
+
+- manager tool (GUI)
 - Rename documents and collections
 - Move documents and collections
 - Copy documents and collections
+- use term 'resources' for non-XML documents
 - Locking (thread-safety)
 - Backup & Restore (Manager tool)
 - database interface from within XQuery
+- configuration file
 - WebDAV interface (web deployment, Tomcat, Jetty?)
 
 
-Low priority
-------------
+Long term
+---------
 
-- use Long (64 bit) instead of Integer (32 bit) for ID's and file sizes
+- use longs (64 bit) instead of integers (32 bit) for ID's and file sizes
 - health checking
 - defragmentation
 - client/server deployment (RMI?)

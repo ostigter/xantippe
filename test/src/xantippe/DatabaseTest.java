@@ -48,10 +48,9 @@ public class DatabaseTest {
     @BeforeClass
     public static void beforeClass() {
         Util.initLog4j();
-
-        System.setProperty("xantippe.data.dir", DATA_DIR);
-
-        database  = new DatabaseImpl();
+        
+        database = new DatabaseImpl();
+        database.setDatabaseLocation(DATA_DIR);
     }
     
     
