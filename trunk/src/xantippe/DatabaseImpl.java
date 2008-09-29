@@ -119,6 +119,13 @@ public class DatabaseImpl implements Database {
     //------------------------------------------------------------------------
     
     
+    // See JavaDoc of Database interface
+    public String getDatabaseLocation() {
+        return dataDir.getAbsolutePath();
+    }
+    
+    
+    // See JavaDoc of Database interface
     public void setDatabaseLocation(String path) {
         if (path == null || path.length() == 0) {
             throw new IllegalArgumentException(
@@ -133,6 +140,7 @@ public class DatabaseImpl implements Database {
     }
     
 
+    // See JavaDoc of Database interface
     public void start() throws XmldbException {
         if (isRunning) {
             throw new XmldbException("Database already running");
@@ -167,6 +175,7 @@ public class DatabaseImpl implements Database {
     }
     
     
+    // See JavaDoc of Database interface
     public void shutdown() throws XmldbException {
         checkRunning();
         
@@ -199,17 +208,20 @@ public class DatabaseImpl implements Database {
     }
     
     
+    // See JavaDoc of Database interface
     public boolean isRunning() {
         return isRunning;
     }
     
     
+    // See JavaDoc of Database interface
     public Collection getRootCollection() throws XmldbException {
         checkRunning();
         return rootCollection;
     }
     
     
+    // See JavaDoc of Database interface
     public Collection getCollection(String uri) throws XmldbException {
     	checkRunning();
     	
@@ -238,6 +250,7 @@ public class DatabaseImpl implements Database {
     }
     
     
+    // See JavaDoc of Database interface
     public Document getDocument(String uri) throws XmldbException {
     	checkRunning();
     	
@@ -262,13 +275,14 @@ public class DatabaseImpl implements Database {
     }
     
     
+    // See JavaDoc of Database interface
     public OutputStream executeQuery(String query) throws XmldbException {
         checkRunning();
     	return queryProcessor.executeQuery(query);
     }
     
     
-    // For debugging purposes only.
+    // See JavaDoc of Database interface
     public void print() {
         printCollection(rootCollection);
     }
@@ -277,11 +291,6 @@ public class DatabaseImpl implements Database {
     //------------------------------------------------------------------------
     //  Package protected methods
     //------------------------------------------------------------------------
-    
-    
-//    /* package */ String getDatabaseLocation() {
-//        return dataDir;
-//    }
     
     
     /* package */ int getNextId() {

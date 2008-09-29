@@ -31,9 +31,22 @@ public interface Database {
     
     
     /**
+     * Returns the database location.
+     * 
+     * @return  the database location
+     */
+    String getDatabaseLocation();
+    
+    
+    /**
      * Sets the database location.
      * 
-     * @param path  the database location
+     * This method may only be called when the database is not running. 
+     * 
+     * @param  path  the database location
+     * 
+     * @throws  IllegalArgumentException  if the path is null or empty
+     * @throws  IllegalStateException     if the database is running
      */
     void setDatabaseLocation(String path);
 
@@ -41,8 +54,7 @@ public interface Database {
     /**
      * Starts the database.
      * 
-     * @throws XmldbException
-     *             if the database was already running
+     * @throws  XmldbException  if the database is already running
      */
     void start() throws XmldbException;
 
@@ -50,16 +62,15 @@ public interface Database {
     /**
      * Shuts down the database.
      * 
-     * @throws XmldbException
-     *             if the database is not running
+     * @throws  XmldbException  if the database is not running
      */
     void shutdown() throws XmldbException;
 
     
     /**
-     * Returns whether the database is running.
+     * Indicates whether the database is running.
      * 
-     * @return whether the database is running
+     * @return  true if the database is running, otherwise false
      */
     boolean isRunning();
 
@@ -69,8 +80,7 @@ public interface Database {
      * 
      * @return  the root collection
      * 
-     * @throws XmldbException
-     *             if the database is not running
+     * @throws  XmldbException  if the database is not running
      */
     Collection getRootCollection() throws XmldbException;
     
@@ -78,11 +88,12 @@ public interface Database {
     /**
      * Returns the collection with the specified URI.
      * 
-     * @param uri  the URI
+     * @param   uri  the collection URI
      * 
-     * @return  the collection, of null it not found
+     * @return  the collection
      * 
-     * @throws XmldbException  if any error occurred
+     * @throws  XmldbException  if the collection does not exist, or the URI is
+     *                          invalid 
      */
     Collection getCollection(String uri) throws XmldbException;
 
@@ -90,28 +101,39 @@ public interface Database {
     /**
      * Returns the document with the specified URI.
      * 
-     * @param uri  the URI
+     * @param   uri  the document URI
      * 
-     * @return  the document, of null it not found
+     * @return  the document
      * 
-     * @throws XmldbException  if any error occurred
+     * @throws  XmldbException  if the document does not exist, or the URI is
+     *                          invalid 
      */
     Document getDocument(String uri) throws XmldbException;
 
     
     /**
-     * Execute the specified query.
+     * Executes the specified query.
      * 
-     * @param  query  the query
+     * The query must be in the form of an XQuery expression.
+     * 
+     * The query result (plain text) is written to the returned OutputStream.
+     * 
+     * @param   query  the query body
      * 
      * @return  OutputStream with the query results
      * 
-     * @throws XmldbException  if the query could not be executed
+     * @throws  XmldbException  if the query could not be executed
      */
+    // TODO: Add query parameters
+    // TODO: Offer other result formats than plain text OutputStream
     OutputStream executeQuery(String query) throws XmldbException;
     
     
-    // Debug only
+    /**
+     * Prints a listing of the complete database on the console.
+     * 
+     * This method is meant for debugging purposes only.
+     */
     public void print();
 
     

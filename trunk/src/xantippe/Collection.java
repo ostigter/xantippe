@@ -77,7 +77,7 @@ public class Collection implements Comparable<Collection> {
     
     
     //------------------------------------------------------------------------
-    //  Constructors
+    //  Constructor
     //------------------------------------------------------------------------
 
     
@@ -105,21 +105,41 @@ public class Collection implements Comparable<Collection> {
     //------------------------------------------------------------------------
 
     
+    /**
+     * Returns the name.
+     * 
+     * @return  the name
+     */
     public String getName() {
         return name;
     }
     
     
+    /**
+     * Returns the timestamp the collection was created.
+     * 
+     * @return  the timestamp in milliseconds after 01-Jan-1970.
+     */
     public long getCreated() {
         return created;
     }
     
     
+    /**
+     * Returns the timestamp the collection was last modified.
+     * 
+     * @return  the timestamp in milliseconds after 01-Jan-1970.
+     */
     public long getModified() {
         return modified;
     }
     
     
+    /**
+     * Returns the parent collection.
+     * 
+     * @return  the parent collection
+     */
     public Collection getParent() {
         if (parent != -1) {
             return database.getCollection(parent);
@@ -130,6 +150,11 @@ public class Collection implements Comparable<Collection> {
     }
     
     
+    /**
+     * Returns the child collections.
+     * 
+     * @return  a set with the child collections
+     */
     public Set<Collection> getCollections() {
         Set<Collection> cols = new TreeSet<Collection>();
         for (int id : collections) {
@@ -139,6 +164,14 @@ public class Collection implements Comparable<Collection> {
     }
     
     
+    /**
+     * Returns the child collection with the specified name, or null if no such
+     * collection exists.
+     * 
+     * @param name  the child collection's name
+     * 
+     * @return  the child collection, or null if it does not exist
+     */
     public Collection getCollection(String name) {
     	for (int colId : collections) {
     		Collection col = database.getCollection(colId);
@@ -153,6 +186,11 @@ public class Collection implements Comparable<Collection> {
     }
     
     
+    /**
+     * Returns the documents in this collection.
+     * 
+     * @return  a set with the documents
+     */
     public Set<Document> getDocuments() {
         Set<Document> docs = new TreeSet<Document>();
         for (int id : documents) {
@@ -168,6 +206,14 @@ public class Collection implements Comparable<Collection> {
     }
     
     
+    /**
+     * Returns the document with the specified name, or null it such a document
+     * does not exist.
+     * 
+     * @param name  the document's name
+     * 
+     * @return  the document, or null if it does not exist
+     */
     public Document getDocument(String name) {
         for (int docId : documents) {
             Document doc = database.getDocument(docId);
@@ -182,6 +228,15 @@ public class Collection implements Comparable<Collection> {
     }
     
     
+    /**
+     * Returns the validation mode for this collection.
+     * 
+     * @param  inherit  in case the validation mode is to inherit from the
+     *                  parent collection, whether to return the inherited mode
+     *                  (true), or the actual mode of this collection (false)
+     * 
+     * @return  the validation mode
+     */
     public ValidationMode getValidationMode(boolean inherit) {
         ValidationMode vm = validationMode;
         if (inherit && vm == ValidationMode.INHERIT) { 
@@ -191,6 +246,11 @@ public class Collection implements Comparable<Collection> {
     }
     
     
+    /**
+     * Sets the validation mode.
+     * 
+     * @param  validationMode  the validation mode
+     */
     public void setValidationMode(ValidationMode validationMode) {
         if (parent == -1 && validationMode == ValidationMode.INHERIT) {
             logger.error("Invalid validation mode for root collection");
@@ -201,6 +261,15 @@ public class Collection implements Comparable<Collection> {
     }
     
     
+    /**
+     * Returns the compression mode for this collection.
+     * 
+     * @param  inherit  in case the compression mode is to inherit from the
+     *                  parent collection, whether to return the inherited mode
+     *                  (true), or the actual mode of this collection (false)
+     * 
+     * @return  the compression mode
+     */
     public CompressionMode getCompressionMode(boolean inherited) {
         CompressionMode cm = compressionMode;
         if (inherited && cm == CompressionMode.INHERIT) {
@@ -210,6 +279,11 @@ public class Collection implements Comparable<Collection> {
     }
     
     
+    /**
+     * Sets the compression mode.
+     * 
+     * @param  compressionMode  the compression mode
+     */
     public void setCompressionMode(CompressionMode compressionMode) {
         if (parent == -1 && compressionMode == CompressionMode.INHERIT) {
             logger.error("Invalid compression mode for root collection");
@@ -220,6 +294,14 @@ public class Collection implements Comparable<Collection> {
     }
     
 
+    /**
+     * Returns the index definitions configured for this collection.
+     * 
+     * @param  inherited  whether to include the indices inherited from parent
+     *                    collections
+     *                    
+     * @return  the index definitions
+     */
     public Set<Index> getIndices(boolean inherited) {
         Set<Index> indices2 = new TreeSet<Index>();
         
@@ -238,6 +320,14 @@ public class Collection implements Comparable<Collection> {
     }
     
     
+    /**
+     * Returns the index definition with the specified name, or null if not
+     * found.
+     * 
+     * @param name  the index name
+     * 
+     * @return  the index definition, or null if not found
+     */
     public Index getIndex(String name) {
         Index index = null;
         Set<Index> inheritedIndices = getIndices(true);
@@ -251,6 +341,17 @@ public class Collection implements Comparable<Collection> {
     }
     
     
+    /**
+     * Adds an index definition.
+     * 
+     * @param name  the index name
+     * @param path  the index path
+     * @param type  the index type
+     * 
+     * @throws  IllegalArgumentException
+     *              if an index with the specified name already exists
+     *              (possibly inherited)
+     */
     public void addIndex(String name, String path, IndexType type) {
         Index index = getIndex(name);
         if (index == null) {
@@ -266,6 +367,11 @@ public class Collection implements Comparable<Collection> {
     }
     
     
+    /**
+     * Returns the absolute URI.
+     * 
+     * @return  the URI
+     */
     public String getUri() {
         StringBuilder sb = new StringBuilder();
         
@@ -280,11 +386,35 @@ public class Collection implements Comparable<Collection> {
     }
     
     
+    /**
+     * Creates a document with the specified name.
+     * 
+     * The document's media type will be automatically determined based on its
+     * extention.
+     * 
+     * @param  name  the document name
+     * 
+     * @return  the created document
+     * 
+     * @throws  XmldbException  if the document could not be created
+     */
     public Document createDocument(String name) throws XmldbException {
         return createDocument(name, database.getMediaType(name));
     }
     
     
+    /**
+     * Creates a document with the specified name and media type.
+     * 
+     * @param  name       the name
+     * @param  mediaType  the media type
+     * 
+     * @return  the created document
+     * 
+     * @throws  XmldbException
+     *              if the document could not be created, or a document with
+     *              the same name already exists
+     */
     public Document createDocument(String name, MediaType mediaType)
             throws XmldbException {
         if (name == null) {
@@ -309,6 +439,17 @@ public class Collection implements Comparable<Collection> {
     }
     
     
+    /**
+     * Creates a child collection with the specified name.
+     * 
+     * @param name  the collection's name
+     * 
+     * @return  the created collection
+     * 
+     * @throws  XmldbException
+     *              if the collection could not be created, or a child
+     *              collection with the specified name already exists
+     */
     public Collection createCollection(String name) throws XmldbException {
     	if (name == null || name.length() == 0) {
     		throw new IllegalArgumentException("Null or empty name");
@@ -332,9 +473,18 @@ public class Collection implements Comparable<Collection> {
     }
     
     
+    /**
+     * Deletes the document with the specified name.
+     * 
+     * @param name  the document's name
+     * 
+     * @return  true if the document has been deleted, otherwise false
+     * 
+     * @throws  IllegalArgumentException  if the name is null or empty
+     */
     public boolean deleteDocument(String name) {
-        if (name == null) {
-            throw new IllegalArgumentException("Null name");
+        if (name == null || name.length() == 0) {
+            throw new IllegalArgumentException("Null or empty name");
         }
         
         boolean deleted = false;
@@ -347,9 +497,22 @@ public class Collection implements Comparable<Collection> {
     }
     
     
+    /**
+     * Deletes the child collection with the specified name.
+     * 
+     * Any child documents and collections in the specified collection will be
+     * deleted, too.
+     *  
+     * @param name  the collection's name
+     * 
+     * @return  true if the collection was deleted, otherwise false
+     * 
+     * @throws  IllegalArgumentException
+     *              if the collection name is null or empty
+     */
     public boolean deleteCollection(String name) {
-        if (name == null) {
-            throw new IllegalArgumentException("Null name");
+        if (name == null || name.length() == 0) {
+            throw new IllegalArgumentException("Null or empty name");
         }
         
         boolean deleted = false;
@@ -364,29 +527,34 @@ public class Collection implements Comparable<Collection> {
     }
     
     
-    public Set<Document> findDocuments(Key[] keys, boolean recursive)
-            throws XmldbException {
-        if (keys == null) {
-            String msg = "Null key array";
-            logger.error(msg);
-            throw new IllegalArgumentException(msg);
-        }
-        
-        int noOfKeys = keys.length;
-        if (noOfKeys == 0) {
-            String msg = "Empty key array";
-            logger.error(msg);
-            throw new IllegalArgumentException(msg);
+    /**
+     * Returns the indiced documents in this collection and (optionally) child
+     * collections that match the specified keys.
+     * 
+     * @param  keys       array of one or more Key objects 
+     * @param  recursive  whether to search child collections, too
+     * 
+     * @return  a set of found documents
+     * 
+     * @throws  IllegalArgumentException  if the keys array is null or empty
+     */
+    public Set<Document> findDocuments(Key[] keys, boolean recursive) {
+        if (keys == null || keys.length == 0) {
+            throw new IllegalArgumentException("Null or empty key array");
         }
         
         Set<Document> docs = new TreeSet<Document>();
-        
         findDocuments(keys, recursive, docs);
-        
         return docs;
     }
     
     
+    /**
+     * Returns true if this collection is equal to the specified Object,
+     * otherwise false
+     * 
+     * @param  obj  the Object to compare this collection to
+     */
     @Override // Object
     public boolean equals(Object obj) {
         if (obj instanceof Collection) {
@@ -399,12 +567,28 @@ public class Collection implements Comparable<Collection> {
     }
     
     
+    /**
+     * Returns a string representation of this collection.
+     * 
+     * A collection is represented by its absolute URI.
+     * 
+     * @return  a string representation of this collection
+     */
     @Override
     public String toString() {
         return getUri();
     }
     
 
+    /**
+     * Compares this collection with another collection.
+     * 
+     * Collections are compared based on their name (alphabetically).
+     * 
+     * @param  col  the collect to compares this collection with
+     * 
+     * @return  the comparison value 
+     */
     public int compareTo(Collection col) {
         return name.compareTo(col.getName());
     }

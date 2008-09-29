@@ -46,11 +46,14 @@ import org.apache.log4j.Logger;
 
 
 /**
- * XQuery processor powered by Saxon.
+ * XQuery processor powered by Saxon-B.
+ * 
+ * Saxon-B is an open source XQuery and XSLT processor by Michael H. Kay from
+ * Saxonica (http://www.saxonica.com).
  * 
  * @author Oscar Stigter
  */
-public class QueryProcessor {
+/* package */ class QueryProcessor {
 
 
 	/** log4j logger. */
@@ -75,10 +78,7 @@ public class QueryProcessor {
     //------------------------------------------------------------------------
 
     
-	/**
-	 * Constructor.
-	 */
-	QueryProcessor(DatabaseImpl database) {
+	/* package */ QueryProcessor(DatabaseImpl database) {
 		super();
 		
 		this.database = database;
@@ -97,7 +97,7 @@ public class QueryProcessor {
     //------------------------------------------------------------------------
 
     
-    /* package */ OutputStream executeQuery(String query)
+	/* package */ OutputStream executeQuery(String query)
     		throws XmldbException {
     	if (query == null || query.length() == 0) {
     		throw new IllegalArgumentException("Null or empty query");

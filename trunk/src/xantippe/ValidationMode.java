@@ -18,16 +18,21 @@
 package xantippe;
 
 
+/**
+ * Supported validation modes.
+ * 
+ * @author Oscar Stigter
+ */
 public enum ValidationMode {
     
     
     /** No document validation (disabled). */
     OFF,
 
-    /** Validate each document; matching schema must be present. */
+    /** Validate each document; matching schema MUST be present. */
     ON,
     
-    /** Validate documents if it has a namespace and a matching schema. */ 
+    /** Validate documents only if they have a namespace and matching schema. */ 
     AUTO,
     
     /** Inherit setting from parent collection. */

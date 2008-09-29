@@ -19,22 +19,23 @@ package xantippe.filestore;
 
 
 /**
- * Exception thrown by the <code>FileStore</code> class.
+ * Exception thrown by the FileStore class.
  * 
  * @author Oscar Stigter
  */
 public class FileStoreException extends Exception {
     
 
+    /** Serial version UID. */
     private static final long serialVersionUID = -1L;
     
 
-    public FileStoreException(String message) {
+    /* package */ FileStoreException(String message) {
         super(message);
     }
 
 
-    public FileStoreException(String message, Throwable t) {
+    /* package */ FileStoreException(String message, Throwable t) {
         super(message, t);
     }
 

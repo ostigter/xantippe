@@ -6,49 +6,62 @@ Java interface
 --------------
 
 interface Database {
+    String getDatabaseLocation()
+    void setDatabaseLocation(String path)
     void start() throws XmldbException
     void shutdown() throws XmldbException
     boolean isRunning()
     Collection getRootCollection() throws XmldbException
     Collection getCollection(String uri) throws XmldbException
     Document getDocument(String uri) throws XmldbException
+    OutputStream executeQuery(String query) throws XmldbException
 }
 
 public class Collection {
     String getName()
     Date getCreated()
     Date getModified()
-    Set<Collection> getCollections()
-    Collection getCollection(String name)
+    Collection getParent()
+    String getUri()
     Set<Document> getDocuments()
     Document getDocument(String name)
-    Collection createCollection(String name) throws XmldbException
+    Set<Collection> getCollections()
+    Collection getCollection(String name)
+    ValidationMode getValidationMode(boolean inherited)
+    void setValidationMode(ValidationMode vm)
+    CompressionMode getCompressionMode(boolean inherited)
+    void setCompressionMode(CompressionMode cm)
+    Set<Index> getIndices(boolean inherited)
+    Index getIndex(String name)
+    void addIndex(Index index) throws XmldbException
+    String getUri()
     Document createDocument(String name) throws XmldbException
+    Document createDocument(String name, MediaType mediaType) throws XmldbException
+    Collection createCollection(String name) throws XmldbException
+    void deleteDocument(String name) throws XmldbException
+    void deleteCollection(String name) throws XmldbException
     Set<Document> findDocuments(Key[] keys, boolean recursive)
-    void delete(boolean recursive) throws XmldbException
 }
 
 public class Document {
     String getName()
-    void setName(String name) throws XmldbException
+    MediaType getMediaType()
+    Collection getParent()
+    int getLength()
+    int getStoredLength()
     Date getCreated()
     Date getModified()
-    long getSize()
+    String getUri()
     InputStream getContent() throws XmldbException
     OutputStream setContent() throws XmldbException
     void setContent(File file) throws XmldbException
     void setKey(String name, Object value)
-    void move(Collection col) throws XmldbException
-    void copy(Collection col) throws XmldbException
-    void copy(Collection col, String name) throws XmldbException
-    void delete() throws XmldbException
 }
 
 public class Key {
+    Key(String name, Object value)
     String getName()
-    void setName(String name)
     Object getValue()
-    void setValue(Object value)
 }
 
 public class XmldbException {
@@ -56,6 +69,17 @@ public class XmldbException {
     XmldbException(String msg, Throwable t)
 }
 
+public enum ValidationMode {
+    OFF, ON, AUTO INHERIT
+}
+
+public enum CompressionMode {
+    NONE, DEFLATE, LZMA, INHERIT
+}
+
+public enum IndexType {
+    STRING, INTEGER, LONG, FLOAT, DOUBLE, DATE
+}
 
 
 XQuery API

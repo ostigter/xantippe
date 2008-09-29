@@ -18,19 +18,30 @@
 package xantippe;
 
 
+/**
+ * Supported index types.
+ * 
+ * @author Oscar Stigter
+ */
 public enum IndexType {
     
     
+    /** String value. */
     STRING,
     
+    /** Signed integer value (32 bit). */
     INTEGER,
     
+    /** Signed long value (64 bit). */
     LONG,
     
+    /** Signed float value (32 bit). */
     FLOAT,
     
+    /** Signed double value (64 bit). */
     DOUBLE,
     
+    /** Timestamp value. */
     DATE,
 
 
