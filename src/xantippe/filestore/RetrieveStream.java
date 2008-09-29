@@ -22,8 +22,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
 
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
-
 
 /**
  * InputStream used for reading the content of a stored document.
@@ -91,11 +89,11 @@ import sun.reflect.generics.reflectiveObjects.NotImplementedException;
      * 
      * Not supported.
      * 
-     * @throws  NotImplementedException  always
+     * @throws  UnsupportedOperationException  always
      */
     @Override
     public synchronized void mark(int position) {
-        throw new NotImplementedException();
+        throw new UnsupportedOperationException();
     }
 
 
@@ -210,12 +208,12 @@ import sun.reflect.generics.reflectiveObjects.NotImplementedException;
      * 
      * Not implemented.
      *  
-     * @throws  IOException              never
-     * @throws  NotImplementedException  always
+     * @throws  IOException                    never
+     * @throws  UnsupportedOperationException  always
      */
     @Override
     public synchronized void reset() throws IOException {
-        throw new NotImplementedException();
+        throw new UnsupportedOperationException();
     }
 
 

@@ -50,7 +50,7 @@ import org.xml.sax.helpers.DefaultHandler;
  * 
  * @author Oscar Stigter
  */
-public class DocumentValidator {
+/* package */ class DocumentValidator {
     
 
     /** Database file with the schema's. */
@@ -76,14 +76,12 @@ public class DocumentValidator {
     /** Back-reference to the database. */
     private final DatabaseImpl database;
 
+
     //------------------------------------------------------------------------
-    //  Constructors.
+    //  Constructor
     //------------------------------------------------------------------------
 
 
-    /**
-     * Constructor.
-     */
     /* package */ DocumentValidator(DatabaseImpl database) {
         this.database = database;
         
@@ -105,7 +103,7 @@ public class DocumentValidator {
     
     
     //------------------------------------------------------------------------
-    //  Public methods.
+    //  Public methods
     //------------------------------------------------------------------------
 
 
@@ -147,9 +145,7 @@ public class DocumentValidator {
      * Validates a document.
      * 
      * @param  file      the document
-     * @param  required  whether validation is required
-     * 
-     * @return  true if the document is valid, otherwise false
+     * @param  required  true if validation is required, otherwise false
      */
     public void validate(File file, String uri, boolean required)
             throws XmldbException {
@@ -252,7 +248,7 @@ public class DocumentValidator {
     
     
     //------------------------------------------------------------------------
-    //  Private methods.
+    //  Private methods
     //------------------------------------------------------------------------
 
 
@@ -351,7 +347,7 @@ public class DocumentValidator {
 
 
     //------------------------------------------------------------------------
-    //  Inner classes.
+    //  Inner classes
     //------------------------------------------------------------------------
 
 
