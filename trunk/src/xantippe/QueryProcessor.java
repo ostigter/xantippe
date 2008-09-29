@@ -93,11 +93,23 @@ import org.apache.log4j.Logger;
 	
 	
     //------------------------------------------------------------------------
-    //  Package protected methods
+    //  Public methods
     //------------------------------------------------------------------------
 
     
-	/* package */ OutputStream executeQuery(String query)
+	/**
+	 * Executes the specified query.
+	 * 
+	 * @param  query  the query text
+	 * 
+	 * @return  an OutputStream with the plain text query result
+	 * 
+	 * @throws  IllegalArgumentException
+	 *              if the query text is null or empty
+     * @throws  XmldbException
+     *              if the query could not be executed
+	 */
+	public OutputStream executeQuery(String query)
     		throws XmldbException {
     	if (query == null || query.length() == 0) {
     		throw new IllegalArgumentException("Null or empty query");
@@ -172,8 +184,9 @@ import org.apache.log4j.Logger;
     		
     		return source;
 		}
+        
     	
-    }
+    } // DocumentURIResolver class
     
     
     //------------------------------------------------------------------------
@@ -260,7 +273,7 @@ import org.apache.log4j.Logger;
         }
         
         
-    }
+    } // CollectionURIResolver class
 
 
     //------------------------------------------------------------------------
@@ -321,7 +334,7 @@ import org.apache.log4j.Logger;
         }
         
         
-    }
+    } // XmldbModuleURIResolver class
 
 
-}
+} // QueryProcessor class

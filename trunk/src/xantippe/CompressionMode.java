@@ -18,16 +18,21 @@
 package xantippe;
 
 
+/**
+ * Supported compression modes.
+ * 
+ * @author Oscar Stigter
+ */
 public enum CompressionMode {
     
     
     /** No compression. */
     NONE,
     
-    /** Compress with DEFLATE (zlib) method (faster). */
+    /** Compress with DEFLATE (zlib) method. */
     DEFLATE,
     
-//    /** Compress with LZMA (7-Zip) method (better compression). */
+//    /** Compress with LZMA (7-Zip) method. */
 //    LZMA,
     
     /** Inherit from parent collection. */

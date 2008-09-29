@@ -264,9 +264,10 @@ public class Collection implements Comparable<Collection> {
     /**
      * Returns the compression mode for this collection.
      * 
-     * @param  inherit  in case the compression mode is to inherit from the
-     *                  parent collection, whether to return the inherited mode
-     *                  (true), or the actual mode of this collection (false)
+     * @param  inherited  in case the compression mode is to inherit from the
+     *                    parent collection, whether to return the inherited
+     *                    mode (true), or the actual mode of this collection
+     *                    (false)
      * 
      * @return  the compression mode
      */

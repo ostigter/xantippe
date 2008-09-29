@@ -32,7 +32,7 @@ import java.io.OutputStream;
  * 
  * @author Oscar Stigter
  */
-public class InsertStream extends OutputStream {
+/* package */ class InsertStream extends OutputStream {
     
     
     /** The document. */
@@ -46,7 +46,7 @@ public class InsertStream extends OutputStream {
     
 
     //------------------------------------------------------------------------
-    //  Constructors
+    //  Constructor
     //------------------------------------------------------------------------
     
 
@@ -72,7 +72,7 @@ public class InsertStream extends OutputStream {
      * 
      * @throws IOException  if the stream could not be gracefully closed
      */
-    @Override
+    @Override // OutputStream
     public void close() throws IOException {
         try {
             os.close();
@@ -93,7 +93,7 @@ public class InsertStream extends OutputStream {
      * 
      * @throws IOException  if the data could not be written
      */
-    @Override
+    @Override // OutputStream
     public void flush() throws IOException {
         os.flush();
     }
@@ -106,7 +106,7 @@ public class InsertStream extends OutputStream {
      * 
      * @throws  IOException  if the byte could not be written
      */
-    @Override
+    @Override // OutputStream
     public void write(int b) throws IOException {
         os.write(b);
     }
@@ -119,7 +119,7 @@ public class InsertStream extends OutputStream {
      * 
      * @throws  IOException  if the data could not be written
      */
-    @Override
+    @Override // OutputStream
     public void write(byte[] data) throws IOException {
         os.write(data);
     }
@@ -128,13 +128,13 @@ public class InsertStream extends OutputStream {
     /**
      * Writes a byte array.
      * 
-     * @param  data    the byte array
+     * @param  buffer  the byte array
      * @param  offset  the offset in the array to start from
      * @param  length  the number of bytes to write
      * 
      * @throws  IOException  if the data could not be written
      */
-    @Override
+    @Override // OutputStream
     public void write(byte[] buffer, int offset, int length)
             throws IOException {
         os.write(buffer, offset, length);

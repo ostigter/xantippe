@@ -39,7 +39,7 @@ import org.xml.sax.helpers.DefaultHandler;
  * 
  * @author Oscar Stigter
  */
-public class Indexer {
+/* package */ class Indexer {
     
     
     /** log4j logger. */
@@ -52,6 +52,11 @@ public class Indexer {
     private final IndexHandler handler = new IndexHandler(); 
     
     
+    //------------------------------------------------------------------------
+    //  Constructor
+    //------------------------------------------------------------------------
+    
+    
     /* package */ Indexer() {
         SAXParserFactory factory = SAXParserFactory.newInstance();
         factory.setNamespaceAware(true);
@@ -62,6 +67,11 @@ public class Indexer {
                     "Error instantiating SAX parser: " + e.getMessage());
         }
     }
+    
+    
+    //------------------------------------------------------------------------
+    //  Public methods
+    //------------------------------------------------------------------------
     
     
     public void index(Document doc, File file, Collection col) {
@@ -220,7 +230,7 @@ public class Indexer {
         }
         
         
-    }
+    } // IndexHandler class
 
 
-}
+} // Indexer class
