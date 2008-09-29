@@ -52,7 +52,7 @@ public class Indexer {
     private final IndexHandler handler = new IndexHandler(); 
     
     
-    public Indexer() {
+    /* package */ Indexer() {
         SAXParserFactory factory = SAXParserFactory.newInstance();
         factory.setNamespaceAware(true);
         try {

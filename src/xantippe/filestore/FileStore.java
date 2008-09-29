@@ -37,7 +37,7 @@ import org.apache.log4j.Logger;
 /**
  * File system based database for storing documents.
  *
- * Documents are logically stored, retrieved, listed and deleted based on an
+ * Documents are logically stored, retrieved and deleted based on an integer
  * ID.
  *
  * Document entries (the administration) are stored in a binary file
@@ -51,8 +51,8 @@ import org.apache.log4j.Logger;
  * document at the first free position it fits in, or it appends the document
  * at the end.
  * 
- * For performance reasons, this class offers no synchronization and is thus
- * NOT thread-safe.
+ * For performance reasons, this class offers no synchronization or locking,
+ * and is thus NOT thread-safe.
  *
  * @author Oscar Stigter
  */
@@ -95,6 +95,9 @@ public class FileStore {
     //------------------------------------------------------------------------
     
 
+    /**
+     * Zero-argument constructor.
+     */
     public FileStore() {
         entries = new TreeMap<Integer, FileEntry>();
     }
@@ -105,6 +108,11 @@ public class FileStore {
     //------------------------------------------------------------------------
     
 
+    /**
+     * Returns the data directory.
+     * 
+     * @return  the data directory
+     */
     public String getDataDir() {
         return dataDir.getAbsolutePath();
     }
@@ -112,8 +120,10 @@ public class FileStore {
 
     /**
      * Sets the data directory.
+     * 
+     * The data directory may only be set if the database is not running.
      *
-     * @param  path  the data directory path
+     * @param  path  the data directory
      *
      * @throws  IllegalArgumentException  if the path is null or empty
      * @throws  IllegalStateException     if the FileStore is running
@@ -132,9 +142,12 @@ public class FileStore {
 
 
     /**
-     * Starts the <code>FileStore</code>.
+     * Starts the FileStore.
      *
-     * @throws FileStoreException  if the FileStore could not be started
+     * @throws  FileStoreException
+     *             if the FileStore is already running, the data directory
+     *             could not be created, the index file could not be read, or
+     *             the data file could not be opened
      */
     public void start() throws FileStoreException {
         if (!isRunning) {
@@ -178,9 +191,11 @@ public class FileStore {
     
 
     /**
-     * Shuts down the <code>FileStore</code>.
+     * Shuts down the FileStore.
      * 
-     * @throws FileStoreException  If the FileStore could not be shut down
+     * @throws  FileStoreException
+     *              if the FileStore is not running, the index file could not
+     *              be written, or data file could not be closed,  
      */
     public void shutdown() throws FileStoreException {
         if (isRunning) {
@@ -190,8 +205,12 @@ public class FileStore {
             
             try {
                 dataFile.close();
+                
             } catch (IOException e) {
-                throw new FileStoreException("Error closing data file", e);
+                String msg = "Error closing data file: " + e.getMessage();
+                logger.error(msg, e);
+                throw new FileStoreException(msg, e);
+                
             } finally {
                 isRunning = false;
             }
@@ -206,9 +225,9 @@ public class FileStore {
     
     
     /**
-     * Returns whether the <code>FileStore</code> is running.
+     * Returns whether the FileStore is running.
      * 
-     * @return  whether the <code>FileStore</code> is running
+     * @return  true if the FileStore is running, otherwise false
      */
     public boolean isRunning() {
         return isRunning;
@@ -226,12 +245,14 @@ public class FileStore {
     
 
     /**
-     * Stores a document based on a <code>File</code> object.
+     * Stores a document based on a file.
      * 
-     * @param id  the document ID
-     * @param file  the file with the document contents
+     * @param  id    the document ID
+     * @param  file  the file with the document's content
      * 
-     * @throws FileStoreException  if the document could not be stored
+     * @throws  FileStoreException
+     *              if the FileStore is not running, or the document content
+     *              could not be written
      */
     public void store(int id, File file) throws FileStoreException {
         if (isRunning) {
@@ -242,8 +263,6 @@ public class FileStore {
             entries.remove(id);
             
             int offset = findFreePosition(length);
-            logger.debug("Storing entry with offset " + offset
-                    + " and length " + length + "...");
                 
             FileEntry entry = new FileEntry(id);
             entry.setOffset(offset);
@@ -260,7 +279,9 @@ public class FileStore {
                 is.close();
             } catch (IOException e) {
                 entries.remove(id);
-                String msg = "Could not store document with ID " + id;
+                String msg = String.format(
+                        "Could not store document with ID %d: %s",
+                        id, e.getMessage());
                 logger.error(msg, e);
                 throw new FileStoreException(msg, e);
             }
@@ -273,18 +294,20 @@ public class FileStore {
     /**
      * Retrieves the content of a document.
      *  
-     * @param id  the document ID
+     * @param   id  the document ID
      * 
      * @return  the document content
      * 
-     * @throws FileStoreException
-     *             if the document content could not be retrieved
+     * @throws  FileStoreException
+     *              if the FileStore is not running, the document could not be
+     *              found, or the content could not be read
      */
     public InputStream retrieve(int id) throws FileStoreException {
         InputStream is = null;
         
         if (isRunning) {
             logger.debug("Retrieving entry with ID " + id);
+            
             FileEntry entry = entries.get(id);
             if (entry != null) {
                 try {
@@ -294,7 +317,7 @@ public class FileStore {
                     String msg = String.format(
                             "Error retrieving entry with ID %d: %s",
                             id, e.getMessage());
-                    logger.error(msg);
+                    logger.error(msg, e);
                     throw new FileStoreException(msg, e);
                 }
             } else {
@@ -310,6 +333,13 @@ public class FileStore {
     }
     
     
+    /**
+     * Returns the length of a document.
+     *  
+     * @param  id  the document ID
+     * 
+     * @return  the document length in bytes
+     */
     public int getLength(int id) {
         FileEntry entry = entries.get(id);
         if (entry != null) {
@@ -320,14 +350,19 @@ public class FileStore {
     }
     
     
+    /**
+     * Deletes a document.
+     * 
+     * @param   id  the document ID
+     * 
+     * @throws  FileStoreException  if the FileStore is not running
+     */
     public void delete(int id) throws FileStoreException {
         if (isRunning) {
             FileEntry entry = entries.get(id);
             if (entry != null) {
                 entries.remove(id);
-                logger.debug("Deleted entry with ID " + id + " with offset "
-                        + entry.getOffset() + " and length "
-                        + entry.getLength());
+                logger.debug("Deleted entry with ID " + id);
             }
         } else {
             throw new FileStoreException("FileStore not running");
@@ -337,6 +372,8 @@ public class FileStore {
 
     /**
      * Deletes ALL files.
+     * 
+     * @throws  FileStoreException  if the data file could not be cleared
      */
     public void deleteAll() throws FileStoreException {
         if (isRunning) {
@@ -346,12 +383,12 @@ public class FileStore {
             
             try {
                 dataFile.setLength(0L);
+                logger.debug("Deleted all entries");
             } catch (IOException e) {
-                String msg = "Error clearing data file";
+                String msg = "Error clearing data file: " + e.getMessage();
                 logger.error(msg, e);
+                throw new FileStoreException(msg, e);
             }
-            
-            logger.debug("Deleted all entries.");
         } else {
             throw new FileStoreException("FileStore not running");
         }
@@ -368,8 +405,8 @@ public class FileStore {
                 writeIndexFile();
             } catch (IOException e) {
                 String msg = "Error sync'ing to disk: " + e.getMessage();
-                logger.error(msg);
-                throw new FileStoreException(msg);
+                logger.error(msg, e);
+                throw new FileStoreException(msg, e);
             }
         } else {
             throw new FileStoreException("FileStore not running");
@@ -482,7 +519,9 @@ public class FileStore {
         try {
             size = dataFile.length();
         } catch (IOException e) {
-            logger.error("Error retrieving data file length", e);
+            String msg =
+                    "Error retrieving data file length: " + e.getMessage();
+            logger.error(msg, e);
         }
         return size;
     }

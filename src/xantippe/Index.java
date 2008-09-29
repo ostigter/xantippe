@@ -40,11 +40,11 @@ public class Index implements Comparable<Index> {
     
     
     //------------------------------------------------------------------------
-    //  Constructors
+    //  Constructor
     //------------------------------------------------------------------------
 
     
-    public Index(int id, String name, String path, IndexType type) {
+    /* package */ Index(int id, String name, String path, IndexType type) {
         this.id = id;
         this.name = name;
         this.path = path;
@@ -57,26 +57,53 @@ public class Index implements Comparable<Index> {
     //------------------------------------------------------------------------
 
     
+    /**
+     * Returns the index' name.
+     * 
+     * @return  the index' name
+     */
     public String getName() {
         return name;
     }
 
 
+    /**
+     * Returns the index' path.
+     * 
+     * @return  the index' path
+     */
     public String getPath() {
         return path;
     }
     
     
+    /**
+     * Returns the index' type
+     * 
+     * @return  the index' type
+     */
     public IndexType getType() {
         return type;
     }
 
 
+    /**
+     * Compares this index definition to the specified one.
+     * 
+     * Index definitions are compared based on their name (alphabetically).
+     */
     public int compareTo(Index index) {
         return name.compareTo(index.getName());
     }
     
 
+    /**
+     * Returns the string representation of this index definition.
+     * 
+     * An index definition is represented by its name.
+     * 
+     * @return  the string representation
+     */
     @Override // Object
     public String toString() {
         return name;

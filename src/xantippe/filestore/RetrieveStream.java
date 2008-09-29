@@ -26,11 +26,11 @@ import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 
 /**
- * <code>InputStream</code> used for reading the contents of a stored file.
+ * InputStream used for reading the content of a stored document.
  * 
  * @author Oscar Stigter
  */
-public class RetrieveStream extends InputStream {
+/* package */ class RetrieveStream extends InputStream {
     
     
     /** The data file. */
@@ -43,15 +43,11 @@ public class RetrieveStream extends InputStream {
     private int position = 0;
     
     
-    /**
-     * Constructor.
-     * 
-     * @param file    the data file
-     * @param offset  the file's offset in the data file. 
-     * @param length  the file's length in bytes
-     * 
-     * @throws IOException  if the file could not be read  
-     */
+    //------------------------------------------------------------------------
+    //  Constructor
+    //------------------------------------------------------------------------
+    
+
     /* package */ RetrieveStream(
             RandomAccessFile dataFile, int offset, int length)
             throws IOException {
@@ -61,10 +57,17 @@ public class RetrieveStream extends InputStream {
     }
 
 
+    //------------------------------------------------------------------------
+    //  Public methods
+    //------------------------------------------------------------------------
+    
+    
     /**
      * Returns the number of bytes that can still be read.
      * 
      * @return  the number of bytes that can still be read
+     * 
+     * @throws  IOException  never thrown
      */
     @Override
     public int available() throws IOException {
@@ -74,6 +77,8 @@ public class RetrieveStream extends InputStream {
 
     /**
      * Closes the stream.
+     * 
+     * @throws  IOException  if the stream could not be closed
      */
     @Override
     public void close() throws IOException {
@@ -85,6 +90,8 @@ public class RetrieveStream extends InputStream {
      * Marks the current position in the stream.
      * 
      * Not supported.
+     * 
+     * @throws  NotImplementedException  always
      */
     @Override
     public synchronized void mark(int position) {
@@ -107,11 +114,12 @@ public class RetrieveStream extends InputStream {
 
 
     /**
-     * Returns the next byte as integer in the range [0, 255].
+     * Returns the next byte as integer in the range [0, 255], or -1 if no more
+     * bytes are available.
      * 
-     * @return  the next byte
+     * @return  the next byte, or -1 if not available
      *  
-     * @throws  IOException  in case of any I/O errors
+     * @throws  IOException  if the byte could not be read
      */
     @Override
     public int read() throws IOException {
@@ -135,7 +143,8 @@ public class RetrieveStream extends InputStream {
      * 
      * @return  the number of bytes actually read
      *  
-     * @throws  IOException  in case of any I/O errors
+     * @throws  IllegalArgumentException  if the buffer is null
+     * @throws  IOException               if the stream could not be read
      */
     @Override
     public int read(byte[] buffer) throws IOException {
@@ -150,13 +159,17 @@ public class RetrieveStream extends InputStream {
     /**
      * Reads the specified number of bytes and fills the specified buffer.
      * 
-     * @param  buffer  the buffer
-     * @param  offset  the buffer offset
-     * @param  length  the number of bytes to read
+     * @param   buffer  the buffer
+     * @param   offset  the buffer offset
+     * @param   length  the number of bytes to read
      * 
-     * @return  the actual number of bytes read
+     * @return  the actual number of bytes read, or -1 if no more bytes are
+     *          available
      *  
-     * @throws  IOException  in case of any I/O errors
+     * @throws  IllegalArgumentException
+     *              if the buffer is null, the offset is invalid, the length is
+     *              invalid
+     * @throws  IOException  if the stream could not be read
      */
     @Override
     public int read(byte[] buffer, int offset, int length) throws IOException {
@@ -195,7 +208,10 @@ public class RetrieveStream extends InputStream {
     /**
      * Resets the stream to the last mark() call.
      * 
-     *  Not implemented.
+     * Not implemented.
+     *  
+     * @throws  IOException              never
+     * @throws  NotImplementedException  always
      */
     @Override
     public synchronized void reset() throws IOException {
@@ -206,11 +222,13 @@ public class RetrieveStream extends InputStream {
     /**
      * Skips the specified number of bytes.
      * 
-     * @param  length  the number of bytes to skip
+     * The bytes are skipped by reading and immediately discarding them.
+     * 
+     * @param   length  the number of bytes to skip
      * 
      * @return  the number of bytes actually skipped
      *  
-     * @throws  IOException  in case of any I/O errors
+     * @throws  IOException  in no bytes could be skipped due to an error
      */
     @Override
     public long skip(long length) throws IOException {

@@ -101,41 +101,81 @@ public class Document implements Comparable<Document> {
     //------------------------------------------------------------------------
 
     
+    /**
+     * Returns the document's name.
+     * 
+     * @return  the document's name
+     */
     public String getName() {
         return name;
     }
     
     
+    /**
+     * Returns the collection this document is stored in.
+     * 
+     * @return  the collection
+     */
     public Collection getParent() {
         return database.getCollection(parent);
     }
     
     
+    /**
+     * Returns the document's media type.
+     * 
+     * @return  the media type
+     */
     public MediaType getMediaType() {
         return mediaType;
     }
     
     
+    /**
+     * Returns the document's length in bytes.
+     * 
+     * @return  the length
+     */
     public int getLength() {
         return length;
     }
     
     
+    /**
+     * Returns the document's stored length in bytes.
+     * 
+     * @return  the stored length
+     */
     public int getStoredLength() {
         return database.getFileStore().getLength(id); 
     }
     
     
+    /**
+     * Returns the timestamp the document was created.
+     * 
+     * @return  the timestamp in milliseconds after 01-Jan-1970
+     */
     public long getCreated() {
         return created;
     }
     
     
+    /**
+     * Returns the timestamp the document was last modified.
+     * 
+     * @return  the timestamp in milliseconds after 01-Jan-1970
+     */
     public long getModified() {
         return modified;
     }
     
     
+    /**
+     * Returns the document's absolute URI.
+     * 
+     * @return  the URI
+     */
     public String getUri() {
         Collection parent = getParent();
         StringBuilder sb = new StringBuilder();
@@ -148,6 +188,13 @@ public class Document implements Comparable<Document> {
     }
     
     
+    /**
+     * Returns the document's content.
+     * 
+     * @return  an InputStream to read the content from
+     * 
+     * @throws  XmldbException  if the contents could not be retrieved
+     */
     public InputStream getContent() throws XmldbException {
         InputStream is = null;
         
@@ -168,6 +215,17 @@ public class Document implements Comparable<Document> {
     }
     
     
+    /**
+     * Sets the document's content using an OutputStream.
+     * The streamed document's content is written to a temporary file. 
+     * When the client closes the stream, the document is stored using the
+     * setContent(File) method.
+     * 
+     * @return  an OutputStream to write the document's content to
+     * 
+     * @throws XmldbException
+     *             if the document is invalid, or it could not be stored
+     */
     public OutputStream setContent() throws XmldbException {
         try {
             return new InsertStream(this);
@@ -179,6 +237,23 @@ public class Document implements Comparable<Document> {
     }
     
     
+    /**
+     * Sets the document's content based on a file.
+     * 
+     * Depending on the validation mode of the collection, the document may be
+     * validated against its schema before it is stored.
+     * 
+     * Depending on the compression mode of the collection, the document may be
+     * stored in compressed form.
+     *  
+     * @param  file  the file with the document's content
+     * 
+     * @throws  IllegalArgumentException  if the file is null 
+     * 
+     * @throws XmldbException
+     *             if the file does not exist, could not be read or parsed, or
+     *             the document could not be compressed or stored
+     */
     public void setContent(File file) throws XmldbException {
         if (file == null) {
             throw new IllegalArgumentException("Null file");
@@ -293,12 +368,29 @@ public class Document implements Comparable<Document> {
     }
     
     
+    /**
+     * Sets a manual key value for this document.
+     * 
+     * An index value for this document is added to the collecting the document
+     * is stored in.
+     * 
+     * @param  name   the key name
+     * @param  value  the key value
+     */
     public void setKey(String name, Object value) {
         Collection col = getParent();
         col.addIndexValue(name, value, id);
     }
     
     
+    /**
+     * Return true if this document is equal to the specified Object, otherwise
+     * false.
+     * 
+     * @param  obj  the Object this document is compared to
+     * 
+     * @return  true if equal, otherwise false
+     */
     @Override // Object
     public boolean equals(Object obj) {
         if (obj instanceof Document) {
@@ -311,12 +403,28 @@ public class Document implements Comparable<Document> {
     }
     
     
+    /**
+     * Returns a string representation of this document.
+     * 
+     * A document is represented by its absolute URI.
+     * 
+     * @return  the string representation
+     */
     @Override
     public String toString() {
         return getUri();
     }
     
     
+    /**
+     * Compares this document with the specified document.
+     * 
+     * Documents are compared based on their name (alphabetically).
+     * 
+     * @param  doc  the document to compare this document with
+     * 
+     * @return  the comparison value 
+     */
     public int compareTo(Document doc) {
         //TODO: Maybe compare documents by URI (slower)?
         return name.compareTo(doc.getName());

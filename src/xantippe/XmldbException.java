@@ -18,18 +18,24 @@
 package xantippe;
 
 
+/**
+ * Exception throws by the database.
+ * 
+ * @author Oscar Stigter
+ */
 public class XmldbException extends Exception {
     
     
+    /** Serial version UID. */
     private static final long serialVersionUID = -1L;
     
     
-    public XmldbException(String message) {
+    /* package */ XmldbException(String message) {
         super(message);
     }
 
 
-    public XmldbException(String message, Throwable t) {
+    /* package */ XmldbException(String message, Throwable t) {
         super(message, t);
     }
 

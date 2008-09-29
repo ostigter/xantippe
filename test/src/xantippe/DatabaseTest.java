@@ -88,6 +88,9 @@ public class DatabaseTest {
     //------------------------------------------------------------------------
 
 
+    /**
+     * Tests various basic storage aspects.
+     */
     @Test
     public void storage() {
         logger.debug("Test suite 'storage' started");
@@ -173,14 +176,14 @@ public class DatabaseTest {
             doc = fooCol.createDocument(file.getName());
             Assert.assertEquals("Foo-0001.xml", doc.getName());
             doc.setContent(file);
-            assertEqual(doc.getContent(), file);
+            assertEquals(doc.getContent(), file);
             Assert.assertEquals(file.length(), doc.getLength());
             Assert.assertEquals(file.length(), doc.getStoredLength());  // no compression
             
             file = new File("test/dat/db/data/foo/Foo-0002.xml");
             doc = fooCol.createDocument(file.getName());
             doc.setContent(file);
-            assertEqual(doc.getContent(), file);
+            assertEquals(doc.getContent(), file);
             doc.setKey("My_Manual_Key", "Foo-0002_manual_key");
             
             doc = barCol.createDocument("Bar-0001.xml");
@@ -332,6 +335,11 @@ public class DatabaseTest {
     }
 
     
+//    /**
+//     * Tests the performance with a large number of documents.
+//     * 
+//     * This test depends on an external directory with a large dataset.
+//     */
 //    @Test
 //    public void manyDocuments() {
 //        logger.debug("Test suite 'manyDocuments' started");
@@ -402,6 +410,9 @@ public class DatabaseTest {
 //    }
 
 
+    /**
+     * Tests the validation of documents against their schema. 
+     */
     @Test
     public void validation() {
         logger.debug("Test suite 'validation' started");
@@ -453,6 +464,9 @@ public class DatabaseTest {
     }
 
 
+    /**
+     * Tests the execution of queries.
+     */
     @Test
     public void xquery() {
         logger.debug("Test suite 'xquery' started");
@@ -528,11 +542,11 @@ public class DatabaseTest {
     
     
     //------------------------------------------------------------------------
-    //  Private methods.
+    //  Private methods
     //------------------------------------------------------------------------
 
 
-    private static void assertEqual(InputStream is, File file) {
+    private static void assertEquals(InputStream is, File file) {
         try {
             InputStream is2 = new FileInputStream(file);
             byte[] buffer1 = new byte[BUFFER_SIZE];
