@@ -33,7 +33,6 @@ import java.util.TreeMap;
 import org.apache.log4j.Logger;
 
 
-
 /**
  * File system based database for storing documents.
  *
@@ -247,12 +246,12 @@ public class FileStore {
     /**
      * Stores a document based on a file.
      * 
-     * @param  id    the document ID
-     * @param  file  the file with the document's content
+     * @param   id    the document ID
+     * @param   file  the file with the document's content
      * 
      * @throws  FileStoreException
-     *              if the FileStore is not running, or the document content
-     *              could not be written
+     *              if the FileStore is not running, the file could not be
+     *              read, or the document content could not be written
      */
     public void store(int id, File file) throws FileStoreException {
         if (isRunning) {

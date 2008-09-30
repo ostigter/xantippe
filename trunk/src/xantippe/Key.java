@@ -20,8 +20,9 @@ package xantippe;
 
 /**
  * Document key used to retrieve documents using indexes.
- * 
  * Basically a simple name/value combination.
+ * 
+ * Implemented as an immutable class.
  * 
  * @author Oscar Stigter
  */
@@ -36,10 +37,16 @@ public class Key {
     
     
     //------------------------------------------------------------------------
-    //  Constructors
+    //  Constructor
     //------------------------------------------------------------------------
 
     
+    /**
+     * Constructor.
+     * 
+     * @param  name   the name
+     * @param  value  the value
+     */
     public Key(String name, Object value) {
         this.name = name;
         this.value = value;
@@ -47,28 +54,40 @@ public class Key {
     
     
     //------------------------------------------------------------------------
-    //  Accessor methods
+    //  Public methods
     //------------------------------------------------------------------------
     
     
+    /**
+     * Returns the name.
+     * 
+     * @return  the name
+     */
     public String getName() {
         return name;
     }
     
     
+    /**
+     * Returns the value.
+     * 
+     * @return  the value
+     */
     public Object getValue() {
         return value;
     }
     
     
-    //------------------------------------------------------------------------
-    //  Override methods: Object
-    //------------------------------------------------------------------------
-    
-
+    /**
+     * Returns the string representation of this key.
+     * 
+     * A key is represented by its name.
+     * 
+     * @return  the string representation of this key
+     */
     @Override
     public String toString() {
-        return "{" + name + " = " + value + "}";
+        return String.format("{%s = %s}",  name, value);
     }
 
     
