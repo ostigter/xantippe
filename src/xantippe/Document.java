@@ -240,19 +240,22 @@ public class Document implements Comparable<Document> {
     /**
      * Sets the document's content based on a file.
      * 
-     * Depending on the validation mode of the collection, the document may be
-     * validated against its schema before it is stored.
+     * In case of an XML document and depending on the validation mode of the
+     * collection, the document may be validated against its schema before it
+     * is stored.
+     * 
+     * In case of a schema it is parsed and registered by its target namespace.
      * 
      * Depending on the compression mode of the collection, the document may be
      * stored in compressed form.
      *  
-     * @param  file  the file with the document's content
+     * @param   file  the file with the document's content
      * 
      * @throws  IllegalArgumentException  if the file is null 
      * 
-     * @throws XmldbException
-     *             if the file does not exist, could not be read or parsed, or
-     *             the document could not be compressed or stored
+     * @throws  XmldbException
+     *              if the file does not exist, could not be read or parsed, or
+     *              the document could not be compressed or stored
      */
     public void setContent(File file) throws XmldbException {
         if (file == null) {
@@ -273,16 +276,7 @@ public class Document implements Comparable<Document> {
         
         Collection parentCol = getParent();
         
-        if (mediaType == MediaType.SCHEMA) {
-            try {
-                database.getValidator().addSchema(file, id);
-            } catch (Exception e) {
-                String msg = String.format(
-                        "Invalid schema file: '%s': %s", file, e.getMessage());
-                logger.error(msg);
-                throw new XmldbException(msg);
-            }
-        } else if (mediaType == MediaType.XML) {
+        if (mediaType == MediaType.XML) {
             String uri = getUri();
             ValidationMode vm = parentCol.getValidationMode(true);
             switch (vm) {
@@ -300,6 +294,15 @@ public class Document implements Comparable<Document> {
                 default:
                     // Should never happen.
                     logger.error("Invalid validation mode: " + vm);
+            }
+        } else if (mediaType == MediaType.SCHEMA) {
+            try {
+                database.getValidator().addSchema(file, id);
+            } catch (Exception e) {
+                String msg = String.format(
+                        "Invalid schema file: '%s': %s", file, e.getMessage());
+                logger.error(msg);
+                throw new XmldbException(msg);
             }
         }
         
@@ -374,12 +377,21 @@ public class Document implements Comparable<Document> {
      * An index value for this document is added to the collecting the document
      * is stored in.
      * 
-     * @param  name   the key name
-     * @param  value  the key value
+     * @param   name   the key name
+     * @param   value  the key value
+     * 
+     * @throws  IllegalArgumentException
+     *              if the name is null or empty, or the value is null
      */
     public void setKey(String name, Object value) {
-        Collection col = getParent();
-        col.addIndexValue(name, value, id);
+        if (name == null || name.length() == 0) {
+            throw new IllegalArgumentException("Null or empty name");
+        }
+        if (value == null) {
+            throw new IllegalArgumentException("Null value");
+        }
+        
+        getParent().addIndexValue(name, value, id);
     }
     
     
@@ -426,7 +438,6 @@ public class Document implements Comparable<Document> {
      * @return  the comparison value 
      */
     public int compareTo(Document doc) {
-        //TODO: Maybe compare documents by URI (slower)?
         return name.compareTo(doc.getName());
     }
     

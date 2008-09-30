@@ -249,6 +249,9 @@ public class Collection implements Comparable<Collection> {
     /**
      * Sets the validation mode.
      * 
+     * Setting the INHERIT mode on the root collection is invalid and will be
+     * ignored.
+     * 
      * @param  validationMode  the validation mode
      */
     public void setValidationMode(ValidationMode validationMode) {
@@ -282,6 +285,9 @@ public class Collection implements Comparable<Collection> {
     
     /**
      * Sets the compression mode.
+     * 
+     * Setting the INHERIT mode on the root collection is invalid and will be
+     * ignored.
      * 
      * @param  compressionMode  the compression mode
      */
@@ -345,9 +351,9 @@ public class Collection implements Comparable<Collection> {
     /**
      * Adds an index definition.
      * 
-     * @param name  the index name
-     * @param path  the index path
-     * @param type  the index type
+     * @param   name  the index name
+     * @param   path  the index path
+     * @param   type  the index type
      * 
      * @throws  IllegalArgumentException
      *              if an index with the specified name already exists
@@ -393,11 +399,13 @@ public class Collection implements Comparable<Collection> {
      * The document's media type will be automatically determined based on its
      * extention.
      * 
-     * @param  name  the document name
+     * @param   name  the document name
      * 
      * @return  the created document
      * 
-     * @throws  XmldbException  if the document could not be created
+     * @throws  XmldbException
+     *             if the document could not be created, or a document with the
+     *             same name already exists
      */
     public Document createDocument(String name) throws XmldbException {
         return createDocument(name, database.getMediaType(name));
@@ -412,6 +420,8 @@ public class Collection implements Comparable<Collection> {
      * 
      * @return  the created document
      * 
+     * @throws  IllegalArgumentException
+     *              if the name is null or empty
      * @throws  XmldbException
      *              if the document could not be created, or a document with
      *              the same name already exists
@@ -447,6 +457,8 @@ public class Collection implements Comparable<Collection> {
      * 
      * @return  the created collection
      * 
+     * @throws  IllegalArgumentException
+     *              if the name is null or empty
      * @throws  XmldbException
      *              if the collection could not be created, or a child
      *              collection with the specified name already exists
@@ -605,12 +617,6 @@ public class Collection implements Comparable<Collection> {
     }
     
     
-    /* package */ ValidationMode getExplicitValidationMode() {
-        return validationMode;
-        
-    }
-    
-    
     /* package */ void addIndex(Index index) {
         indices.add(index);
     }
@@ -628,13 +634,12 @@ public class Collection implements Comparable<Collection> {
 
     /* package */ void indexDocument(Document doc, File file) {
         database.getIndexer().index(doc, file, this);
-        
     }
     
     
     /* package */ void addIndexValue(
             String keyName, Object keyValue, int docId) {
-        // Check that document really is in this collection.
+        // Make sure document really is in this collection.
         if (documents.contains(docId)) {
             IndexValue iv = indexValues.get(keyName);
             if (iv == null) {
@@ -642,9 +647,6 @@ public class Collection implements Comparable<Collection> {
                 indexValues.put(keyName, iv);
             }
             iv.indexDocument(docId, keyValue);
-        } else {
-            // For debugging only.
-            logger.warn("Indexed document not found in collection");
         }
     }
     
@@ -658,15 +660,18 @@ public class Collection implements Comparable<Collection> {
         for (Document doc : getDocuments()) {
             deleteDocument(doc);
         }
+        
         for (Collection col : getCollections()) {
             collections.remove(col.getId());
             col.delete();
         }
+        
         indexValues.clear();
         indices.clear();
+        
         database.deleteCollection(this);
-        String msg = String.format("Deleted collection '%s'", this);
-        logger.debug(msg);
+        
+        logger.debug(String.format("Deleted collection '%s'", this));
     }
 
 
@@ -675,7 +680,7 @@ public class Collection implements Comparable<Collection> {
     //------------------------------------------------------------------------
     
     
-    // FIXME: Get rid of "unchecked" warning
+    // FIXME: Get rid of "unchecked" warning (Eclipse bug?)
     @SuppressWarnings("unchecked")  // new HashSet[]
     private void findDocuments(
             Key[] keys, boolean recursive, Set<Document> docs) {
@@ -694,7 +699,7 @@ public class Collection implements Comparable<Collection> {
         // Gather documents by ID's.
         if (noOfKeys == 1) {
             for (int id : docsPerKey[0]) {
-                // Check document to be really in this collection.
+                // Make sure document really is in this collection.
                 if (documents.contains(id)) {
                     docs.add(database.getDocument(id));
                 }
@@ -717,14 +722,14 @@ public class Collection implements Comparable<Collection> {
             
             // Add matching documents to final set.
             for (int id : matchingIds) {
-                // Check document to be really in this collection.
+                // Make sure document really is in this collection.
                 if (documents.contains(id)) {
                     docs.add(database.getDocument(id));
                 }
             }
         }
         
-        // Optionally search subcollections.
+        // Optionally search in subcollections.
         if (recursive) {
             for (Collection col : getCollections()) {
                 col.findDocuments(keys, recursive, docs);
@@ -735,6 +740,10 @@ public class Collection implements Comparable<Collection> {
     
     private void deleteDocument(Document doc) {
         documents.remove(doc.getId());
+        if (doc.getMediaType() == MediaType.SCHEMA) {
+            // Unregister schema.
+        }
+        
         updateModified();
         doc.delete();
     }

@@ -46,7 +46,9 @@ import org.xml.sax.helpers.DefaultHandler;
 
 
 /**
- * Document validator.
+ * Document validator with cached, precompiled schema's.
+ * 
+ * Schema's are mapped by their target namespace.
  * 
  * @author Oscar Stigter
  */
@@ -108,36 +110,22 @@ import org.xml.sax.helpers.DefaultHandler;
 
 
     /**
-     * Clears all schema namespaces and cached Validator objects.
-     */
-    public void clearSchemas() {
-        schemaFiles.clear();
-        validators.clear();
-        logger.debug("Cleared all schema's");
-    }
-    
-    
-    /**
      * Adds a schema.
      * 
-     * @param  file   the schema file
-     * @param  docId  the document ID 
+     * The schema is parsed to extract the target namespace. 
+     * 
+     * @param   file   the schema file
+     * @param   docId  the document ID
+     * 
+     * @throws  IOException   if the file cannot be read
+     * @throws  SAXException  if the schema cannot be parsed (badly formed XML)
      */
     public void addSchema(File file, int docId)
-            throws IOException, SAXException, XmldbException {
+            throws IOException, SAXException {
         String namespace = getTargetNamespaceFromSchema(file);
         schemaFiles.put(namespace, docId);
         logger.debug(String.format(
                 "Added schema with namespace '%s'", namespace));
-        //TODO: Validate schema before storing it.
-//      try {
-//          // Validate schema by compiling it, but do not keep in cache.
-//          getValidator(namespace, false);
-//      } catch (XmldbException e) {
-//          // Invalid schema; remove from table.
-//          schemaFiles.remove(namespace);
-//          throw e;
-//      }
     }
     
     
@@ -146,6 +134,8 @@ import org.xml.sax.helpers.DefaultHandler;
      * 
      * @param  file      the document
      * @param  required  true if validation is required, otherwise false
+     * 
+     * @throws  XmldbException  if the document cannot be read or is invalid 
      */
     public void validate(File file, String uri, boolean required)
             throws XmldbException {
@@ -200,7 +190,22 @@ import org.xml.sax.helpers.DefaultHandler;
     }
     
     
-    public void readSchemas(File dataDir) {
+    /**
+     * Clears all schema namespaces and cached Validator objects.
+     */
+    public void clearSchemas() {
+        schemaFiles.clear();
+        validators.clear();
+        logger.debug("Cleared all schema's");
+    }
+    
+    
+    //------------------------------------------------------------------------
+    //  Package protected methods
+    //------------------------------------------------------------------------
+
+
+    /* package */ void readSchemas(File dataDir) {
         clearSchemas();
         logger.debug(String.format("Read database file '%s'", SCHEMAS_FILE));
         File file = new File(dataDir, SCHEMAS_FILE);
@@ -212,7 +217,11 @@ import org.xml.sax.helpers.DefaultHandler;
                 for (int i = 0; i < noOfSchemas; i++) {
                     String namespace = dis.readUTF();
                     int docId = dis.readInt();
-                    schemaFiles.put(namespace, docId);
+                    if (database.documentExists(docId)) {
+                        schemaFiles.put(namespace, docId);
+                    } else {
+                        // Dead reference (deleted schema).
+                    }
                 }
                 dis.close();
             } catch (IOException e) {
@@ -225,7 +234,7 @@ import org.xml.sax.helpers.DefaultHandler;
     }
     
     
-    public void writeSchemas(File dataDir) {
+    /* package */ void writeSchemas(File dataDir) {
         logger.debug(String.format("Write database file '%s'", SCHEMAS_FILE));
         File file = new File(dataDir, SCHEMAS_FILE);
         try {
@@ -344,8 +353,8 @@ import org.xml.sax.helpers.DefaultHandler;
 
         return namespace;
     }
-
-
+    
+    
     //------------------------------------------------------------------------
     //  Inner classes
     //------------------------------------------------------------------------
@@ -510,7 +519,7 @@ import org.xml.sax.helpers.DefaultHandler;
         }
         
         
-    }
+    } // XmldbResourceResolver class
     
     
     //------------------------------------------------------------------------
@@ -613,7 +622,7 @@ import org.xml.sax.helpers.DefaultHandler;
         }
 
 
-    }
-        
+    } // XmldbResourceInput
 
-}
+
+} // DocumentValidator

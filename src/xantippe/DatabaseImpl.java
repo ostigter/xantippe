@@ -571,7 +571,7 @@ public class DatabaseImpl implements Database {
         dos.writeUTF(col.getName());
         dos.writeLong(col.getCreated());
         dos.writeLong(col.getModified());
-        dos.writeByte(col.getExplicitValidationMode().ordinal());
+        dos.writeByte(col.getValidationMode(false).ordinal());
         dos.writeByte(col.getCompressionMode(false).ordinal());
         Set<Index> indices = col.getIndices(false);
         dos.writeInt(indices.size());
