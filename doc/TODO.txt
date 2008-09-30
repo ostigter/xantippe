@@ -5,7 +5,6 @@ TO DO
 Current release
 ---------------
 
-- query parameters
 - Xantippe 0.1a release (embedded library)
 
 
@@ -17,10 +16,11 @@ Next release
 - Move documents and collections
 - Copy documents and collections
 - use term 'resources' for non-XML documents
+- stored queries with parameters
+- database interface from within XQuery
 - auto-commit interval to improve reliability (crash recovery)
 - locking (thread-safety)
 - Backup & Restore (Manager tool)
-- database interface from within XQuery
 - configuration file
 - WebDAV interface (web deployment, Tomcat, Jetty?)
 
