@@ -42,5 +42,8 @@ and XSLT processor written by Michael H. Kay from Saxonica Limited
 Status
 ------
 
-This product is under heavy development, highly unstable and nowhere near
-completion. Please use at your own risk!
+The first stage of development is complete; all basic functionality has been
+implemented.
+
+However, much more testing is required for Xantippe to be considered anywhere
+near complete, stable and reliable. Please use at your own risk!
