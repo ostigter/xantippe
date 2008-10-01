@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema xmlns="http://www.w3.org/2001/XMLSchema"
+    xmlns:tr="http://www.example.com/XMLSchema/TestResult/v1.0"
+    xmlns:gen="http://www.example.com/XMLSchema/Generic/v1.0"
+    targetNamespace="http://www.example.com/XMLSchema/TestResult/v1.0">
+
+  <import namespace="http://www.example.com/XMLSchema/Generic/v1.0"
+      schemaLocation="Generic_v1.0.xsd"/>
+
+  <element name="TestResult" type="tr:TestResult"/>
+
+  <complexType name="TestResult">
+    <sequence>
+      <element name="Header" type="gen:Header"/>
+      <element name="Body" type="tr:Body"/>
+    </sequence>
+  </complexType>
+
+  <complexType name="Body">
+    <sequence>
+      <element name="Test" type="tr:Test" maxOccurs="unbounded"/>
+      <element name="OverallResult" type="tr:Result"/>
+    </sequence>
+  </complexType>
+
+  <complexType name="Test">
+    <sequence>
+      <element name="Type" type="string"/>
+      <element name="Version" type="string"/>
+      <element name="Value" type="double"/>
+      <element name="Result" type="tr:Result"/>
+    </sequence>
+  </complexType>
+
+  <simpleType name="Result">
+    <restriction base="string">
+      <enumeration value="Passed"/>
+      <enumeration value="Failed"/>
+    </restriction>
+  </simpleType>
+
+</schema>

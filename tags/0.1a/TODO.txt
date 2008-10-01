@@ -1,0 +1,39 @@
+TO DO
+=====
+
+
+High priority
+-------------
+
+None
+
+
+Medium priority
+---------------
+
+- manager tool (GUI)
+- Rename documents and collections
+- Move documents and collections
+- Copy documents and collections
+- use term 'resources' for non-XML documents
+- stored queries with parameters
+- database interface from within XQuery
+- auto-commit interval to improve reliability (crash recovery)
+- locking (thread-safety)
+- Backup & Restore (Manager tool)
+- configuration file
+- WebDAV interface (web deployment, Tomcat, Jetty?)
+
+
+Low priority
+------------
+
+- use Long (64 bit) instead of Integer (32 bit) for ID's and file sizes
+- health checking
+- defragmentation
+- client/server deployment (RMI?)
+- REST interface?
+- Authentication & Authorization (users, roles, permissions)
+- caching (documents, collections, indices)
+- transactions (journaling)
+- encryption
