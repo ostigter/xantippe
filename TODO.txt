@@ -2,14 +2,14 @@ TO DO
 =====
 
 
-Current release
+High priority
+-------------
+
+None
+
+
+Medium priority
 ---------------
-
-- Xantippe 0.1a release (embedded library)
-
-
-Next release
-------------
 
 - manager tool (GUI)
 - Rename documents and collections
@@ -25,8 +25,8 @@ Next release
 - WebDAV interface (web deployment, Tomcat, Jetty?)
 
 
-Long term
----------
+Low priority
+------------
 
 - use Long (64 bit) instead of Integer (32 bit) for ID's and file sizes
 - health checking
