@@ -104,17 +104,11 @@ import org.apache.log4j.Logger;
 	 * 
 	 * @return  an OutputStream with the plain text query result
 	 * 
-	 * @throws  IllegalArgumentException
-	 *              if the query text is null or empty
      * @throws  XmldbException
      *              if the query could not be executed
 	 */
 	public OutputStream executeQuery(String query)
     		throws XmldbException {
-    	if (query == null || query.length() == 0) {
-    		throw new IllegalArgumentException("Null or empty query");
-    	}
-    	
         logger.debug("Executing query: \n" + query);
         
         long startTime = System.currentTimeMillis();

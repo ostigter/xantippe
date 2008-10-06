@@ -54,7 +54,8 @@ public interface Database {
     /**
      * Starts the database.
      * 
-     * @throws  XmldbException  if the database is already running
+     * @throws  IllegalStateException
+     *              if the database is already running
      */
     void start() throws XmldbException;
 
@@ -62,7 +63,8 @@ public interface Database {
     /**
      * Shuts down the database.
      * 
-     * @throws  XmldbException  if the database is not running
+     * @throws  IllegalStateException
+     *              if the database is not running
      */
     void shutdown() throws XmldbException;
 
@@ -80,7 +82,8 @@ public interface Database {
      * 
      * @return  the root collection
      * 
-     * @throws  XmldbException  if the database is not running
+     * @throws  IllegalStateException
+     *              if the database is not running
      */
     Collection getRootCollection() throws XmldbException;
     
@@ -92,8 +95,12 @@ public interface Database {
      * 
      * @return  the collection
      * 
-     * @throws  XmldbException  if the collection does not exist, or the URI is
-     *                          invalid 
+     * @throws  IllegalStateException
+     *              if the database is not running
+     * @throws  IllegalArgumentException
+     *              if the URI is null or empty
+     * @throws  XmldbException
+     *              if the collection does not exist, or the URI is invalid 
      */
     Collection getCollection(String uri) throws XmldbException;
 
@@ -105,8 +112,12 @@ public interface Database {
      * 
      * @return  the document
      * 
-     * @throws  XmldbException  if the document does not exist, or the URI is
-     *                          invalid 
+     * @throws  IllegalStateException
+     *              if the database is not running
+     * @throws  IllegalArgumentException
+     *              if the URI is null or empty
+     * @throws  XmldbException
+     *              if the document does not exist, or the URI is invalid 
      */
     Document getDocument(String uri) throws XmldbException;
 
@@ -122,7 +133,12 @@ public interface Database {
      * 
      * @return  OutputStream with the query results
      * 
-     * @throws  XmldbException  if the query could not be executed
+     * @throws  IllegalStateException
+     *              if the database is not running
+     * @throws  IllegalArgumentException
+     *              if the query text is null or empty
+     * @throws  XmldbException
+     *              if the query could not be executed
      */
     // TODO: Add query parameters
     // TODO: Offer other result formats than plain text OutputStream
