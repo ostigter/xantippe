@@ -127,13 +127,13 @@ public class DatabaseImpl implements Database {
     
     // See JavaDoc of Database interface
     public void setDatabaseLocation(String path) {
+        if (isRunning) {
+            throw new IllegalStateException("Database is running");
+        }
+        
         if (path == null || path.length() == 0) {
             throw new IllegalArgumentException(
                     "Null or empty database location");
-        }
-        
-        if (isRunning) {
-            throw new IllegalStateException("Database is running");
         }
         
         dataDir = new File(path);
@@ -143,7 +143,7 @@ public class DatabaseImpl implements Database {
     // See JavaDoc of Database interface
     public void start() throws XmldbException {
         if (isRunning) {
-            throw new XmldbException("Database already running");
+            throw new IllegalStateException("Database already running");
         }
         
         logger.debug("Starting database");
@@ -225,6 +225,10 @@ public class DatabaseImpl implements Database {
     public Collection getCollection(String uri) throws XmldbException {
     	checkRunning();
     	
+        if (uri == null || uri.length() == 0) {
+            throw new IllegalArgumentException("Null or empty URI");
+        }
+        
     	String absoluteUri = uri;
     	
     	if (uri.startsWith("/db")) {
@@ -254,6 +258,10 @@ public class DatabaseImpl implements Database {
     public Document getDocument(String uri) throws XmldbException {
     	checkRunning();
     	
+        if (uri == null || uri.length() == 0) {
+            throw new IllegalArgumentException("Null or empty URI");
+        }
+        
     	Document doc = null;
     	
     	int p = uri.lastIndexOf('/');
@@ -278,6 +286,11 @@ public class DatabaseImpl implements Database {
     // See JavaDoc of Database interface
     public OutputStream executeQuery(String query) throws XmldbException {
         checkRunning();
+        
+        if (query == null || query.length() == 0) {
+            throw new IllegalArgumentException("Null or empty query");
+        }
+        
     	return queryProcessor.executeQuery(query);
     }
     
@@ -399,9 +412,9 @@ public class DatabaseImpl implements Database {
     //------------------------------------------------------------------------
     
     
-    private void checkRunning() throws XmldbException {
+    private void checkRunning() {
         if (!isRunning) {
-            throw new XmldbException("Database not running");
+            throw new IllegalStateException("Database not running");
         }
     }
     

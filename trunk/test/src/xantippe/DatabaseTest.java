@@ -86,6 +86,92 @@ public class DatabaseTest {
     //------------------------------------------------------------------------
     //  Tests
     //------------------------------------------------------------------------
+    
+    
+    @Test
+    public void states() {
+        logger.debug("Test suite 'states' started");
+        
+        // Check database is not running.
+        Assert.assertFalse(database.isRunning());
+        
+        // Shutdown database that is not running.
+        try {
+            database.shutdown();
+        } catch (IllegalStateException e) {
+            Assert.assertEquals("Database not running", e.getMessage());
+        } catch (Exception e) {
+            Assert.fail("Incorrect exception: " + e);
+        }
+        
+        // Invalid database location.
+        try {
+            database.setDatabaseLocation(null);
+        } catch (IllegalArgumentException e) {
+            Assert.assertEquals("Null or empty database location", e.getMessage());
+        }
+        try {
+            database.setDatabaseLocation("");
+        } catch (IllegalArgumentException e) {
+            Assert.assertEquals("Null or empty database location", e.getMessage());
+        }
+        
+        // Get root collections while database is not running.
+        try {
+            database.getRootCollection();
+        } catch (IllegalStateException e) {
+            Assert.assertEquals("Database not running", e.getMessage());
+        } catch (Exception e) {
+            Assert.fail("Incorrect exception: " + e);
+        }
+        
+        // Execute query while database is not running.
+        try {
+            database.executeQuery(null);
+        } catch (IllegalStateException e) {
+            Assert.assertEquals("Database not running", e.getMessage());
+        } catch (Exception e) {
+            Assert.fail("Incorrect exception: " + e);
+        }
+        
+        // Start database (successfully).
+        try {
+            database.start();
+        } catch (Exception e) {
+            Assert.fail(e.getMessage());
+        }
+        
+        // Check database is running.
+        Assert.assertTrue(database.isRunning());
+        
+        // Start database that is already running.
+        try {
+            database.start();
+        } catch (IllegalStateException e) {
+            Assert.assertEquals("Database already running", e.getMessage());
+        } catch (Exception e) {
+            Assert.fail("Incorrect exception: " + e);
+        }
+        
+        // Set database location while database is running.
+        try {
+            database.setDatabaseLocation(DATA_DIR);
+        } catch (IllegalStateException e) {
+            Assert.assertEquals("Database is running", e.getMessage());
+        }
+        
+        // Shutdown database (successful).
+        try {
+            database.shutdown();
+        } catch (Exception e) {
+            Assert.fail(e.getMessage());
+        }
+        
+        // Check database is shut down.
+        Assert.assertFalse(database.isRunning());
+        
+        logger.debug("Test suite 'states' finished");
+    }
 
 
     /**
