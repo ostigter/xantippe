@@ -433,18 +433,18 @@ public class Collection implements Comparable<Collection> {
         }
         
         Document doc = getDocument(name);
-        if (doc == null) {
-            int docId = database.getNextId();
-            long timestamp = System.currentTimeMillis();
-            doc = new Document(
-                    database, docId, name, mediaType, timestamp, timestamp, id);
-            documents.add(docId);
-            updateModified();
-            logger.debug(String.format("Created document '%s'", doc));
-        } else {
+        if (doc != null) {
             String msg = String.format("Document already exists: '%s'", doc);
             throw new XmldbException(msg);
         }
+        
+        int docId = database.getNextId();
+        long timestamp = System.currentTimeMillis();
+        doc = new Document(
+                database, docId, name, mediaType, timestamp, timestamp, id);
+        documents.add(docId);
+        updateModified();
+        logger.debug(String.format("Created document '%s'", doc));
         
         return doc;
     }

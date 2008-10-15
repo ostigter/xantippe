@@ -29,6 +29,7 @@ import java.util.zip.InflaterInputStream;
 
 import org.apache.log4j.Logger;
 
+import xantippe.filestore.FileStore;
 import xantippe.filestore.FileStoreException;
 
 
@@ -91,6 +92,19 @@ public class Document implements Comparable<Document> {
         this.created = created;
         this.modified = modified;
         this.parent = parent;
+        
+        FileStore fileStore = database.getFileStore();
+        if (!fileStore.exists(id)) {
+            try { 
+                fileStore.create(id);
+            } catch (FileStoreException e) {
+                // Administrative error (should never happen).
+                String msg = String.format(
+                        "Error creating document '%s' in FileStore; ID not unique",
+                        this);
+                logger.error(msg, e);
+            }
+        }
         
         database.addDocument(this);
     }
@@ -198,16 +212,18 @@ public class Document implements Comparable<Document> {
     public InputStream getContent() throws XmldbException {
         InputStream is = null;
         
+        FileStore fileStore = database.getFileStore();
+        
         try {
-            is = database.getFileStore().retrieve(id);
+            is = fileStore.retrieve(id);
             if (compressionMode == CompressionMode.DEFLATE) {
                 is = new InflaterInputStream(is);
             }
         } catch (FileStoreException e) {
             String msg = String.format(
-                    "Could not retrieve content of document '%s': %s",
+                    "Could not retrieve document '%s': %s",
                     this, e.getMessage());
-            logger.error(msg);
+            logger.error(msg, e);
             throw new XmldbException(msg, e);
         }
         
@@ -230,7 +246,7 @@ public class Document implements Comparable<Document> {
         try {
             return new InsertStream(this);
         } catch (IOException e) {
-            String msg = "Could not store document: " + this;
+            String msg = String.format("Could not store document: '%s'", this);
             logger.error(msg, e);
             throw new XmldbException(msg, e);
         }
@@ -269,7 +285,7 @@ public class Document implements Comparable<Document> {
         }
         
         if (!file.canRead()) {
-            String msg = "No permission to read file: " + file;
+            String msg = "No read permission on file: " + file;
             logger.error(msg);
             throw new XmldbException(msg);
         }

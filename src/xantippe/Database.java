@@ -45,8 +45,10 @@ public interface Database {
      * 
      * @param  path  the database location
      * 
-     * @throws  IllegalArgumentException  if the path is null or empty
-     * @throws  IllegalStateException     if the database is running
+     * @throws  IllegalArgumentException
+     *              if the path is null or empty
+     * @throws  IllegalStateException
+     *              if the database is running
      */
     void setDatabaseLocation(String path);
 
@@ -140,8 +142,6 @@ public interface Database {
      * @throws  XmldbException
      *              if the query could not be executed
      */
-    // TODO: Add query parameters
-    // TODO: Offer other result formats than plain text OutputStream
     OutputStream executeQuery(String query) throws XmldbException;
     
     

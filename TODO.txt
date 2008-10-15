@@ -11,12 +11,12 @@ High priority
 Medium priority
 ---------------
 
+- locking (thread-safety)
 - manager tool (GUI)
 - Rename documents and collections
 - Copy documents and collections
 - Move documents and collections
 - execute stored (precompiled and cached) XQuery functions with parameters
-- locking (thread-safety)
 - auto-commit interval to improve reliability (crash recovery)
 - database interface accessible from XQuery
 - Backup & Restore (Manager tool)
