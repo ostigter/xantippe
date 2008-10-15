@@ -115,17 +115,18 @@ public class FileStore {
     public String getDataDir() {
         return dataDir.getAbsolutePath();
     }
-    
 
     /**
      * Sets the data directory.
      * 
      * The data directory may only be set if the database is not running.
-     *
-     * @param  path  the data directory
-     *
-     * @throws  IllegalArgumentException  if the path is null or empty
-     * @throws  IllegalStateException     if the FileStore is running
+     * 
+     * @param path  the data directory
+     * 
+     * @throws IllegalArgumentException
+     *             if the path is null or empty
+     * @throws IllegalStateException
+     *             if the FileStore is running
      */
     public void setDataDir(String path) {
         if (path == null || path.length() == 0) {
@@ -143,83 +144,84 @@ public class FileStore {
     /**
      * Starts the FileStore.
      *
+     * @throws  IllegalStateException
+     *              if the database is already running
      * @throws  FileStoreException
-     *             if the FileStore is already running, the data directory
-     *             could not be created, the index file could not be read, or
-     *             the data file could not be opened
+     *             if the data directory could not be created, the index file
+     *             could not be read, or the data file could not be opened
      */
     public void start() throws FileStoreException {
-        if (!isRunning) {
-            logger.debug("Starting");
-            
-            // Create data directory.
-            if (!dataDir.exists()) {
-                if (!dataDir.mkdirs()) {
-                    String msg = "Could not create data directory: " + dataDir;
-                    logger.error(msg);
-                    throw new FileStoreException(msg);
-                }
-            }
-            
-            try {
-                // Read index file.
-                readIndexFile();
-            } catch (IOException e) {
-                String msg = String.format("Error reading file '%s': %s",
-                        INDEX_FILE, e.getMessage());
-                throw new FileStoreException(msg);
-            }
-            
-            try {
-                // Open data file.
-                dataFile = new RandomAccessFile(
-                        new File(dataDir, DATA_FILE), "rw");
-            } catch (IOException e) {
-                String msg = String.format("Error opening data file '%s': %s",
-                        DATA_FILE, e.getMessage());
-                throw new FileStoreException(msg);
-            }
-
-            isRunning = true;
-            
-            logger.debug("Started");
-        } else {
-            throw new FileStoreException("FileStore already running");
+        if (isRunning) {
+            throw new IllegalStateException("Database already running");
         }
+
+        logger.debug("Starting");
+            
+        // Create data directory.
+        if (!dataDir.exists()) {
+            if (!dataDir.mkdirs()) {
+                String msg = "Could not create data directory: " + dataDir;
+                logger.error(msg);
+                throw new FileStoreException(msg);
+            }
+        }
+        
+        try {
+            // Read index file.
+            readIndexFile();
+        } catch (IOException e) {
+            String msg = String.format("Error reading file '%s': %s",
+                    INDEX_FILE, e.getMessage());
+            throw new FileStoreException(msg, e);
+        }
+        
+        try {
+            // Open data file.
+            dataFile = new RandomAccessFile(
+                    new File(dataDir, DATA_FILE), "rw");
+        } catch (IOException e) {
+            String msg = String.format("Error opening data file '%s': %s",
+                    DATA_FILE, e.getMessage());
+            throw new FileStoreException(msg, e);
+        }
+
+        isRunning = true;
+        
+        logger.debug("Started");
     }
     
 
     /**
      * Shuts down the FileStore.
      * 
+     * @throws  IllegalStateException
+     *              if the database is not running
      * @throws  FileStoreException
-     *              if the FileStore is not running, the index file could not
-     *              be written, or data file could not be closed,  
+     *              if the index file could not be written, or data file could
+     *              not be closed  
      */
     public void shutdown() throws FileStoreException {
-        if (isRunning) {
-            logger.debug("Shutting down");
+        checkIsRunning();
+        
+        logger.debug("Shutting down");
+        
+        sync();
+        
+        try {
+            dataFile.close();
             
-            sync();
+        } catch (IOException e) {
+            String msg = "Error closing data file: " + e.getMessage();
+            logger.error(msg, e);
+            throw new FileStoreException(msg, e);
             
-            try {
-                dataFile.close();
-                
-            } catch (IOException e) {
-                String msg = "Error closing data file: " + e.getMessage();
-                logger.error(msg, e);
-                throw new FileStoreException(msg, e);
-                
-            } finally {
-                isRunning = false;
-            }
-            
-            entries.clear();
-            
-            logger.debug("Shut down");
-        } else {
-            throw new FileStoreException("FileStore not started");
+        } finally {
+            isRunning = false;
         }
+        
+        entries.clear();
+        
+        logger.debug("Shut down");
     }
     
     
@@ -237,9 +239,62 @@ public class FileStore {
      * Returns the number of stored documents.
      * 
      * @return  the number of stored documents
+     * 
+     * @throws  IllegalStateException
+     *              if the database is not running
      */
     public int size() {
         return entries.size();
+    }
+    
+    
+    /**
+     * Indicates whether a stored document with the specified ID exists.
+     *  
+     * @param   id  the document ID
+     * 
+     * @return  true  if a stored document with the specified ID exists,
+     *                otherwise false
+     * 
+     * @throws  IllegalStateException
+     *              if the database is not running
+     */
+    public boolean exists(int id) {
+        checkIsRunning();
+        return entries.containsKey(id);
+    }
+    
+    
+    /**
+     * Creates a new document.
+     * 
+     * If a document with the specified ID already exists, 
+     * 
+     * @param   id  the document ID
+     * 
+     * @return  the new document
+     * 
+     * @throws  IllegalStateException
+     *              if the database is not running
+     * @throws  FileStoreException
+     *              if a document with the specified ID already exists
+     */
+    public FileEntry create(int id) throws FileStoreException {
+        checkIsRunning();
+        
+        if (exists(id)) {
+            throw new FileStoreException(
+                    String.format("Document with ID %d already exists", id));
+        }
+            
+        FileEntry entry = new FileEntry(id);
+        entry.setOffset(0);
+        entry.setLength(0);
+        entries.put(id, entry);
+        
+        logger.debug("Created document with ID " + id);
+        
+        return entry;
     }
     
 
@@ -249,43 +304,44 @@ public class FileStore {
      * @param   id    the document ID
      * @param   file  the file with the document's content
      * 
+     * @throws  IllegalStateException
+     *              if the database is not running
      * @throws  FileStoreException
-     *              if the FileStore is not running, the file could not be
-     *              read, or the document content could not be written
+     *              if the file could not be read, or the document content
+     *              could not be written
      */
     public void store(int id, File file) throws FileStoreException {
-        if (isRunning) {
-            logger.debug("Storing document with ID " + id);
+        checkIsRunning();
+        
+        int length = (int) file.length();
+        
+        // Delete (overwrite) any previous document with the same ID.
+        entries.remove(id);
+        
+        int offset = findFreePosition(length);
             
-            int length = (int) file.length();
-            
-            entries.remove(id);
-            
-            int offset = findFreePosition(length);
-                
-            FileEntry entry = new FileEntry(id);
-            entry.setOffset(offset);
-            entry.setLength(length);
-            entries.put(id, entry);
-            
-            try {
-                dataFile.seek(offset);
-                InputStream is = new FileInputStream(file);
-                int bytesRead;
-                while ((bytesRead = is.read(buffer)) > 0) {
-                    dataFile.write(buffer, 0, bytesRead);
-                }
-                is.close();
-            } catch (IOException e) {
-                entries.remove(id);
-                String msg = String.format(
-                        "Could not store document with ID %d: %s",
-                        id, e.getMessage());
-                logger.error(msg, e);
-                throw new FileStoreException(msg, e);
+        FileEntry entry = create(id);
+
+        logger.debug("Storing document with ID " + id);
+        
+        entry.setOffset(offset);
+        entry.setLength(length);
+        
+        try {
+            dataFile.seek(offset);
+            InputStream is = new FileInputStream(file);
+            int bytesRead;
+            while ((bytesRead = is.read(buffer)) > 0) {
+                dataFile.write(buffer, 0, bytesRead);
             }
-        } else {
-            throw new FileStoreException("FileStore not running");
+            is.close();
+        } catch (IOException e) {
+            entries.remove(id);
+            String msg = String.format(
+                    "Could not store document with ID %d: %s",
+                    id, e.getMessage());
+            logger.error(msg, e);
+            throw new FileStoreException(msg, e);
         }
     }
     
@@ -297,35 +353,35 @@ public class FileStore {
      * 
      * @return  the document content
      * 
+     * @throws  IllegalStateException
+     *              if the database is not running
      * @throws  FileStoreException
-     *              if the FileStore is not running, the document could not be
-     *              found, or the content could not be read
+     *              if the document could not be found, or the content could
+     *              not be read
      */
     public InputStream retrieve(int id) throws FileStoreException {
+        checkIsRunning();
+        
+        logger.debug("Retrieving document with ID " + id);
+        
         InputStream is = null;
         
-        if (isRunning) {
-            logger.debug("Retrieving entry with ID " + id);
-            
-            FileEntry entry = entries.get(id);
-            if (entry != null) {
-                try {
-                    is = new RetrieveStream(
-                            dataFile, entry.getOffset(), entry.getLength());
-                } catch (IOException e) {
-                    String msg = String.format(
-                            "Error retrieving entry with ID %d: %s",
-                            id, e.getMessage());
-                    logger.error(msg, e);
-                    throw new FileStoreException(msg, e);
-                }
-            } else {
-                String msg = "Entry with ID " + id + " not found";
-                logger.error(msg);
-                throw new FileStoreException(msg);
+        FileEntry entry = entries.get(id);
+        if (entry != null) {
+            try {
+                is = new RetrieveStream(
+                        dataFile, entry.getOffset(), entry.getLength());
+            } catch (IOException e) {
+                String msg = String.format(
+                        "Error retrieving document with ID %d: %s",
+                        id, e.getMessage());
+                logger.error(msg, e);
+                throw new FileStoreException(msg, e);
             }
         } else {
-            throw new FileStoreException("FileStore not running");
+            String msg = "Document with ID " + id + " not found";
+            logger.error(msg);
+            throw new FileStoreException(msg);
         }
         
         return is;
@@ -334,18 +390,27 @@ public class FileStore {
     
     /**
      * Returns the length of a document.
+     * 
+     * When the specified document does not exist, 0 is returned.
      *  
      * @param  id  the document ID
      * 
      * @return  the document length in bytes
+     * 
+     * @throws  IllegalStateException
+     *              if the database is not running
      */
     public int getLength(int id) {
+        checkIsRunning();
+        
+        int length = 0;
+        
         FileEntry entry = entries.get(id);
         if (entry != null) {
-            return entry.getLength();
-        } else {
-            return -1;
+            length = entry.getLength();
         }
+        
+        return length;
     }
     
     
@@ -354,42 +419,16 @@ public class FileStore {
      * 
      * @param   id  the document ID
      * 
-     * @throws  FileStoreException  if the FileStore is not running
+     * @throws  IllegalStateException
+     *              if the database is not running
      */
     public void delete(int id) throws FileStoreException {
-        if (isRunning) {
-            FileEntry entry = entries.get(id);
-            if (entry != null) {
-                entries.remove(id);
-                logger.debug("Deleted entry with ID " + id);
-            }
-        } else {
-            throw new FileStoreException("FileStore not running");
-        }
-    }
-    
-
-    /**
-     * Deletes ALL files.
-     * 
-     * @throws  FileStoreException  if the data file could not be cleared
-     */
-    public void deleteAll() throws FileStoreException {
-        if (isRunning) {
-            entries.clear();
-            
-            sync();
-            
-            try {
-                dataFile.setLength(0L);
-                logger.debug("Deleted all entries");
-            } catch (IOException e) {
-                String msg = "Error clearing data file: " + e.getMessage();
-                logger.error(msg, e);
-                throw new FileStoreException(msg, e);
-            }
-        } else {
-            throw new FileStoreException("FileStore not running");
+        checkIsRunning();
+        
+        FileEntry entry = entries.get(id);
+        if (entry != null) {
+            entries.remove(id);
+            logger.debug("Deleted document with ID " + id);
         }
     }
     
@@ -398,8 +437,8 @@ public class FileStore {
      * Writes any volatile meta-data to disk.
      */
     public void sync() throws FileStoreException {
+        logger.debug("Sync");
         if (isRunning) {
-            logger.debug("Sync");
             try {
                 writeIndexFile();
             } catch (IOException e) {
@@ -407,35 +446,48 @@ public class FileStore {
                 logger.error(msg, e);
                 throw new FileStoreException(msg, e);
             }
-        } else {
-            throw new FileStoreException("FileStore not running");
         }
     }
   
 
     /**
      * Logs a message showing the disk size usage.
+     * 
+     * @throws  IllegalStateException
+     *              if the database is not running
      */
     public void printSizeInfo() {
-        if (isRunning) {
-            long stored = getStoredSpace();
-            long used = getUsedSpace();
-            long wasted = stored - used;
-            double wastedPerc = 0.0;
-            if (stored > 0) {
-                wastedPerc = ((double) wasted / (double) stored) * 100;
-            }
-            logger.debug(String.format(Locale.US,
-                    "Disk usage:  Size: %s, Used: %s, Wasted: %s (%.1f %%)",
-                    diskSizeToString(stored), diskSizeToString(used),
-                    diskSizeToString(wasted), wastedPerc));
+        checkIsRunning();
+        
+        long stored = getStoredSpace();
+        long used = getUsedSpace();
+        long wasted = stored - used;
+        double wastedPerc = 0.0;
+        if (stored > 0) {
+            wastedPerc = ((double) wasted / (double) stored) * 100;
         }
+        logger.debug(String.format(Locale.US,
+                "Disk usage:  Size: %s, Used: %s, Wasted: %s (%.1f %%)",
+                diskSizeToString(stored), diskSizeToString(used),
+                diskSizeToString(wasted), wastedPerc));
     }
     
 
     //------------------------------------------------------------------------
     //  Private methods
     //------------------------------------------------------------------------
+    
+    
+    /**
+     * Checks that the database is running.
+     * 
+     * @throws  IllegalStateException  if the database is not running.
+     */
+    private void checkIsRunning() {
+        if (!isRunning) {
+            throw new IllegalStateException("FileStore not running");
+        }
+    }
     
 
     /**

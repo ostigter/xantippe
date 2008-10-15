@@ -127,10 +127,6 @@ public class FileStoreTest {
             store.delete(2);
             Assert.assertEquals(2, store.size());
             
-            // Delete all files.
-            store.deleteAll();
-            Assert.assertEquals(0, store.size());
-            
             store.shutdown();
             
         } catch (FileStoreException e) {

@@ -245,7 +245,7 @@ public class DatabaseImpl implements Database {
 	    		col = col.getCollection(colName);
 	    		if (col == null) {
 	    			throw new XmldbException(
-	    					"Collection '" + absoluteUri + "' not found");
+	    			        "Collection not found: " + absoluteUri);
 	    		}
     		}
     	}
@@ -273,8 +273,7 @@ public class DatabaseImpl implements Database {
     	    if (col != null) {
     	        doc = col.getDocument(docName);
     	        if (doc == null) {
-    	            throw new XmldbException(
-    	                    "Document not found: '" + uri + "'");
+    	            throw new XmldbException("Document not found: " + uri);
     	        }
     	    }
     	}

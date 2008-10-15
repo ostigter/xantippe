@@ -172,6 +172,90 @@ public class DatabaseTest {
         
         logger.debug("Test suite 'states' finished");
     }
+    
+    
+    @Test
+    public void badWeather() {
+        logger.debug("Test suite 'badWeather' started");
+        
+        try {
+            database.start();
+        } catch (Exception e) {
+            Assert.fail(e.getMessage());
+        }
+
+        // Get collection with null URI.
+        try {
+            database.getCollection(null);
+        } catch (IllegalArgumentException e) {
+            Assert.assertEquals("Null or empty URI", e.getMessage());
+        } catch (Exception e) {
+            Assert.fail("Incorrect exception: " + e);
+        }
+
+        // Get collection with empty URI.
+        try {
+            database.getCollection("");
+        } catch (IllegalArgumentException e) {
+            Assert.assertEquals("Null or empty URI", e.getMessage());
+        } catch (Exception e) {
+            Assert.fail("Incorrect exception: " + e);
+        }
+
+        // Get collection with invalid URI.
+        try {
+            database.getCollection("foobar");
+        } catch (XmldbException e) {
+            Assert.assertEquals("Invalid URI: foobar", e.getMessage());
+        }
+
+        // Get non-existing collection.
+        try {
+            database.getCollection("/db/foo");
+        } catch (XmldbException e) {
+            Assert.assertEquals("Collection not found: /db/foo", e.getMessage());
+        }
+
+        // Get document with null URI.
+        try {
+            database.getDocument(null);
+        } catch (IllegalArgumentException e) {
+            Assert.assertEquals("Null or empty URI", e.getMessage());
+        } catch (Exception e) {
+            Assert.fail("Incorrect exception: " + e);
+        }
+
+        // Get document with empty URI.
+        try {
+            database.getDocument("");
+        } catch (IllegalArgumentException e) {
+            Assert.assertEquals("Null or empty URI", e.getMessage());
+        } catch (Exception e) {
+            Assert.fail("Incorrect exception: " + e);
+        }
+
+        // Get document with invalid URI.
+        try {
+            database.getDocument("foobar");
+        } catch (XmldbException e) {
+            Assert.assertEquals("Invalid URI: foobar", e.getMessage());
+        }
+
+        // Get non-existing document.
+        try {
+            database.getDocument("/db/foo.xml");
+        } catch (XmldbException e) {
+            Assert.assertEquals("Document not found: /db/foo.xml", e.getMessage());
+        }
+
+        try {
+            database.shutdown();
+        } catch (Exception e) {
+            Assert.fail(e.getMessage());
+        }
+
+        logger.debug("Test suite 'badWeather' finished");
+    }
 
 
     /**
@@ -261,6 +345,10 @@ public class DatabaseTest {
             file = new File("test/dat/db/data/foo/Foo-0001.xml");
             doc = fooCol.createDocument(file.getName());
             Assert.assertEquals("Foo-0001.xml", doc.getName());
+            Assert.assertEquals(0, doc.getLength());
+            Assert.assertEquals(0, doc.getStoredLength());
+            Assert.assertNotNull(doc.getContent());  
+            
             doc.setContent(file);
             assertEquals(doc.getContent(), file);
             Assert.assertEquals(file.length(), doc.getLength());
@@ -311,6 +399,15 @@ public class DatabaseTest {
             docs = fooCol.findDocuments(keys, false);
             Assert.assertEquals(2, docs.size());
 
+            keys = new Key[] {
+                    new Key("DocumentId", 2),
+                    new Key("DocumentType", "Foo")
+            };
+            docs = rootCol.findDocuments(keys, true);
+            Assert.assertEquals(1, docs.size());
+            doc = (Document) docs.toArray()[0];
+            Assert.assertEquals("/db/data/foo/Foo-0002.xml", doc.getUri());
+            
             keys = new Key[] {
                     new Key("DocumentVersion", "v1.0")
             };

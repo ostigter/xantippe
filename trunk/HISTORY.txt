@@ -6,7 +6,7 @@ HISTORY
 Date	     Version  Comment
 ------------------------------------------------------------------------------
 
-01-Oct-2008  0.1a     The first public release
+01-Oct-2008  0.1a     First public release
 
 24-Jun-2008  -        Google Code project created
 
