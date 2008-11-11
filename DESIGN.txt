@@ -5,9 +5,17 @@ Design
 Java interface
 --------------
 
-interface Database {
+public class DatabaseManager {
+    void createDatabase(String path) throws XmldbException
+    boolean databaseExists(String path)
+    void startDatabase(String name, String path)  throws XmldbException
+    void shutdownDatabase(String name) throws XmldbException
+    boolean databaseIsRunning(String name)
+    Connection getConnection(String databaseName) throws XmldbException
+}
+
+public class Database {
     String getDatabaseLocation()
-    void setDatabaseLocation(String path)
     void start() throws XmldbException
     void shutdown() throws XmldbException
     boolean isRunning()
@@ -15,6 +23,26 @@ interface Database {
     Collection getCollection(String uri) throws XmldbException
     Document getDocument(String uri) throws XmldbException
     OutputStream executeQuery(String query) throws XmldbException
+}
+
+public class Connection {
+    String getDatabaseName()
+    boolean isOpen()
+    boolean isActive()
+    Collection getRootCollection() throws XmldbException
+    Collection getCollection(String uri) throws XmldbException
+    Document getDocument(String uri) throws XmldbException
+    OutputStream executeQuery(String query) throws XmldbException
+    void close()
+}
+
+class LockManager {
+    void lockDatabase(Connection conn) throws XmldbException
+    void lockCollection(Connection conn, boolean exclusive, boolean recursive) throws XmldbException
+    void lockDocument(Connection conn, boolean exclusive) throws XmldbException
+    void unlockDatabase(Database database, Connection conn)
+    void unlockCollection(Collection col, Connection conn)
+    void unlockDocument(Document doc, Connection conn)
 }
 
 public class Collection {
