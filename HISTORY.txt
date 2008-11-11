@@ -6,6 +6,9 @@ HISTORY
 Date	     Version  Comment
 ------------------------------------------------------------------------------
 
+11-Nov-2008  0.2a     - Added locking
+                      - Upgraded to Saxon-B 9.1
+
 01-Oct-2008  0.1a     First public release
 
 24-Jun-2008  -        Google Code project created
