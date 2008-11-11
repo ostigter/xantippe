@@ -284,7 +284,7 @@ public class FileStore {
         
         if (exists(id)) {
             throw new FileStoreException(
-                    String.format("Document with ID %d already exists", id));
+                    String.format("Could not create document; ID %d not unique", id));
         }
             
         FileEntry entry = new FileEntry(id);

@@ -210,10 +210,11 @@ public class Document implements Comparable<Document> {
      * @throws  XmldbException  if the contents could not be retrieved
      */
     public InputStream getContent() throws XmldbException {
-        InputStream is = null;
-        
         FileStore fileStore = database.getFileStore();
         
+        database.getLockManager().lock(id);
+        
+        InputStream is = null;
         try {
             is = fileStore.retrieve(id);
             if (compressionMode == CompressionMode.DEFLATE) {
@@ -225,6 +226,8 @@ public class Document implements Comparable<Document> {
                     this, e.getMessage());
             logger.error(msg, e);
             throw new XmldbException(msg, e);
+        } finally {
+            database.getLockManager().unlock(id);
         }
         
         return is;
@@ -343,7 +346,7 @@ public class Document implements Comparable<Document> {
                 }
                 InputStream is = new FileInputStream(file);
                 int length;
-                while ((length = is.read(buffer, 0, buffer.length)) > 0) {
+                while ((length = is.read(buffer)) > 0) {
                     os.write(buffer, 0, length);
                 }
                 os.close();
@@ -353,6 +356,8 @@ public class Document implements Comparable<Document> {
                 storedFile = file;
             }
         	
+            database.getLockManager().lock(id);
+            
             database.getFileStore().store(id, storedFile);
             
             if (mediaType == MediaType.XML) {
@@ -378,6 +383,8 @@ public class Document implements Comparable<Document> {
             throw new XmldbException(msg, e);
             
         } finally {
+            database.getLockManager().unlock(id);
+            
             if (compressionMode != CompressionMode.NONE
                     && storedFile != null) {
                 // Always clean up temporary (compressed) file.

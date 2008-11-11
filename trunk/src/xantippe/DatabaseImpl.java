@@ -59,18 +59,6 @@ public class DatabaseImpl implements Database {
     /** log4j logger. */
     private static final Logger logger = Logger.getLogger(DatabaseImpl.class);
     
-    /** File store with the documents. */
-    private final FileStore fileStore;
-    
-    /** Document validator. */
-    private final DocumentValidator validator;
-    
-    /** XML document indexer. */
-    private final Indexer indexer;
-    
-    /** XQuery processor. */
-    private final QueryProcessor queryProcessor;
-
     /** Collections mapped by ID. */
     private final Map<Integer, Collection> collections;
     
@@ -83,10 +71,25 @@ public class DatabaseImpl implements Database {
     /** Root collection. */
     private Collection rootCollection;
     
+    /** File store with the documents. */
+    private final FileStore fileStore;
+    
+    /** Dataase lock manager. */
+    private final LockManager lockManager;
+    
+    /** Document validator. */
+    private final DocumentValidator validator;
+    
+    /** XML document indexer. */
+    private final Indexer indexer;
+    
+    /** XQuery processor. */
+    private final QueryProcessor queryProcessor;
+
     /** Next document ID. */
     private int nextId;
     
-    /** Whether the database is running. */
+    /** Indicates whether the database is running. */
     private boolean isRunning = false;
     
     
@@ -101,11 +104,11 @@ public class DatabaseImpl implements Database {
     public DatabaseImpl() {
         Util.initLog4j();
         
-        fileStore = new FileStore();
-        
         collections = new HashMap<Integer, Collection>();
         documents = new HashMap<Integer, Document>();
         
+        fileStore = new FileStore();
+        lockManager = new LockManager();
         validator = new DocumentValidator(this);
         indexer = new Indexer();
         queryProcessor = new QueryProcessor(this);
@@ -326,7 +329,7 @@ public class DatabaseImpl implements Database {
     
     
     /* package */ Document getDocument(int id) {
-    	Document doc =documents.get(id);
+    	Document doc = documents.get(id);
     	if (doc == null) {
     		String msg = "Document with ID " + id + " not found";
     		logger.error(msg);
@@ -365,6 +368,11 @@ public class DatabaseImpl implements Database {
     
     /* package */ FileStore getFileStore() {
         return fileStore;
+    }
+    
+    
+    /* package */ LockManager getLockManager() {
+        return lockManager;
     }
     
     

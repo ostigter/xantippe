@@ -18,6 +18,7 @@
 package xantippe;
 
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -50,6 +51,10 @@ public class DatabaseTest {
     private static final String XML_HEADER =
 		"<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
 
+    private static final int NO_OF_THREADS = 10;
+    
+    private static final int NO_OF_THREAD_ITERATIONS = 100;
+    
     private static final int BUFFER_SIZE = 8192;  // 8 kB
 
     private static final Logger logger = Logger.getLogger(DatabaseTest.class);
@@ -724,6 +729,46 @@ public class DatabaseTest {
     }
     
     
+    /**
+     * Tests the database's multithreading behavior.
+     */
+    @Test
+    public void multiThreading() {
+        logger.debug("Test suite 'multiThreading' started");
+        
+        try {
+            database.start();
+
+            // Fill database.
+            Collection col = database.getRootCollection();
+            col.setValidationMode(ValidationMode.OFF);
+            col.setCompressionMode(CompressionMode.NONE);
+            
+            col.createDocument("doc.xml");
+            
+            ClientThread[] clients = new ClientThread[NO_OF_THREADS];
+            for (int i = 0; i < NO_OF_THREADS; i++) {
+                clients[i] = new ClientThread(i, col);
+            }
+            for (ClientThread client : clients) {
+                client.start();
+            }
+            for (ClientThread client : clients) {
+                client.join();
+                Assert.assertFalse("Error encountered in thread", client.hasErrors());
+            }
+            
+            database.shutdown();
+            
+        } catch (Exception e) {
+            Assert.fail(e.getMessage());
+        }
+        
+        logger.debug("Test suite 'multiThreading' finished");
+        
+    }
+    
+    
     //------------------------------------------------------------------------
     //  Private methods
     //------------------------------------------------------------------------
@@ -749,4 +794,89 @@ public class DatabaseTest {
     }
     
     
-}
+    //------------------------------------------------------------------------
+    //  Private classes
+    //------------------------------------------------------------------------
+
+
+    /**
+     * Thread simulating a database client connection.
+     * 
+     * The database is assumed to be running at all times.
+     */
+    private static class ClientThread extends Thread {
+        
+        
+        private static final String DOC_NAME = "doc.xml";
+
+        private final int id;
+        
+        private final Collection col;
+        
+        private final byte[] buffer = new byte[BUFFER_SIZE];
+        
+        private boolean hasErrors = false;
+        
+        
+        public ClientThread(int id, Collection col) {
+            this.id = id;
+            this.col = col;
+        }
+        
+        
+        @Override // Thread
+        public void run() {
+            try {
+                for (int i = 0; i < NO_OF_THREAD_ITERATIONS; i++) {
+                    // Retrieve document.
+                    Document doc = col.getDocument(DOC_NAME);
+                    // Read value from document.
+                    String content = getDocumentContent(doc);
+                    content += "Written by thread " + id + "\n";
+                    setDocumentContent(doc, content);
+                }
+            } catch (Exception e) {
+                String msg = String.format(
+                        "Exception in thread %d: %s", id, e.getMessage());
+                logger.error(msg, e);
+                hasErrors = true;
+            }
+        }
+        
+        
+        public boolean hasErrors() {
+            return hasErrors;
+        }
+        
+        
+        private String getDocumentContent(Document doc)
+                throws XmldbException, IOException {
+            String content = null;
+
+            InputStream is = doc.getContent();
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            int length;
+            while ((length = is.read(buffer)) > 0) {
+                baos.write(buffer, 0, length);
+            }
+            is.close();
+            content = new String(baos.toByteArray());
+            baos.close();
+
+            return content;
+        }
+
+
+        private void setDocumentContent(Document doc, String content) 
+                throws XmldbException, IOException {
+            OutputStream os = doc.setContent();
+            byte[] buffer = content.getBytes();
+            os.write(buffer);
+            os.close();
+        }
+
+
+    } // ClientThread class
+    
+    
+} // DatabaseTest class

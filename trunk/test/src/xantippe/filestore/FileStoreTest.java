@@ -23,6 +23,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
+import org.apache.log4j.Logger;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -41,6 +42,9 @@ public class FileStoreTest {
 
     /** Temporary database directory. */ 
     private static final String DATA_DIR = "test/data";
+
+    /** log4j logger. */
+    private static final Logger logger = Logger.getLogger(FileStoreTest.class);
 
     
     //------------------------------------------------------------------------
@@ -67,7 +71,9 @@ public class FileStoreTest {
     
     
     @Test
-    public void test() {
+    public void fileStore() {
+        logger.debug("Test suite 'fileStore' started");
+        
         File file;
         
         FileStore store = new FileStore();
@@ -134,6 +140,8 @@ public class FileStoreTest {
         } catch (IOException e) {
             Assert.fail(e.getMessage());
         }
+        
+        logger.debug("Test suite 'fileStore' finished");
     }
     
     

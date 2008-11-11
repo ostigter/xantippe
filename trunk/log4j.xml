@@ -20,11 +20,15 @@
         <level value="debug"/>
     </logger>
 
+    <logger name="xantippe.DatabaseTest">
+        <level value="debug"/>
+    </logger>
+
     <logger name="xantippe.filestore">
         <level value="info"/>
     </logger>
 
-    <logger name="xantippe.DatabaseTest">
+    <logger name="xantippe.filestore.FileStoreTest">
         <level value="debug"/>
     </logger>
 

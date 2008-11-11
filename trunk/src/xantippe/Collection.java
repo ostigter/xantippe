@@ -215,16 +215,22 @@ public class Collection implements Comparable<Collection> {
      * @return  the document, or null if it does not exist
      */
     public Document getDocument(String name) {
-        for (int docId : documents) {
-            Document doc = database.getDocument(docId);
-            if (doc != null && doc.getName().equals(name)) {
-                // Found.
-                return doc;
-            }
-        }
+        database.getLockManager().lock(id);
         
-        // Not found.
-        return null;
+        try {
+            for (int docId : documents) {
+                Document doc = database.getDocument(docId);
+                if (doc != null && doc.getName().equals(name)) {
+                    // Found.
+                    return doc;
+                }
+            }
+            // Not found.
+            return null;
+            
+        } finally {
+            database.getLockManager().unlock(id);
+        }
     }
     
     
@@ -438,12 +444,18 @@ public class Collection implements Comparable<Collection> {
             throw new XmldbException(msg);
         }
         
-        int docId = database.getNextId();
-        long timestamp = System.currentTimeMillis();
-        doc = new Document(
-                database, docId, name, mediaType, timestamp, timestamp, id);
-        documents.add(docId);
-        updateModified();
+        database.getLockManager().lock(id);
+        try { 
+            int docId = database.getNextId();
+            long timestamp = System.currentTimeMillis();
+            doc = new Document(
+                    database, docId, name, mediaType, timestamp, timestamp, id);
+            documents.add(docId);
+            updateModified();
+        } finally {
+            database.getLockManager().unlock(id);
+        }
+        
         logger.debug(String.format("Created document '%s'", doc));
         
         return doc;
