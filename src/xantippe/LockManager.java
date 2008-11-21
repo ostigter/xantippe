@@ -18,8 +18,8 @@
 package xantippe;
 
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.HashMap;
+import java.util.Map;
 
 
 /**
@@ -32,41 +32,46 @@ import java.util.Set;
 class LockManager {
     
     
+//    /** log4j logger. */
 //    private static final Logger logger = Logger.getLogger(LockManager.class);
 
-    private final Set<Integer> locks;
-    
-    private final Object lock = new Object();
-    
-    
-    public LockManager() {
-        locks = new HashSet<Integer>();
-    }
-    
-    
-    public boolean isLocked(int id) {
-        return locks.contains(id);
-    }
-    
-    
-    public void lock(int id) {
-//        logger.debug("Aquiring lock for ID " + id);
-        
-        synchronized (lock) {
-            while (locks.contains(id)) {
-                Thread.yield();
-            }
-        
-            locks.add(id);
+	/** Exclusive locks. */
+	private final Map<Integer, String> exclusiveLocks;
 
-//            logger.debug("Locked ID " + id);
-        }
+
+    public LockManager() {
+        exclusiveLocks = new HashMap<Integer, String>();
     }
-    
-    
-    public void unlock(int id) {
-        locks.remove(id);
-//        logger.debug("Unlocked ID " + id);
+
+
+    public boolean isLocked(int id) {
+    	return exclusiveLocks.containsKey(id);
     }
+
+
+    public synchronized void lock(int id) {
+    	String clientId = Thread.currentThread().getName();
+    	if (exclusiveLocks.containsKey(id)) {
+    		String ownerId = exclusiveLocks.get(id);
+    		if (!ownerId.equals(clientId)) {
+    			// Someone else has a lock; wait for unlock.
+    			while (exclusiveLocks.containsKey(id)) {
+    				try {
+    					wait();
+    				} catch (InterruptedException e) {
+    					// Safe to ignore.
+    				}
+    			}
+    		}
+    	}
+		exclusiveLocks.put(id, clientId);
+    }
+
+
+    public synchronized void unlock(int id) {
+        exclusiveLocks.remove(id);
+        notifyAll();
+    }
+
 
 }
