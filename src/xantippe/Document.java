@@ -212,7 +212,7 @@ public class Document implements Comparable<Document> {
     public InputStream getContent() throws XmldbException {
         FileStore fileStore = database.getFileStore();
         
-        database.getLockManager().lock(id);
+        database.getLockManager().lockRead(id);
         
         InputStream is = null;
         try {
@@ -227,7 +227,7 @@ public class Document implements Comparable<Document> {
             logger.error(msg, e);
             throw new XmldbException(msg, e);
         } finally {
-            database.getLockManager().unlock(id);
+            database.getLockManager().unlockRead(id);
         }
         
         return is;
@@ -356,7 +356,7 @@ public class Document implements Comparable<Document> {
                 storedFile = file;
             }
         	
-            database.getLockManager().lock(id);
+            database.getLockManager().lockWrite(id);
             
             database.getFileStore().store(id, storedFile);
             
@@ -383,7 +383,7 @@ public class Document implements Comparable<Document> {
             throw new XmldbException(msg, e);
             
         } finally {
-            database.getLockManager().unlock(id);
+            database.getLockManager().unlockWrite(id);
             
             if (compressionMode != CompressionMode.NONE
                     && storedFile != null) {

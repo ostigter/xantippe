@@ -20,57 +20,153 @@ package xantippe;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock.ReadLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
 
 
 /**
- * Lock manager for synchronizing parallel database operations.
- * 
- * The current implementation is very simple, but extremely fast.
+ * Lock manager for synchronizing parallel database operations, using a
+ * re-entrant read/write locking system.
  * 
  * @author Oscar Stigter
  */
 class LockManager {
     
     
-//    /** log4j logger. */
-//    private static final Logger logger = Logger.getLogger(LockManager.class);
-
-	/** Exclusive locks. */
-	private final Map<Integer, String> exclusiveLocks;
+	/** Locks mapped by object ID. */
+	private final Map<Integer, ReentrantReadWriteLock> locks;
 
 
-    public LockManager() {
-        exclusiveLocks = new HashMap<Integer, String>();
+    //------------------------------------------------------------------------
+    //  Constructor
+    //------------------------------------------------------------------------
+
+    
+	/**
+	 * Zero-argument constructor.
+	 */
+	public LockManager() {
+        locks = new HashMap<Integer, ReentrantReadWriteLock>();
     }
 
 
-    public boolean isLocked(int id) {
-    	return exclusiveLocks.containsKey(id);
+    //------------------------------------------------------------------------
+    //  Public methods
+    //------------------------------------------------------------------------
+
+    
+	/**
+	 * Locks a specific object for reading (a shared lock).
+	 * 
+	 * If another thread has a write lock on this object, the current thread
+	 * will be blocked until that lock is released. 
+	 * 
+	 * @param  objectId  the object ID
+	 */
+	public synchronized void lockRead(int objectId) {
+        ReadLock lock = getLock(objectId).readLock();
+        while (true) {
+            if (lock.tryLock()) {
+                break;
+            } else {
+                try {
+                    wait();
+                } catch (InterruptedException e) {
+                    // Safe to ignore.
+                }
+            }
+        }
     }
 
 
-    public synchronized void lock(int id) {
-    	String clientId = Thread.currentThread().getName();
-    	if (exclusiveLocks.containsKey(id)) {
-    		String ownerId = exclusiveLocks.get(id);
-    		if (!ownerId.equals(clientId)) {
-    			// Someone else has a lock; wait for unlock.
-    			while (exclusiveLocks.containsKey(id)) {
-    				try {
-    					wait();
-    				} catch (InterruptedException e) {
-    					// Safe to ignore.
-    				}
-    			}
-    		}
-    	}
-		exclusiveLocks.put(id, clientId);
+    /**
+     * Locks a specific object for writing (an exclusive lock).
+     * 
+     * If any other thread has a lock on this object, the current thread will
+     * be blocked until all locks are released. 
+     * 
+     * @param  objectId  the object ID
+     */
+    public synchronized void lockWrite(int objectId) {
+        WriteLock lock = getLock(objectId).writeLock();
+        while (true) {
+            if (lock.tryLock()) {
+                break;
+            } else {
+                try {
+                    wait();
+                } catch (InterruptedException e) {
+                    // Safe to ignore.
+                }
+            }
+        }
     }
 
 
-    public synchronized void unlock(int id) {
-        exclusiveLocks.remove(id);
-        notifyAll();
+    /**
+     * Releases a read lock on a specific object.
+     * 
+     * @param  objectId  the object ID
+     * 
+     * @throws  IllegalStateException
+     *              if the current thread does not have any read lock for the
+     *              specified object
+     */
+    public synchronized void unlockRead(int objectId) {
+        ReentrantReadWriteLock lock = locks.get(objectId);
+        if (lock != null) {
+            lock.readLock().unlock();
+            notify();
+        } else {
+            throw new IllegalStateException(
+                    "Object not locked for reading: " + objectId);
+        }
+    }
+
+
+    /**
+     * Releases a write lock on a specific object.
+     * 
+     * @param  objectId  the object ID
+     * 
+     * @throws  IllegalStateException
+     *              if the current thread does not have a write lock for the
+     *              specified object
+     */
+    public synchronized void unlockWrite(int objectId) {
+        ReentrantReadWriteLock lock = locks.get(objectId);
+        if (lock != null) {
+            lock.writeLock().unlock();
+            notify();
+        } else {
+            throw new IllegalStateException(
+                    "Object not locked for writing: " + objectId);
+        }
+    }
+
+
+    //------------------------------------------------------------------------
+    //  Private methods
+    //------------------------------------------------------------------------
+
+    
+    /**
+     * Returns a lock for a specific object ID.
+     * 
+     * If such a lock does not yet exist, it is created.
+     * 
+     * @param   objectId  the object ID
+     * 
+     * @return  the lock 
+     */
+    private ReentrantReadWriteLock getLock(int objectId) {
+        ReentrantReadWriteLock lock = locks.get(objectId);
+        if (lock == null) {
+            lock = new ReentrantReadWriteLock();
+            locks.put(objectId, lock);
+        }
+        return lock;
     }
 
 

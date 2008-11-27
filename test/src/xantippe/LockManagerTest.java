@@ -106,11 +106,13 @@ public class LockManagerTest {
         
         @Override // Thread
         public void run() {
+            int objectId = 123;
             try {
                 for (int i = 0; i < NO_OF_THREAD_ITERATIONS; i++) {
-                    lockManager.lock(1);
-                    Assert.assertTrue("Not locked!", lockManager.isLocked(1));
-                    lockManager.unlock(1);
+                    lockManager.lockRead(objectId);
+                    lockManager.unlockRead(objectId);
+                    lockManager.lockWrite(objectId);
+                    lockManager.unlockWrite(objectId);
                 }
             } catch (Exception e) {
                 String msg = String.format(
