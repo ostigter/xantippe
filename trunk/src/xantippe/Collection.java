@@ -215,7 +215,7 @@ public class Collection implements Comparable<Collection> {
      * @return  the document, or null if it does not exist
      */
     public Document getDocument(String name) {
-        database.getLockManager().lock(id);
+        database.getLockManager().lockRead(id);
         
         try {
             for (int docId : documents) {
@@ -229,7 +229,7 @@ public class Collection implements Comparable<Collection> {
             return null;
             
         } finally {
-            database.getLockManager().unlock(id);
+            database.getLockManager().unlockRead(id);
         }
     }
     
@@ -444,7 +444,7 @@ public class Collection implements Comparable<Collection> {
             throw new XmldbException(msg);
         }
         
-        database.getLockManager().lock(id);
+        database.getLockManager().lockRead(id);
         try { 
             int docId = database.getNextId();
             long timestamp = System.currentTimeMillis();
@@ -453,7 +453,7 @@ public class Collection implements Comparable<Collection> {
             documents.add(docId);
             updateModified();
         } finally {
-            database.getLockManager().unlock(id);
+            database.getLockManager().unlockRead(id);
         }
         
         logger.debug(String.format("Created document '%s'", doc));

@@ -34,7 +34,7 @@ Low priority
 - REST interface
 - Authentication & Authorization (users, roles, permissions)
 - caching (documents, collections, indices)
-- advanced locking
+- recursive locking (database, collections)
 - transactions (journaling)
 - multiple databases (DatabaseManager)
 - encryption
