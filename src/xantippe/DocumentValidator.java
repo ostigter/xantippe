@@ -146,14 +146,14 @@ import org.xml.sax.helpers.DefaultHandler;
             namespace = getDocumentNamespace(file);
         } catch (IOException e) {
             String msg = String.format(
-                    "Error reading file: '%s': ", file, e.getMessage());
+                    "Error reading file: '%s': %s", file, e.getMessage());
             logger.error(msg, e);
-            throw new XmldbException(msg);
+            throw new XmldbException(msg, e);
         } catch (SAXException e) {
             String msg = String.format(
-                    "Invalid document: '%s': ", uri, e.getMessage());
+                    "Invalid document: '%s': %s", uri, e.getMessage());
             logger.warn(msg);
-            throw new XmldbException(msg);
+            throw new XmldbException(msg, e);
         }
             
         if (namespace != null && namespace.length() != 0) {
@@ -168,7 +168,7 @@ import org.xml.sax.helpers.DefaultHandler;
                     String msg = String.format(
                         "Invalid document: '%s': %s", uri, e.getMessage());
                     logger.warn(msg);
-                    throw new XmldbException(msg);
+                    throw new XmldbException(msg, e);
                 }
             } else {
                 if (required) {
@@ -226,9 +226,9 @@ import org.xml.sax.helpers.DefaultHandler;
                 dis.close();
             } catch (IOException e) {
                 String msg = String.format(
-                        "Error reading database file '%s': ",
+                        "Error reading database file '%s': %s",
                         SCHEMAS_FILE, e.getMessage());
-                logger.error(msg);
+                logger.error(msg, e);
             }
         }
     }
@@ -249,9 +249,9 @@ import org.xml.sax.helpers.DefaultHandler;
             dos.close();
         } catch (IOException e) {
             String msg = String.format(
-                    "Error writing database file '%s': ",
+                    "Error writing database file '%s': %s",
                     SCHEMAS_FILE, e.getMessage());
-            logger.error(msg);
+            logger.error(msg, e);
         }
     }
     
@@ -453,7 +453,7 @@ import org.xml.sax.helpers.DefaultHandler;
      * This trick boost performance when parsing large documents, especially
      * when the interesting data is located at the start of the document.
      */
-    private class ParsingDoneException extends SAXException {
+    private static class ParsingDoneException extends SAXException {
         
 
         /** Serial version UID. */
@@ -529,7 +529,7 @@ import org.xml.sax.helpers.DefaultHandler;
      * Resource input to retrieve schema's by their namespace from the
      * database as byte stream.  
      */
-    private class XmldbResourceInput implements LSInput {
+    private static class XmldbResourceInput implements LSInput {
         
         
         private InputStream is;

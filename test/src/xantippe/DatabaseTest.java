@@ -44,10 +44,6 @@ public class DatabaseTest {
 
     private static final String DATA_DIR = "test/dat/data.tmp";
     
-//    private static final String LARGE_DATASET_DIR =
-//            "D:/Temp/XML_docs/1000"; 
-//            "C:/LocalData/Temp/XML_docs/1000"; 
-    
     private static final String XML_HEADER =
 		"<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
 
@@ -523,81 +519,6 @@ public class DatabaseTest {
     }
 
     
-//    /**
-//     * Tests the performance with a large number of documents.
-//     * 
-//     * This test depends on an external directory with a large dataset.
-//     */
-//    @Test
-//    public void manyDocuments() {
-//        logger.debug("Test suite 'manyDocuments' started");
-//
-//        try {
-//            database.start();
-//
-//            Collection rootCol = database.getRootCollection();
-//            Collection dataCol = rootCol.createCollection("data");
-//            dataCol.setCompressionMode(CompressionMode.DEFLATE);
-////            dataCol.addIndex("DocumentId", "//Header/DocumentId", IndexType.STRING);
-//            dataCol.addIndex("MachineId", "//Header/MachineID", IndexType.STRING);
-//
-//            File dir = new File(LARGE_DATASET_DIR);
-//            if (!dir.isDirectory() || !dir.canRead()) {
-//                String msg = "Invalid dataset directory: " + dir;
-//                logger.error(msg);
-//                Assert.fail(msg);
-//            }
-//
-//            int count = 0;
-//            long size = 0L;
-//
-//            logger.info("Storing documents...");
-//            long startTime = System.currentTimeMillis();
-//            for (File file : dir.listFiles()) {
-//                if (file.isFile()) {
-//                    Document doc =
-//                        dataCol.createDocument(file.getName());
-//                    doc.setContent(file);
-//                    count++;
-//                    size += file.length();
-//                }
-//            }
-//            double duration = (System.currentTimeMillis() - startTime) / 1000.0;
-//            double speed = (size / (1024 * 1024)) / duration;
-//            logger.info(String.format(java.util.Locale.US,
-//                    "Stored %d documents in %.3f seconds (%.2f MB/s)",
-//                    count, duration, speed));
-//            
-////            logger.info("Finding documents using brute-force search...");
-////            String query = "count(collection('/db/data')[element()/Header/MachineID = '1111'])";
-////            startTime = System.currentTimeMillis();
-////            String result = database.executeQuery(query).toString();
-////            duration = (System.currentTimeMillis() - startTime) / 1000.0;
-////            Assert.assertEquals(XML_HEADER + "10", result);
-////            logger.info(String.format(java.util.Locale.US,
-////                    "Searched %d documents in %.3f seconds", count, duration));
-//            
-//            logger.info("Finding documents using indices...");
-//            Key[] keys = new Key[] {
-//                    new Key("MachineId", "1111"),
-//            };
-//            startTime = System.currentTimeMillis();
-//            Set<Document> docs = rootCol.findDocuments(keys, true);
-//            duration = (System.currentTimeMillis() - startTime) / 1000.0;
-//            Assert.assertEquals(10, docs.size());
-//            logger.info(String.format(java.util.Locale.US,
-//                    "Searched %d documents in %.3f seconds", count, duration));
-//            
-//            database.shutdown();
-//
-//        } catch (XmldbException e) {
-//            Assert.fail(e.getMessage());
-//        }
-//
-//        logger.debug("Test suite 'manyDocuments' finished");
-//    }
-
-
     /**
      * Tests the validation of documents against their schema. 
      */

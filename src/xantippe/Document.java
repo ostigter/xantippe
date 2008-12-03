@@ -60,13 +60,13 @@ public class Document implements Comparable<Document> {
     private String name;
     
     /** Media type. */
-    private MediaType mediaType;
+    private final MediaType mediaType;
     
     /** Document length. */
     private int length = 0;
     
     /** Creation timestamp. */
-    private long created;
+    private final long created;
     
     /** Modification timestamp. */
     private long modified;
@@ -75,7 +75,7 @@ public class Document implements Comparable<Document> {
     private int parent;
     
     /** Compression mode. */
-    private CompressionMode compressionMode;
+    private CompressionMode compressionMode = CompressionMode.NONE;
     
     
     //------------------------------------------------------------------------
@@ -419,6 +419,17 @@ public class Document implements Comparable<Document> {
     
     
     /**
+     * Returns the hash code of this object.
+     * 
+     * @return  the hash code
+     */
+    @Override // Object
+    public int hashCode() {
+        return id;
+    }
+    
+    
+    /**
      * Return true if this document is equal to the specified Object, otherwise
      * false.
      * 
@@ -431,23 +442,9 @@ public class Document implements Comparable<Document> {
         if (obj instanceof Document) {
             Document doc = (Document) obj;
             return doc.getId() == id;
-            
         } else {
             return false;
         }
-    }
-    
-    
-    /**
-     * Returns a string representation of this document.
-     * 
-     * A document is represented by its absolute URI.
-     * 
-     * @return  the string representation
-     */
-    @Override
-    public String toString() {
-        return getUri();
     }
     
     
@@ -465,6 +462,19 @@ public class Document implements Comparable<Document> {
     }
     
 
+    /**
+     * Returns a string representation of this document.
+     * 
+     * A document is represented by its absolute URI.
+     * 
+     * @return  the string representation
+     */
+    @Override
+    public String toString() {
+        return getUri();
+    }
+    
+    
     //------------------------------------------------------------------------
     //  Package protected methods
     //------------------------------------------------------------------------

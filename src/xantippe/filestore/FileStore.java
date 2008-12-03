@@ -673,6 +673,12 @@ public class FileStore {
         }
 
 
+        @Override // Object
+        public int hashCode() {
+            return id;
+        }
+        
+        
         @Override
         public boolean equals(Object obj) {
             if (obj instanceof FileEntry) {

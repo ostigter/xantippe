@@ -24,6 +24,14 @@
         <level value="debug"/>
     </logger>
 
+    <logger name="xantippe.LockManagerTest">
+        <level value="debug"/>
+    </logger>
+
+    <logger name="xantippe.PerformanceTest">
+        <level value="debug"/>
+    </logger>
+
     <logger name="xantippe.filestore">
         <level value="info"/>
     </logger>

@@ -61,13 +61,13 @@ public class Collection implements Comparable<Collection> {
     private String name;
     
     /** Creation timestamp. */
-    private long created;
+    private final long created;
     
     /** Modification timestamp. */
     private long modified;
     
     /** Parent collection. */
-    private int parent;
+    private final int parent;
     
     /** Validation mode. */
     private ValidationMode validationMode = ValidationMode.INHERIT;
@@ -575,6 +575,17 @@ public class Collection implements Comparable<Collection> {
     
     
     /**
+     * Returns the hash code of this object.
+     * 
+     * @return  the hash code
+     */
+    @Override // Object
+    public int hashCode() {
+        return id;
+    }
+    
+    
+    /**
      * Returns true if this collection is equal to the specified Object,
      * otherwise false
      * 
@@ -593,19 +604,6 @@ public class Collection implements Comparable<Collection> {
     
     
     /**
-     * Returns a string representation of this collection.
-     * 
-     * A collection is represented by its absolute URI.
-     * 
-     * @return  a string representation of this collection
-     */
-    @Override
-    public String toString() {
-        return getUri();
-    }
-    
-
-    /**
      * Compares this collection with another collection.
      * 
      * Collections are compared based on their name (alphabetically).
@@ -616,6 +614,19 @@ public class Collection implements Comparable<Collection> {
      */
     public int compareTo(Collection col) {
         return name.compareTo(col.getName());
+    }
+    
+
+    /**
+     * Returns a string representation of this collection.
+     * 
+     * A collection is represented by its absolute URI.
+     * 
+     * @return  a string representation of this collection
+     */
+    @Override
+    public String toString() {
+        return getUri();
     }
     
 
