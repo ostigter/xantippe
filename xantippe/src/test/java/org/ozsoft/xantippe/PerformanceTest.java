@@ -15,7 +15,7 @@
 // limitations under the License.
 
 
-package xantippe;
+package org.ozsoft.xantippe;
 
 
 import java.io.PrintWriter;
@@ -26,6 +26,13 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.ozsoft.xantippe.Collection;
+import org.ozsoft.xantippe.CompressionMode;
+import org.ozsoft.xantippe.Database;
+import org.ozsoft.xantippe.DatabaseImpl;
+import org.ozsoft.xantippe.Document;
+import org.ozsoft.xantippe.Util;
+import org.ozsoft.xantippe.ValidationMode;
 
 
 /**

@@ -15,29 +15,29 @@
 // limitations under the License.
 
 
-package xantippe;
+package org.ozsoft.xantippe;
 
 
 /**
- * Exception throws by the database.
+ * Supported media types for resources.
  * 
  * @author Oscar Stigter
  */
-public class XmldbException extends Exception {
+public enum MediaType {
     
+    /** XML document. */
+    XML,
     
-    /** Serial version UID. */
-    private static final long serialVersionUID = -1L;
+    /** XML schema. */
+    SCHEMA,
     
+    /** XQuery module. */
+    XQUERY,
     
-    /* package */ XmldbException(String message) {
-        super(message);
-    }
-
-
-    /* package */ XmldbException(String message, Throwable t) {
-        super(message, t);
-    }
-
+    /** Plain text resource. */
+    PLAIN_TEXT,
+    
+    /** Binary resource. */
+    BINARY,
 
 }

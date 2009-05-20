@@ -15,29 +15,34 @@
 // limitations under the License.
 
 
-package xantippe;
+package org.ozsoft.xantippe;
 
 
 /**
- * Supported media types for resources.
+ * Supported index types.
  * 
  * @author Oscar Stigter
  */
-public enum MediaType {
+public enum IndexType {
     
-    /** XML document. */
-    XML,
     
-    /** XML schema. */
-    SCHEMA,
+    /** String value. */
+    STRING,
     
-    /** XQuery module. */
-    XQUERY,
+    /** Signed integer value (32 bit). */
+    INTEGER,
     
-    /** Plain text resource. */
-    PLAIN_TEXT,
+    /** Signed long value (64 bit). */
+    LONG,
     
-    /** Binary resource. */
-    BINARY,
+    /** Signed float value (32 bit). */
+    FLOAT,
+    
+    /** Signed double value (64 bit). */
+    DOUBLE,
+    
+    /** Timestamp value. */
+    DATE,
+
 
 }

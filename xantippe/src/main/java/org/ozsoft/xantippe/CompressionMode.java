@@ -15,27 +15,27 @@
 // limitations under the License.
 
 
-package xantippe;
+package org.ozsoft.xantippe;
 
 
 /**
- * Supported validation modes.
+ * Supported compression modes.
  * 
  * @author Oscar Stigter
  */
-public enum ValidationMode {
+public enum CompressionMode {
     
     
-    /** No document validation (disabled). */
-    OFF,
-
-    /** Validate each document; matching schema MUST be present. */
-    ON,
+    /** No compression. */
+    NONE,
     
-    /** Validate documents only if they have a namespace and matching schema. */ 
-    AUTO,
+    /** Compress with DEFLATE (zlib) method. */
+    DEFLATE,
     
-    /** Inherit setting from parent collection. */
+//    /** Compress with LZMA (7-Zip) method. */
+//    LZMA,
+    
+    /** Inherit from parent collection. */
     INHERIT,
     
 

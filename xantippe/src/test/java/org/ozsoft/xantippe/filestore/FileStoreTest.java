@@ -14,7 +14,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package xantippe.filestore;
+package org.ozsoft.xantippe.filestore;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -26,8 +26,10 @@ import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.ozsoft.xantippe.Util;
+import org.ozsoft.xantippe.filestore.FileStore;
+import org.ozsoft.xantippe.filestore.FileStoreException;
 
-import xantippe.Util;
 
 /**
  * Test suite for the <code>FileStore</code> class.

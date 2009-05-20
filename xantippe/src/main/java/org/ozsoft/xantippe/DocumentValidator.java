@@ -15,7 +15,7 @@
 // limitations under the License.
 
 
-package xantippe;
+package org.ozsoft.xantippe;
 
 
 import java.io.DataInputStream;

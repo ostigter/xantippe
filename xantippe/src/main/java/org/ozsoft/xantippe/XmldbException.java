@@ -15,28 +15,29 @@
 // limitations under the License.
 
 
-package xantippe;
+package org.ozsoft.xantippe;
 
 
 /**
- * Supported compression modes.
+ * Exception throws by the database.
  * 
  * @author Oscar Stigter
  */
-public enum CompressionMode {
+public class XmldbException extends Exception {
     
     
-    /** No compression. */
-    NONE,
+    /** Serial version UID. */
+    private static final long serialVersionUID = -1L;
     
-    /** Compress with DEFLATE (zlib) method. */
-    DEFLATE,
     
-//    /** Compress with LZMA (7-Zip) method. */
-//    LZMA,
-    
-    /** Inherit from parent collection. */
-    INHERIT,
-    
+    /* package */ XmldbException(String message) {
+        super(message);
+    }
+
+
+    /* package */ XmldbException(String message, Throwable t) {
+        super(message, t);
+    }
+
 
 }

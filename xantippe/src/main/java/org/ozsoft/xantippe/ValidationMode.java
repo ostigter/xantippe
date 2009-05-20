@@ -15,34 +15,28 @@
 // limitations under the License.
 
 
-package xantippe;
+package org.ozsoft.xantippe;
 
 
 /**
- * Supported index types.
+ * Supported validation modes.
  * 
  * @author Oscar Stigter
  */
-public enum IndexType {
+public enum ValidationMode {
     
     
-    /** String value. */
-    STRING,
-    
-    /** Signed integer value (32 bit). */
-    INTEGER,
-    
-    /** Signed long value (64 bit). */
-    LONG,
-    
-    /** Signed float value (32 bit). */
-    FLOAT,
-    
-    /** Signed double value (64 bit). */
-    DOUBLE,
-    
-    /** Timestamp value. */
-    DATE,
+    /** No document validation (disabled). */
+    OFF,
 
+    /** Validate each document; matching schema MUST be present. */
+    ON,
+    
+    /** Validate documents only if they have a namespace and matching schema. */ 
+    AUTO,
+    
+    /** Inherit setting from parent collection. */
+    INHERIT,
+    
 
 }
