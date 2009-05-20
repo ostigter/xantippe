@@ -14,9 +14,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-
 package xantippe.filestore;
-
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -31,17 +29,20 @@ import org.junit.Test;
 
 import xantippe.Util;
 
-
 /**
  * Test suite for the <code>FileStore</code> class.
  * 
  * @author Oscar Stigter
  */
 public class FileStoreTest {
-    
 
+
+    private static final String RESOURCES_DIR = "src/test/resources";
+    
     /** Temporary database directory. */ 
-    private static final String DATA_DIR = "test/data";
+    private static final String DATA_DIR = RESOURCES_DIR + "/data.tmp";
+    
+    private static final String DB_DIR = RESOURCES_DIR + "/db";
 
     /** log4j logger. */
     private static final Logger logger = Logger.getLogger(FileStoreTest.class);
@@ -86,7 +87,7 @@ public class FileStoreTest {
             Assert.assertEquals(0, store.size());
             
             // Add file.
-            file = new File("test/dat/db/data/foo/Foo-0001.xml");
+            file = new File(DB_DIR + "/data/foo/Foo-0001.xml");
             store.store(1, file);
             Assert.assertEquals(1, store.size());
             
@@ -113,7 +114,7 @@ public class FileStoreTest {
             is.close();
             
             // Add file.
-            file = new File("test/dat/db/data/foo/Foo-0002.xml");
+            file = new File(DB_DIR + "/data/foo/Foo-0002.xml");
             store.store(2, file);
             Assert.assertEquals(2, store.size());
             assertEqual(store.retrieve(2), file);
@@ -124,7 +125,7 @@ public class FileStoreTest {
             assertEqual(store.retrieve(2), file);
             
             // Add file.
-            file = new File("test/dat/db/data/bar/Bar-0001.xml");
+            file = new File(DB_DIR + "/data/bar/Bar-0001.xml");
             store.store(3, file);
             Assert.assertEquals(3, store.size());
             assertEqual(store.retrieve(3), file);
