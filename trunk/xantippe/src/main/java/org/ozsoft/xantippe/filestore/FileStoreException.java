@@ -14,9 +14,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-
 package org.ozsoft.xantippe.filestore;
-
 
 /**
  * Exception thrown by the FileStore class.
@@ -25,19 +23,15 @@ package org.ozsoft.xantippe.filestore;
  */
 public class FileStoreException extends Exception {
     
-
     /** Serial version UID. */
     private static final long serialVersionUID = -1L;
     
-
     /* package */ FileStoreException(String message) {
         super(message);
     }
 
-
     /* package */ FileStoreException(String message, Throwable t) {
         super(message, t);
     }
-
 
 }

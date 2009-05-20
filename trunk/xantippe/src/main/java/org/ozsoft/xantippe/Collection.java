@@ -14,9 +14,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-
 package org.ozsoft.xantippe;
-
 
 import java.io.File;
 import java.util.HashMap;
@@ -27,14 +25,12 @@ import java.util.TreeSet;
 
 import org.apache.log4j.Logger;
 
-
 /**
  * A collection of documents and subcollections.
  * 
  * @author Oscar Stigter
  */
 public class Collection implements Comparable<Collection> {
-    
     
     /** log4j logger. */
     private static final Logger logger = Logger.getLogger(Collection.class);
@@ -75,12 +71,6 @@ public class Collection implements Comparable<Collection> {
     /** Whether documents in this collection should be compressed. */  
     private CompressionMode compressionMode = CompressionMode.INHERIT;
     
-    
-    //------------------------------------------------------------------------
-    //  Constructor
-    //------------------------------------------------------------------------
-
-    
     /* package */ Collection(
             DatabaseImpl database, int id, String name, long created,
             long modified, int parent) {
@@ -99,12 +89,6 @@ public class Collection implements Comparable<Collection> {
         database.addCollection(this);
     }
     
-    
-    //------------------------------------------------------------------------
-    //  Public methods
-    //------------------------------------------------------------------------
-
-    
     /**
      * Returns the name.
      * 
@@ -113,7 +97,6 @@ public class Collection implements Comparable<Collection> {
     public String getName() {
         return name;
     }
-    
     
     /**
      * Returns the timestamp the collection was created.
@@ -124,7 +107,6 @@ public class Collection implements Comparable<Collection> {
         return created;
     }
     
-    
     /**
      * Returns the timestamp the collection was last modified.
      * 
@@ -133,7 +115,6 @@ public class Collection implements Comparable<Collection> {
     public long getModified() {
         return modified;
     }
-    
     
     /**
      * Returns the parent collection.
@@ -149,7 +130,6 @@ public class Collection implements Comparable<Collection> {
         }
     }
     
-    
     /**
      * Returns the child collections.
      * 
@@ -162,7 +142,6 @@ public class Collection implements Comparable<Collection> {
         }
         return cols;
     }
-    
     
     /**
      * Returns the child collection with the specified name, or null if no such
@@ -180,11 +159,9 @@ public class Collection implements Comparable<Collection> {
     		    return col;
     		}
     	}
-    	
     	// Not found.
     	return null;
     }
-    
     
     /**
      * Returns the documents in this collection.
@@ -205,7 +182,6 @@ public class Collection implements Comparable<Collection> {
         return docs;
     }
     
-    
     /**
      * Returns the document with the specified name, or null it such a document
      * does not exist.
@@ -216,7 +192,6 @@ public class Collection implements Comparable<Collection> {
      */
     public Document getDocument(String name) {
         database.getLockManager().lockRead(id);
-        
         try {
             for (int docId : documents) {
                 Document doc = database.getDocument(docId);
@@ -227,12 +202,10 @@ public class Collection implements Comparable<Collection> {
             }
             // Not found.
             return null;
-            
         } finally {
             database.getLockManager().unlockRead(id);
         }
     }
-    
     
     /**
      * Returns the validation mode for this collection.
@@ -251,7 +224,6 @@ public class Collection implements Comparable<Collection> {
         return vm;
     }
     
-    
     /**
      * Sets the validation mode.
      * 
@@ -268,7 +240,6 @@ public class Collection implements Comparable<Collection> {
             updateModified();
         }
     }
-    
     
     /**
      * Returns the compression mode for this collection.
@@ -288,7 +259,6 @@ public class Collection implements Comparable<Collection> {
         return cm;
     }
     
-    
     /**
      * Sets the compression mode.
      * 
@@ -306,7 +276,6 @@ public class Collection implements Comparable<Collection> {
         }
     }
     
-
     /**
      * Returns the index definitions configured for this collection.
      * 
@@ -332,7 +301,6 @@ public class Collection implements Comparable<Collection> {
         return indices2;
     }
     
-    
     /**
      * Returns the index definition with the specified name, or null if not
      * found.
@@ -352,7 +320,6 @@ public class Collection implements Comparable<Collection> {
         }
         return index;
     }
-    
     
     /**
      * Adds an index definition.
@@ -379,7 +346,6 @@ public class Collection implements Comparable<Collection> {
         }
     }
     
-    
     /**
      * Returns the absolute URI.
      * 
@@ -398,7 +364,6 @@ public class Collection implements Comparable<Collection> {
         return sb.toString();
     }
     
-    
     /**
      * Creates a document with the specified name.
      * 
@@ -416,7 +381,6 @@ public class Collection implements Comparable<Collection> {
     public Document createDocument(String name) throws XmldbException {
         return createDocument(name, database.getMediaType(name));
     }
-    
     
     /**
      * Creates a document with the specified name and media type.
@@ -461,7 +425,6 @@ public class Collection implements Comparable<Collection> {
         return doc;
     }
     
-    
     /**
      * Creates a child collection with the specified name.
      * 
@@ -497,7 +460,6 @@ public class Collection implements Comparable<Collection> {
         return col;
     }
     
-    
     /**
      * Deletes the document with the specified name.
      * 
@@ -520,7 +482,6 @@ public class Collection implements Comparable<Collection> {
         }
         return deleted;
     }
-    
     
     /**
      * Deletes the child collection with the specified name.
@@ -551,7 +512,6 @@ public class Collection implements Comparable<Collection> {
         return deleted;
     }
     
-    
     /**
      * Returns the indiced documents in this collection and (optionally) child
      * collections that match the specified keys.
@@ -573,7 +533,6 @@ public class Collection implements Comparable<Collection> {
         return docs;
     }
     
-    
     /**
      * Returns the hash code of this object.
      * 
@@ -583,7 +542,6 @@ public class Collection implements Comparable<Collection> {
     public int hashCode() {
         return id;
     }
-    
     
     /**
      * Returns true if this collection is equal to the specified Object,
@@ -602,7 +560,6 @@ public class Collection implements Comparable<Collection> {
         }
     }
     
-    
     /**
      * Compares this collection with another collection.
      * 
@@ -616,7 +573,6 @@ public class Collection implements Comparable<Collection> {
         return name.compareTo(col.getName());
     }
     
-
     /**
      * Returns a string representation of this collection.
      * 
@@ -629,36 +585,25 @@ public class Collection implements Comparable<Collection> {
         return getUri();
     }
     
-
-    //------------------------------------------------------------------------
-    //  Package protected methods
-    //------------------------------------------------------------------------
-
-    
     /* package */ int getId() {
         return id;
     }
-    
     
     /* package */ void addIndex(Index index) {
         indices.add(index);
     }
 
-
     /* package */ void addDocument(int id) {
         documents.add(id);
     }
-
 
     /* package */ void addCollection(int id) {
         collections.add(id);
     }
 
-
     /* package */ void indexDocument(Document doc, File file) {
         database.getIndexer().index(doc, file, this);
     }
-    
     
     /* package */ void addIndexValue(
             String keyName, Object keyValue, int docId) {
@@ -673,11 +618,9 @@ public class Collection implements Comparable<Collection> {
         }
     }
     
-    
     /* package */ Map<String, IndexValue> getIndexValues() {
         return indexValues;
     }
-    
     
     /* package */ void delete() {
         for (Document doc : getDocuments()) {
@@ -697,16 +640,9 @@ public class Collection implements Comparable<Collection> {
         logger.debug(String.format("Deleted collection '%s'", this));
     }
 
-
-    //------------------------------------------------------------------------
-    //  Private methods
-    //------------------------------------------------------------------------
-    
-    
     // FIXME: Get rid of "unchecked" warning (Eclipse bug?)
     @SuppressWarnings("unchecked")  // new HashSet[]
-    private void findDocuments(
-            Key[] keys, boolean recursive, Set<Document> docs) {
+    private void findDocuments(Key[] keys, boolean recursive, Set<Document> docs) {
         int noOfKeys = keys.length;
         
         // Find documents (ID's) that match any key, sorted per key.
@@ -760,7 +696,6 @@ public class Collection implements Comparable<Collection> {
         }
     }
     
-    
     private void deleteDocument(Document doc) {
         documents.remove(doc.getId());
         if (doc.getMediaType() == MediaType.SCHEMA) {
@@ -771,10 +706,8 @@ public class Collection implements Comparable<Collection> {
         doc.delete();
     }
     
-    
     private void updateModified() {
         modified = System.currentTimeMillis();
     }
 
-    
 }
