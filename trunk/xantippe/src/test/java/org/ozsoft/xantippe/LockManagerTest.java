@@ -15,13 +15,14 @@
 // limitations under the License.
 
 
-package xantippe;
+package org.ozsoft.xantippe;
 
 
 import org.apache.log4j.Logger;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.ozsoft.xantippe.Util;
 
 
 /**

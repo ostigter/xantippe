@@ -15,7 +15,7 @@
 // limitations under the License.
 
 
-package xantippe;
+package org.ozsoft.xantippe;
 
 
 import java.io.DataInputStream;
@@ -31,9 +31,9 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
+import org.ozsoft.xantippe.filestore.FileStore;
+import org.ozsoft.xantippe.filestore.FileStoreException;
 
-import xantippe.filestore.FileStore;
-import xantippe.filestore.FileStoreException;
 
 
 /**

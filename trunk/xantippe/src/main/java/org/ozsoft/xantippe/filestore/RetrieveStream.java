@@ -15,7 +15,7 @@
 // limitations under the License.
 
 
-package xantippe.filestore;
+package org.ozsoft.xantippe.filestore;
 
 
 import java.io.IOException;
