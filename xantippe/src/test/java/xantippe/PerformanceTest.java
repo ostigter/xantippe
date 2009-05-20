@@ -36,7 +36,7 @@ import org.junit.Test;
 public class PerformanceTest {
 
 
-    private static final String DATA_DIR = "test/dat/data.tmp";
+    private static final String DATA_DIR = "src/test/resources/data.tmp";
     
     private static final int DOCUMENT_COUNT = 1000;
     

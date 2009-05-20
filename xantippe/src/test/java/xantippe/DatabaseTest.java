@@ -42,10 +42,13 @@ import org.junit.Test;
 public class DatabaseTest {
 
 
-    private static final String DATA_DIR = "test/dat/data.tmp";
+    private static final String RESOURCES_DIR = "src/test/resources";
     
-    private static final String XML_HEADER =
-		"<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
+    private static final String DATA_DIR = RESOURCES_DIR + "/data.tmp";
+    
+    private static final String DB_DIR = RESOURCES_DIR + "/db";
+    
+    private static final String XML_HEADER = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
 
     private static final int NO_OF_THREADS = 10;
     
@@ -343,7 +346,7 @@ public class DatabaseTest {
 
             // Add documents.
             
-            file = new File("test/dat/db/data/foo/Foo-0001.xml");
+            file = new File(DB_DIR + "/data/foo/Foo-0001.xml");
             doc = fooCol.createDocument(file.getName());
             Assert.assertEquals("Foo-0001.xml", doc.getName());
             Assert.assertEquals(0, doc.getLength());
@@ -355,7 +358,7 @@ public class DatabaseTest {
             Assert.assertEquals(file.length(), doc.getLength());
             Assert.assertEquals(file.length(), doc.getStoredLength());  // no compression
             
-            file = new File("test/dat/db/data/foo/Foo-0002.xml");
+            file = new File(DB_DIR + "/data/foo/Foo-0002.xml");
             doc = fooCol.createDocument(file.getName());
             doc.setContent(file);
             assertEquals(doc.getContent(), file);
@@ -536,30 +539,30 @@ public class DatabaseTest {
             col.setValidationMode(ValidationMode.ON);
             
             // Self-contained schema.
-            file = new File("test/dat/db/schemas/Address_v1.0.xsd");
+            file = new File(DB_DIR + "/schemas/Address_v1.0.xsd");
             doc = col.createDocument(file.getName());
             doc.setContent(file);
-            file = new File("test/dat/db/data/addressbook/Address_0001.xml");
+            file = new File(DB_DIR + "/data/addressbook/Address_0001.xml");
             doc = col.createDocument(file.getName());
             doc.setContent(file);
-            file = new File("test/dat/db/data/addressbook/Address_0002.xml");
+            file = new File(DB_DIR + "/data/addressbook/Address_0002.xml");
             doc = col.createDocument(file.getName());
             doc.setContent(file);
             
             // Multi-file schema (with 'include' statement).
-            file = new File("test/dat/db/schemas/Generic_v1.0.xsd");
+            file = new File(DB_DIR + "/schemas/Generic_v1.0.xsd");
             doc = col.createDocument(file.getName());
             doc.setContent(file);
-            file = new File("test/dat/db/schemas/TestResult_v1.0.xsd");
+            file = new File(DB_DIR + "/schemas/TestResult_v1.0.xsd");
             doc = col.createDocument(file.getName());
             doc.setContent(file);
-            file = new File("test/dat/db/data/testresults/TestResult_0001.xml");
+            file = new File(DB_DIR + "/data/testresults/TestResult_0001.xml");
             doc = col.createDocument(file.getName());
             doc.setContent(file);
-            file = new File("test/dat/db/data/testresults/TestResult_0002.xml");
+            file = new File(DB_DIR + "/data/testresults/TestResult_0002.xml");
             doc = col.createDocument(file.getName());
             doc.setContent(file);
-            file = new File("test/dat/db/data/testresults/TestResult_0003.xml");
+            file = new File(DB_DIR + "/data/testresults/TestResult_0003.xml");
             doc = col.createDocument(file.getName());
             doc.setContent(file);
             
@@ -590,18 +593,18 @@ public class DatabaseTest {
             Collection rootCol = database.getRootCollection();
             Collection dataCol = rootCol.createCollection("data");
             Collection fooCol = dataCol.createCollection("foo");
-            file = new File("test/dat/db/data/foo/Foo-0001.xml");
+            file = new File(DB_DIR + "/data/foo/Foo-0001.xml");
             doc = fooCol.createDocument(file.getName());
             doc.setContent(file);
-            file = new File("test/dat/db/data/foo/Foo-0002.xml");
+            file = new File(DB_DIR + "/data/foo/Foo-0002.xml");
             doc = fooCol.createDocument(file.getName());
             doc.setContent(file);
             Collection barCol = dataCol.createCollection("bar");
-            file = new File("test/dat/db/data/bar/Bar-0001.xml");
+            file = new File(DB_DIR + "/data/bar/Bar-0001.xml");
             doc = barCol.createDocument(file.getName());
             doc.setContent(file);
             Collection modulesCol = rootCol.createCollection("modules");
-            file = new File("test/dat/db/modules/greeting.xqy");
+            file = new File(DB_DIR + "/modules/greeting.xqy");
             doc = modulesCol.createDocument(file.getName());
             doc.setContent(file);
         	
@@ -686,7 +689,6 @@ public class DatabaseTest {
         }
         
         logger.debug("Test suite 'multiThreading' finished");
-        
     }
     
     
