@@ -46,3 +46,19 @@ The first stage of development is complete; all basic functionality (as
 embedded library) has been implemented and pretty well-tested.
 
 However, Xantippe is still in Alpha stage, so please use at your own risk!
+
+
+Building
+--------
+
+Since the project adheres to the default Maven 2 structure, building it from
+the command line is as easy as running "mvn clean install" (assuming you have
+Maven installed). If using Eclipse, the 'Subversive' and 'm2eclipse' plugins
+are highly recommended.
+
+Unfortunately, because Saxon is not kept up to date in any public Maven
+repository, you will have to download the latest version and deploy it to your
+local repository with a command like:
+
+    mvn install:install-file -Dfile=saxon9.jar -DgroupId=net.sf.saxon \
+        -DartifactId=saxon -Dversion=9.1 -Dpackaging=jar

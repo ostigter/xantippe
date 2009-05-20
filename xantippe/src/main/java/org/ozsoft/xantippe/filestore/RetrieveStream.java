@@ -14,14 +14,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-
 package org.ozsoft.xantippe.filestore;
-
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
-
 
 /**
  * InputStream used for reading the content of a stored document.
@@ -29,7 +26,6 @@ import java.io.RandomAccessFile;
  * @author Oscar Stigter
  */
 /* package */ class RetrieveStream extends InputStream {
-    
     
     /** The data file. */
     private final RandomAccessFile dataFile;
@@ -40,12 +36,6 @@ import java.io.RandomAccessFile;
     /** The current position in the stream. */ 
     private int position = 0;
     
-    
-    //------------------------------------------------------------------------
-    //  Constructor
-    //------------------------------------------------------------------------
-    
-
     /* package */ RetrieveStream(
             RandomAccessFile dataFile, int offset, int length)
             throws IOException {
@@ -54,12 +44,6 @@ import java.io.RandomAccessFile;
         dataFile.seek(offset);
     }
 
-
-    //------------------------------------------------------------------------
-    //  Public methods
-    //------------------------------------------------------------------------
-    
-    
     /**
      * Returns the number of bytes that can still be read.
      * 
@@ -72,7 +56,6 @@ import java.io.RandomAccessFile;
         return (length - position);
     }
 
-
     /**
      * Closes the stream.
      * 
@@ -82,7 +65,6 @@ import java.io.RandomAccessFile;
     public void close() throws IOException {
         super.close();
     }
-
 
     /**
      * Marks the current position in the stream.
@@ -96,7 +78,6 @@ import java.io.RandomAccessFile;
         throw new UnsupportedOperationException();
     }
 
-
     /**
      * Returns true if this class supports the mark() method, otherwise false.
      * 
@@ -109,7 +90,6 @@ import java.io.RandomAccessFile;
         // Not implemented.
         return false;
     }
-
 
     /**
      * Returns the next byte as integer in the range [0, 255], or -1 if no more
@@ -133,7 +113,6 @@ import java.io.RandomAccessFile;
         return value;
     }
 
-
     /**
      * Reads as many bytes as necessary to fill the specified buffer.
      * 
@@ -152,7 +131,6 @@ import java.io.RandomAccessFile;
         
         return read(buffer, 0, buffer.length);
     }
-
 
     /**
      * Reads the specified number of bytes and fills the specified buffer.
@@ -202,7 +180,6 @@ import java.io.RandomAccessFile;
         return read;
     }
 
-
     /**
      * Resets the stream to the last mark() call.
      * 
@@ -215,7 +192,6 @@ import java.io.RandomAccessFile;
     public synchronized void reset() throws IOException {
         throw new UnsupportedOperationException();
     }
-
 
     /**
      * Skips the specified number of bytes.
@@ -240,6 +216,5 @@ import java.io.RandomAccessFile;
 
         return length;
     }
-
 
 }

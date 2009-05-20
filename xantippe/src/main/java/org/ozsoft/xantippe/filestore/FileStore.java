@@ -14,9 +14,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-
 package org.ozsoft.xantippe.filestore;
-
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -31,7 +29,6 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import org.apache.log4j.Logger;
-
 
 /**
  * File system based database for storing documents.
@@ -56,7 +53,6 @@ import org.apache.log4j.Logger;
  * @author Oscar Stigter
  */
 public class FileStore {
-    
     
     /** Default database directory. */
     private static final String DEFAULT_DATA_DIR = "data";
@@ -88,25 +84,13 @@ public class FileStore {
     /** Data file with the document contents. */ 
     private RandomAccessFile dataFile;
     
-
-    //------------------------------------------------------------------------
-    //  Constructor
-    //------------------------------------------------------------------------
-    
-
     /**
-     * Zero-argument constructor.
+     * Constructor.
      */
     public FileStore() {
         entries = new TreeMap<Integer, FileEntry>();
     }
     
-    
-    //------------------------------------------------------------------------
-    //  Public methods
-    //------------------------------------------------------------------------
-    
-
     /**
      * Returns the data directory.
      * 
@@ -139,7 +123,6 @@ public class FileStore {
 
         dataDir = new File(path);
     }
-
 
     /**
      * Starts the FileStore.
@@ -190,7 +173,6 @@ public class FileStore {
         logger.debug("Started");
     }
     
-
     /**
      * Shuts down the FileStore.
      * 
@@ -224,7 +206,6 @@ public class FileStore {
         logger.debug("Shut down");
     }
     
-    
     /**
      * Returns whether the FileStore is running.
      * 
@@ -233,7 +214,6 @@ public class FileStore {
     public boolean isRunning() {
         return isRunning;
     }
-    
 
     /**
      * Returns the number of stored documents.
@@ -246,7 +226,6 @@ public class FileStore {
     public int size() {
         return entries.size();
     }
-    
     
     /**
      * Indicates whether a stored document with the specified ID exists.
@@ -263,7 +242,6 @@ public class FileStore {
         checkIsRunning();
         return entries.containsKey(id);
     }
-    
     
     /**
      * Creates a new document.
@@ -297,7 +275,6 @@ public class FileStore {
         return entry;
     }
     
-
     /**
      * Stores a document based on a file.
      * 
@@ -344,7 +321,6 @@ public class FileStore {
             throw new FileStoreException(msg, e);
         }
     }
-    
 
     /**
      * Retrieves the content of a document.
@@ -387,7 +363,6 @@ public class FileStore {
         return is;
     }
     
-    
     /**
      * Returns the length of a document.
      * 
@@ -413,7 +388,6 @@ public class FileStore {
         return length;
     }
     
-    
     /**
      * Deletes a document.
      * 
@@ -432,7 +406,6 @@ public class FileStore {
         }
     }
     
-
     /**
      * Writes any volatile meta-data to disk.
      */
@@ -448,7 +421,6 @@ public class FileStore {
             }
         }
     }
-  
 
     /**
      * Logs a message showing the disk size usage.
@@ -471,13 +443,7 @@ public class FileStore {
                 diskSizeToString(stored), diskSizeToString(used),
                 diskSizeToString(wasted), wastedPerc));
     }
-    
 
-    //------------------------------------------------------------------------
-    //  Private methods
-    //------------------------------------------------------------------------
-    
-    
     /**
      * Checks that the database is running.
      * 
@@ -488,7 +454,6 @@ public class FileStore {
             throw new IllegalStateException("FileStore not running");
         }
     }
-    
 
     /**
      * Returns the offset of the first free position in the data file that
@@ -513,7 +478,6 @@ public class FileStore {
         }
         return offset;
     }
-    
     
     /**
      * Reads the index file.
@@ -540,7 +504,6 @@ public class FileStore {
         }
     }
     
-
     /**
      * Writes the index file.
      * 
@@ -558,7 +521,6 @@ public class FileStore {
         }
         dos.close();
     }
-    
 
     /**
      * Returns the size of the data file actually stored on disk.
@@ -577,7 +539,6 @@ public class FileStore {
         return size;
     }
     
-
     /**
      * Returns the net used disk space for storing the documents without any
      * fragmentation.
@@ -592,7 +553,6 @@ public class FileStore {
         return size;
     }
     
-
     /**
      * Returns a human-friendly representation of a file size.
      *  
@@ -614,12 +574,6 @@ public class FileStore {
         return s;
     }
  
-
-    //------------------------------------------------------------------------
-    //  Inner classes
-    //------------------------------------------------------------------------
-    
-
     /**
      * Administrative entry of a stored file.
      * 
@@ -629,55 +583,45 @@ public class FileStore {
      */
     private static class FileEntry implements Comparable<FileEntry> {
         
-
         private int id;
         
         private int offset;
         
         private int length;
-        
 
         public FileEntry(int id) {
             this.id = id;
         }
 
-
         public int getId() {
             return id;
         }
-
 
         public int getOffset() {
             return offset;
         }
 
-
         public void setOffset(int offset) {
             this.offset = offset;
         }
-
 
         public int getLength() {
             return length;
         }
 
-
         public void setLength(int length) {
             this.length = length;
         }
-
 
         @Override
         public String toString() {
             return "{'" + id + "', " + offset + ", " + length + "}";
         }
 
-
         @Override // Object
         public int hashCode() {
             return id;
         }
-        
         
         @Override
         public boolean equals(Object obj) {
@@ -688,7 +632,6 @@ public class FileStore {
                 return false;
             }
         }
-
 
         public int compareTo(FileEntry entry) {
             int otherOffset = entry.getOffset();
@@ -701,8 +644,6 @@ public class FileStore {
             }
         }
 
-
     } // FileEntry
-
 
 } // FileStore
