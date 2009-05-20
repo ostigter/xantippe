@@ -4,7 +4,7 @@
 
     <appender name="console" class="org.apache.log4j.ConsoleAppender">
         <layout class="org.apache.log4j.PatternLayout">
-            <param name="ConversionPattern" value="%d{DATE} %-5p %F - %m%n"/>
+            <param name="ConversionPattern" value="%d{DATE} %-5p %c{1} - %m%n"/>
         </layout>
     </appender>
 
@@ -12,31 +12,31 @@
         <param name="file" value="xantippe.log"/>
         <param name="append" value="false"/>
         <layout class="org.apache.log4j.PatternLayout">
-            <param name="ConversionPattern" value="%d{DATE} %-5p %F - %m%n"/>
+            <param name="ConversionPattern" value="%d{DATE} %-5p %c - %m%n"/>
         </layout>
     </appender>
 
-    <logger name="xantippe">
-        <level value="debug"/>
-    </logger>
-
-    <logger name="xantippe.DatabaseTest">
-        <level value="debug"/>
-    </logger>
-
-    <logger name="xantippe.LockManagerTest">
-        <level value="debug"/>
-    </logger>
-
-    <logger name="xantippe.PerformanceTest">
-        <level value="debug"/>
-    </logger>
-
-    <logger name="xantippe.filestore">
+    <logger name="org.ozsoft.xantippe">
         <level value="info"/>
     </logger>
 
-    <logger name="xantippe.filestore.FileStoreTest">
+    <logger name="org.ozsoft.xantippe.DatabaseTest">
+        <level value="debug"/>
+    </logger>
+
+    <logger name="org.ozsoft.xantippe.LockManagerTest">
+        <level value="debug"/>
+    </logger>
+
+    <logger name="org.ozsoft.xantippe.PerformanceTest">
+        <level value="debug"/>
+    </logger>
+
+    <logger name="org.ozsoft.xantippe.filestore">
+        <level value="info"/>
+    </logger>
+
+    <logger name="org.ozsoft.xantippe.filestore.FileStoreTest">
         <level value="debug"/>
     </logger>
 

@@ -36,5 +36,5 @@ Low priority
 - caching (documents, collections, indices)
 - recursive locking (database, collections)
 - transactions (journaling)
-- multiple databases (DatabaseManager)
+- multiple databases
 - encryption

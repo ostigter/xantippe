@@ -9,7 +9,7 @@ Xantippe is an open source, lightweight XML database written in Java featuring
 validation, XQuery and indexing. It is written by Oscar Stigter and published
 under the Apache License 2.0.
 
-Project page: http://code.google.com/p/xantippe/
+Project page: http://xantippe.googlecode.com
 
 
 Features
@@ -43,7 +43,6 @@ Status
 ------
 
 The first stage of development is complete; all basic functionality (as
-embedded library) has been implemented.
+embedded library) has been implemented and pretty well-tested.
 
-However, much more testing is required for Xantippe to be considered anywhere
-near complete, stable and reliable. Please use at your own risk!
+However, Xantippe is still in Alpha stage, so please use at your own risk!

@@ -6,6 +6,11 @@ HISTORY
 Date	     Version  Comment
 ------------------------------------------------------------------------------
 
+???          0.3a     - Converted to Maven project
+                      - Changed root package to 'org.ozsoft.xantippe'
+                      - Improved code quality (Checkstyle, PMD)
+                      - Added performance test
+
 11-Nov-2008  0.2a     - Added locking
                       - Upgraded to Saxon-B 9.1
 

@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<a:Address xmlns:a="http://www.example.com/XMLSchema/Address/v1.0">
-  <Street>101 Main Street</Street>
-  <City>New York</City>
-  <State>NY</State>
-  <ZipCode>AB 12345</ZipCode>
-  <Country>United States</Country>
-</a:Address>
