@@ -14,9 +14,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-
 package org.ozsoft.xantippe;
-
 
 import java.io.File;
 import java.util.ArrayList;
@@ -31,7 +29,6 @@ import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
-
 /**
  * Indexer for XML documents.
  * 
@@ -41,7 +38,6 @@ import org.xml.sax.helpers.DefaultHandler;
  */
 /* package */ class Indexer {
     
-    
     /** log4j logger. */
     private static final Logger logger = Logger.getLogger(Indexer.class);
     
@@ -50,12 +46,6 @@ import org.xml.sax.helpers.DefaultHandler;
     
     /** Content handler to extract the index values. */
     private final IndexHandler handler = new IndexHandler(); 
-    
-    
-    //------------------------------------------------------------------------
-    //  Constructor
-    //------------------------------------------------------------------------
-    
     
     /* package */ Indexer() {
         SAXParserFactory factory = SAXParserFactory.newInstance();
@@ -67,12 +57,6 @@ import org.xml.sax.helpers.DefaultHandler;
                     "Error instantiating SAX parser: " + e.getMessage());
         }
     }
-    
-    
-    //------------------------------------------------------------------------
-    //  Public methods
-    //------------------------------------------------------------------------
-    
     
     public void index(Document doc, File file, Collection col) {
         if (col.getIndices(true).size() > 0) {
@@ -98,14 +82,7 @@ import org.xml.sax.helpers.DefaultHandler;
         }
     }
     
-    
-    //------------------------------------------------------------------------
-    //  Inner classes
-    //------------------------------------------------------------------------
-    
-    
     private static class IndexHandler extends DefaultHandler {
-        
         
         private final List<String> elements;
         
@@ -117,11 +94,9 @@ import org.xml.sax.helpers.DefaultHandler;
         
         private StringBuilder sb;
         
-        
         public IndexHandler() {
             elements = new ArrayList<String>();
         }
-        
         
         public void setCollection(Collection col) {
         	collection = col;
@@ -132,7 +107,6 @@ import org.xml.sax.helpers.DefaultHandler;
         	document = doc;
         }
         
-        
         @Override
         public void startElement(
                 String uri, String localName, String qName, Attributes attr)
@@ -141,14 +115,11 @@ import org.xml.sax.helpers.DefaultHandler;
             sb = new StringBuilder();
         }
         
-        
         @Override
         public void endElement(String uri, String localName, String qName)
                 throws SAXException {
             String path = getCurrentPath();
-//            System.out.println("Current path: " + path);
             for (Index index : indices) {
-//                System.out.println("Index path:   " + index.getPath());
             	if (path.equals(index.getPath()) ||
             			(index.getPath().startsWith("//") &&
             				path.endsWith(index.getPath().substring(1)))) {
@@ -165,14 +136,12 @@ import org.xml.sax.helpers.DefaultHandler;
             elements.remove(elements.size() - 1);
             sb = new StringBuilder();
         }
-        
 
         @Override
         public void characters(char[] buffer, int offset, int length)
                 throws SAXException {
             sb.append(buffer, offset, length);
         }
-        
         
         private String getCurrentPath() {
             StringBuilder sb2 = new StringBuilder();
@@ -182,7 +151,6 @@ import org.xml.sax.helpers.DefaultHandler;
             }
             return sb2.toString();
         }
-        
         
         private Object getIndexValue(String text, IndexType type) {
         	Object value = null;
@@ -229,8 +197,6 @@ import org.xml.sax.helpers.DefaultHandler;
         	return value;
         }
         
-        
-    } // IndexHandler class
+    } // IndexHandler
 
-
-} // Indexer class
+}

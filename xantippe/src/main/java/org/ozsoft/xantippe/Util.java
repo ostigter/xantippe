@@ -14,9 +14,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-
 package org.ozsoft.xantippe;
-
 
 import java.io.File;
 
@@ -26,29 +24,18 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.PatternLayout;
 import org.apache.log4j.xml.DOMConfigurator;
 
-
 /**
  * Static class with various utility methods.
  *  
  * @author Oscar Stigter
  */
-public class Util {
-    
+public abstract class Util {
     
     /** Config file for log4j. */
     private static final String LOG_CONFIG_FILE = "log4j.xml";
     
     /** Indicates whether log4j has been initialized. */
     private static boolean logInitialized = false; 
-    
-    
-    /**
-     * Private constructor to deny instantiation.
-     */
-    private Util() {
-        // Empty implementation.
-    }
-    
     
     /**
      * Configures log4j.
@@ -70,7 +57,6 @@ public class Util {
         }
     }
     
-    
     /**
      * Deletes a file or directory (recursively).
      * 
@@ -79,7 +65,6 @@ public class Util {
     public static void deleteFile(String path) {
         deleteFile(new File(path));
     }
-    
 
     /**
      * Deletes a file or directory (recursively).
@@ -96,6 +81,5 @@ public class Util {
             file.delete();
         }
     }
-    
     
 }

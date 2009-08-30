@@ -14,16 +14,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-
 package org.ozsoft.xantippe;
-
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock.ReadLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
-
 
 /**
  * Lock manager for synchronizing parallel database operations, using a
@@ -33,28 +30,15 @@ import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
  */
 class LockManager {
     
-    
 	/** Locks mapped by object ID. */
 	private final Map<Integer, ReentrantReadWriteLock> locks;
 
-
-    //------------------------------------------------------------------------
-    //  Constructor
-    //------------------------------------------------------------------------
-
-    
 	/**
-	 * Zero-argument constructor.
+	 * Constructor.
 	 */
 	public LockManager() {
         locks = new HashMap<Integer, ReentrantReadWriteLock>();
     }
-
-
-    //------------------------------------------------------------------------
-    //  Public methods
-    //------------------------------------------------------------------------
-
     
 	/**
 	 * Locks a specific object for reading (a shared lock).
@@ -79,7 +63,6 @@ class LockManager {
         }
     }
 
-
     /**
      * Locks a specific object for writing (an exclusive lock).
      * 
@@ -103,7 +86,6 @@ class LockManager {
         }
     }
 
-
     /**
      * Releases a read lock on a specific object.
      * 
@@ -123,7 +105,6 @@ class LockManager {
                     "Object not locked for reading: " + objectId);
         }
     }
-
 
     /**
      * Releases a write lock on a specific object.
@@ -145,12 +126,6 @@ class LockManager {
         }
     }
 
-
-    //------------------------------------------------------------------------
-    //  Private methods
-    //------------------------------------------------------------------------
-
-    
     /**
      * Returns a lock for a specific object ID.
      * 
@@ -168,6 +143,5 @@ class LockManager {
         }
         return lock;
     }
-
 
 }

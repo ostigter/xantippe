@@ -26,7 +26,7 @@ import java.util.TreeSet;
 import org.apache.log4j.Logger;
 
 /**
- * A collection of documents and subcollections.
+ * A collection containing documents and/or subcollections.
  * 
  * @author Oscar Stigter
  */

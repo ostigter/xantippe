@@ -14,9 +14,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-
 package org.ozsoft.xantippe;
-
 
 /**
  * Supported compression modes.
@@ -25,18 +23,13 @@ package org.ozsoft.xantippe;
  */
 public enum CompressionMode {
     
-    
     /** No compression. */
     NONE,
     
     /** Compress with DEFLATE (zlib) method. */
     DEFLATE,
     
-//    /** Compress with LZMA (7-Zip) method. */
-//    LZMA,
-    
     /** Inherit from parent collection. */
     INHERIT,
-    
 
 }

@@ -14,9 +14,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-
 package org.ozsoft.xantippe;
-
 
 /**
  * Supported validation modes.
@@ -24,7 +22,6 @@ package org.ozsoft.xantippe;
  * @author Oscar Stigter
  */
 public enum ValidationMode {
-    
     
     /** No document validation (disabled). */
     OFF,
@@ -37,6 +34,5 @@ public enum ValidationMode {
     
     /** Inherit setting from parent collection. */
     INHERIT,
-    
 
 }

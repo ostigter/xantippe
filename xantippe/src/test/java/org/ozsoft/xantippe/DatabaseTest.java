@@ -14,9 +14,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-
 package org.ozsoft.xantippe;
-
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -32,18 +30,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.ozsoft.xantippe.Collection;
-import org.ozsoft.xantippe.CompressionMode;
-import org.ozsoft.xantippe.Database;
-import org.ozsoft.xantippe.DatabaseImpl;
-import org.ozsoft.xantippe.Document;
-import org.ozsoft.xantippe.Index;
-import org.ozsoft.xantippe.IndexType;
-import org.ozsoft.xantippe.Key;
-import org.ozsoft.xantippe.Util;
-import org.ozsoft.xantippe.ValidationMode;
-import org.ozsoft.xantippe.XmldbException;
-
 
 /**
  * Test suite for the database.
@@ -51,7 +37,6 @@ import org.ozsoft.xantippe.XmldbException;
  * @author Oscar Stigter
  */
 public class DatabaseTest {
-
 
     private static final String RESOURCES_DIR = "src/test/resources";
     
@@ -76,7 +61,6 @@ public class DatabaseTest {
     //  Setup & cleanup methods
     //------------------------------------------------------------------------
 
-
     @BeforeClass
     public static void beforeClass() {
         Util.initLog4j();
@@ -85,23 +69,20 @@ public class DatabaseTest {
         database.setDatabaseLocation(DATA_DIR);
     }
     
-    
     @Before
     public void before() {
         Util.deleteFile(DATA_DIR);
     }
-
 
     @After
     public void after() {
         Util.deleteFile(DATA_DIR);
     }
 
-
+    
     //------------------------------------------------------------------------
     //  Tests
     //------------------------------------------------------------------------
-    
     
     @Test
     public void states() {
@@ -188,7 +169,6 @@ public class DatabaseTest {
         logger.debug("Test suite 'states' finished");
     }
     
-    
     @Test
     public void badWeather() {
         logger.debug("Test suite 'badWeather' started");
@@ -271,7 +251,6 @@ public class DatabaseTest {
 
         logger.debug("Test suite 'badWeather' finished");
     }
-
 
     /**
      * Tests various basic storage aspects.
@@ -531,7 +510,6 @@ public class DatabaseTest {
 
         logger.debug("Test suite 'storage' finished");
     }
-
     
     /**
      * Tests the validation of documents against their schema. 
@@ -585,7 +563,6 @@ public class DatabaseTest {
 
         logger.debug("Test suite 'validation' finished");
     }
-
 
     /**
      * Tests the execution of queries.
@@ -663,7 +640,6 @@ public class DatabaseTest {
         logger.debug("Test suite 'xquery' finished");
     }
     
-    
     /**
      * Tests the database's multithreading behavior.
      */
@@ -707,7 +683,6 @@ public class DatabaseTest {
     //  Private methods
     //------------------------------------------------------------------------
 
-
     private static void assertEquals(InputStream is, File file) {
         try {
             InputStream is2 = new FileInputStream(file);
@@ -732,14 +707,12 @@ public class DatabaseTest {
     //  Private classes
     //------------------------------------------------------------------------
 
-
     /**
      * Thread simulating a database client connection.
      * 
      * The database is assumed to be running at all times.
      */
     private static class ClientThread extends Thread {
-        
         
         private static final String DOC_NAME = "doc.xml";
 
@@ -751,14 +724,12 @@ public class DatabaseTest {
         
         private boolean hasErrors = false;
         
-        
         public ClientThread(int id, Collection col) {
             this.id = id;
             this.col = col;
         }
         
-        
-        @Override // Thread
+        @Override
         public void run() {
             try {
                 for (int i = 0; i < NO_OF_THREAD_ITERATIONS; i++) {
@@ -777,11 +748,9 @@ public class DatabaseTest {
             }
         }
         
-        
         public boolean hasErrors() {
             return hasErrors;
         }
-        
         
         private String getDocumentContent(Document doc)
                 throws XmldbException, IOException {
@@ -800,7 +769,6 @@ public class DatabaseTest {
             return content;
         }
 
-
         private void setDocumentContent(Document doc, String content) 
                 throws XmldbException, IOException {
             OutputStream os = doc.setContent();
@@ -809,8 +777,6 @@ public class DatabaseTest {
             os.close();
         }
 
-
-    } // ClientThread class
+    } // ClientThread
     
-    
-} // DatabaseTest class
+}

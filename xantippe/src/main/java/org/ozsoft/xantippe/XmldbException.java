@@ -14,9 +14,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-
 package org.ozsoft.xantippe;
-
 
 /**
  * Exception throws by the database.
@@ -25,19 +23,15 @@ package org.ozsoft.xantippe;
  */
 public class XmldbException extends Exception {
     
-    
     /** Serial version UID. */
     private static final long serialVersionUID = -1L;
-    
     
     /* package */ XmldbException(String message) {
         super(message);
     }
 
-
     /* package */ XmldbException(String message, Throwable t) {
         super(message, t);
     }
-
 
 }

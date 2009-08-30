@@ -14,9 +14,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-
 package org.ozsoft.xantippe;
-
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -34,16 +32,13 @@ import org.apache.log4j.Logger;
 import org.ozsoft.xantippe.filestore.FileStore;
 import org.ozsoft.xantippe.filestore.FileStoreException;
 
-
-
 /**
  * Default implementation of the database.
  * 
  * @author  Oscar Stigter
  */
 public class DatabaseImpl implements Database {
-    
-    
+	
     /** Default database directory. */
     private static final String DEFAULT_DATA_DIR = "data";
     
@@ -56,8 +51,8 @@ public class DatabaseImpl implements Database {
     /** Database file containing the indexed document key values. */
     private static final String INDICES_FILE = "indices.dbx";
 
-    /** log4j logger. */
-    private static final Logger logger = Logger.getLogger(DatabaseImpl.class);
+    /** The log. */
+    private static final Logger LOG = Logger.getLogger(DatabaseImpl.class);
     
     /** Collections mapped by ID. */
     private final Map<Integer, Collection> collections;
@@ -85,24 +80,20 @@ public class DatabaseImpl implements Database {
     
     /** XQuery processor. */
     private final QueryProcessor queryProcessor;
-
+    
     /** Next document ID. */
     private int nextId;
     
     /** Indicates whether the database is running. */
     private boolean isRunning = false;
     
-    
-    //------------------------------------------------------------------------
-    //  Constructors
-    //------------------------------------------------------------------------
-
-
     /**
-     * Zero-argument constructor.
+     * Constructor.
      */
     public DatabaseImpl() {
         Util.initLog4j();
+        
+        LOG.debug("Creating");
         
         collections = new HashMap<Integer, Collection>();
         documents = new HashMap<Integer, Document>();
@@ -113,22 +104,21 @@ public class DatabaseImpl implements Database {
         indexer = new Indexer();
         queryProcessor = new QueryProcessor(this);
         
-        logger.debug("Database created");
+        LOG.debug("Created");
     }
     
-    
-    //------------------------------------------------------------------------
-    //  Interface implementation: Database
-    //------------------------------------------------------------------------
-    
-    
-    // See JavaDoc of Database interface
+    /*
+     * (non-Javadoc)
+     * @see org.ozsoft.xantippe.Database#getDatabaseLocation()
+     */
     public String getDatabaseLocation() {
         return dataDir.getAbsolutePath();
     }
     
-    
-    // See JavaDoc of Database interface
+    /*
+     * (non-Javadoc)
+     * @see org.ozsoft.xantippe.Database#setDatabaseLocation(java.lang.String)
+     */
     public void setDatabaseLocation(String path) {
         if (isRunning) {
             throw new IllegalStateException("Database is running");
@@ -141,90 +131,95 @@ public class DatabaseImpl implements Database {
         
         dataDir = new File(path);
     }
-    
 
-    // See JavaDoc of Database interface
+    /*
+     * (non-Javadoc)
+     * @see org.ozsoft.xantippe.Database#start()
+     */
     public void start() throws XmldbException {
         if (isRunning) {
             throw new IllegalStateException("Database already running");
         }
         
-        logger.debug("Starting database");
+        LOG.debug("Starting");
         
         prepareDatabaseDir();
         
-        logger.debug("Database location: " + dataDir.getAbsolutePath());
+        LOG.debug("Database location: " + dataDir.getAbsolutePath());
         
         try {
             fileStore.setDataDir(dataDir.getAbsolutePath());
             fileStore.start();
         } catch (FileStoreException e) {
             String msg = "Could not start FileStore";
-            logger.error(msg, e);
+            LOG.error(msg, e);
             throw new XmldbException(msg, e);
         }
         
         readMetaData();
-        
         readCollections();
-        
         readIndices();
         
         validator.readSchemas(dataDir);
         
         isRunning = true;
 
-        logger.info("Database started");
+        LOG.info("Started");
     }
     
-    
-    // See JavaDoc of Database interface
+    /*
+     * (non-Javadoc)
+     * @see org.ozsoft.xantippe.Database#shutdown()
+     */
     public void shutdown() throws XmldbException {
         checkRunning();
         
-        logger.debug("Shutting down database");
+        LOG.debug("Shutting down");
         
         try {
             fileStore.shutdown();
         } catch (FileStoreException e) {
             String msg = "Could not shut down FileStore";
-            logger.error(msg, e);
+            LOG.error(msg, e);
             throw new XmldbException(msg, e);
         }
         
         writeMetaData();
-        
         writeCollections();
-        
         writeIndices();
         
         validator.writeSchemas(dataDir);
         
         documents.clear();
         collections.clear();
-        
         validator.clearSchemas();
         
         isRunning = false;
         
-        logger.info("Database shut down");
+        LOG.info("Shut down");
     }
     
-    
-    // See JavaDoc of Database interface
+    /*
+     * (non-Javadoc)
+     * @see org.ozsoft.xantippe.Database#isRunning()
+     */
     public boolean isRunning() {
         return isRunning;
     }
     
-    
-    // See JavaDoc of Database interface
+    /*
+     * (non-Javadoc)
+     * @see org.ozsoft.xantippe.Database#getRootCollection()
+     */
     public Collection getRootCollection() throws XmldbException {
         checkRunning();
         return rootCollection;
     }
     
-    
-    // See JavaDoc of Database interface
+    /*
+     * (non-Javadoc)
+     * @see org.ozsoft.xantippe.Database#getCollection(java.lang.String)
+     */
     public Collection getCollection(String uri) throws XmldbException {
     	checkRunning();
     	
@@ -256,8 +251,10 @@ public class DatabaseImpl implements Database {
     	return col;
     }
     
-    
-    // See JavaDoc of Database interface
+    /*
+     * (non-Javadoc)
+     * @see org.ozsoft.xantippe.Database#getDocument(java.lang.String)
+     */
     public Document getDocument(String uri) throws XmldbException {
     	checkRunning();
     	
@@ -266,7 +263,6 @@ public class DatabaseImpl implements Database {
         }
         
     	Document doc = null;
-    	
     	int p = uri.lastIndexOf('/');
     	if (p != -1) {
     	    String colUri = uri.substring(0, p);
@@ -280,12 +276,13 @@ public class DatabaseImpl implements Database {
     	        }
     	    }
     	}
-    	
     	return doc;
     }
     
-    
-    // See JavaDoc of Database interface
+    /*
+     * (non-Javadoc)
+     * @see org.ozsoft.xantippe.Database#executeQuery(java.lang.String)
+     */
     public OutputStream executeQuery(String query) throws XmldbException {
         checkRunning();
         
@@ -296,62 +293,51 @@ public class DatabaseImpl implements Database {
     	return queryProcessor.executeQuery(query);
     }
     
-    
-    // See JavaDoc of Database interface
+    /*
+     * (non-Javadoc)
+     * @see org.ozsoft.xantippe.Database#print()
+     */
     public void print() {
         printCollection(rootCollection);
     }
-    
-    
-    //------------------------------------------------------------------------
-    //  Package protected methods
-    //------------------------------------------------------------------------
-    
-    
+
     /* package */ int getNextId() {
         return nextId++;
     }
-    
     
     /* package */ Collection getCollection(int id) {
     	Collection col = collections.get(id);
     	if (col == null) {
     		String msg = "Collection with ID " + id + " not found";
-    		logger.error(msg);
+    		LOG.error(msg);
     	}
         return col;
     }
-    
     
     /* package */ boolean documentExists(int id) {
         return documents.containsKey(id);
     }
     
-    
     /* package */ Document getDocument(int id) {
     	Document doc = documents.get(id);
     	if (doc == null) {
     		String msg = "Document with ID " + id + " not found";
-    		logger.error(msg);
+    		LOG.error(msg);
     	}
         return doc;
     }
-    
     
     /* package */ void addCollection(Collection col) {
         collections.put(col.getId(), col);
     }
     
-    
     /* package */ void addDocument(Document doc) {
         documents.put(doc.getId(), doc);
     }
     
-    
     /* package */ void deleteCollection(Collection col) {
         collections.remove(col.getId());
     }
-    
     
     /* package */ void deleteDocument(Document doc) {
         int docId = doc.getId();
@@ -361,30 +347,25 @@ public class DatabaseImpl implements Database {
         } catch (FileStoreException e) {
             String msg = String.format(
                     "Error deleting document '%s': %s", doc, e.getMessage());
-            logger.error(msg, e);
+            LOG.error(msg, e);
         }
     }
-    
     
     /* package */ FileStore getFileStore() {
         return fileStore;
     }
     
-    
     /* package */ LockManager getLockManager() {
         return lockManager;
     }
-    
     
     /* package */ DocumentValidator getValidator() {
         return validator;
     }
     
-    
     /* package */ Indexer getIndexer() {
         return indexer;
     }
-    
     
     /* package */ MediaType getMediaType(String fileName) {
         MediaType mediaType = MediaType.BINARY;
@@ -408,16 +389,9 @@ public class DatabaseImpl implements Database {
         return mediaType;
     }
     
-    
     /* package */ boolean isSchemaFile(String fileName) {
         return fileName.toLowerCase().endsWith(".xsd");
     }
-    
-    
-    //------------------------------------------------------------------------
-    //  Private methods
-    //------------------------------------------------------------------------
-    
     
     private void checkRunning() {
         if (!isRunning) {
@@ -425,25 +399,23 @@ public class DatabaseImpl implements Database {
         }
     }
     
-    
     private void prepareDatabaseDir() throws XmldbException {
         if (!dataDir.isDirectory()) {
             if (!dataDir.mkdirs()) {
                 String msg = "Could not create database directory: " + dataDir;
-                logger.error(msg);
+                LOG.error(msg);
                 throw new XmldbException(msg);
             }
         }
         if (!dataDir.canWrite()) {
             String msg = "Database directory not writable: " + dataDir;
-            logger.error(msg);
+            LOG.error(msg);
             throw new XmldbException(msg);
         }
     }
     
-    
     private void readMetaData() {
-        logger.debug(String.format("Read database file '%s'", METADATA_FILE));
+        LOG.debug(String.format("Read database file '%s'", METADATA_FILE));
         File file = new File(dataDir, METADATA_FILE);
         if (file.exists()) {
             try {
@@ -455,16 +427,15 @@ public class DatabaseImpl implements Database {
                 String msg = String.format(
                         "Error reading database file '%s': %s",
                         METADATA_FILE, e.getMessage());
-                logger.error(msg);
+                LOG.error(msg);
             }
         } else {
             nextId = 1;
         }
     }
     
-    
     private void writeMetaData() {
-        logger.debug(String.format("Write database file '%s'", METADATA_FILE));
+        LOG.debug(String.format("Write database file '%s'", METADATA_FILE));
         File file = new File(dataDir, METADATA_FILE);
         try {
             DataOutputStream dos =
@@ -475,13 +446,12 @@ public class DatabaseImpl implements Database {
             String msg = String.format(
                     "Error writing database file '%s': %s",
                     METADATA_FILE, e.getMessage());
-            logger.error(msg);
+            LOG.error(msg);
         }
     }
     
-    
     private void readCollections() {
-        logger.debug(
+        LOG.debug(
                 String.format("Read database file '%s'", COLLECTIONS_FILE));
         File file = new File(dataDir, COLLECTIONS_FILE);
         if (file.exists()) {
@@ -494,7 +464,7 @@ public class DatabaseImpl implements Database {
                 String msg = String.format(
                         "Error reading database file '%s': %s",
                         COLLECTIONS_FILE, e.getMessage());
-                logger.error(msg);
+                LOG.error(msg);
             }
         } else {
             int id = getNextId();
@@ -506,7 +476,6 @@ public class DatabaseImpl implements Database {
             rootCollection.setCompressionMode(CompressionMode.NONE);
         }
     }
-    
     
     private Collection readCollection(DataInputStream dis, int parent)
             throws IOException {
@@ -543,7 +512,6 @@ public class DatabaseImpl implements Database {
         return col;
     }
     
-    
     private Document readDocument(DataInputStream dis, int colId)
             throws IOException {
         int docId = dis.readInt();
@@ -566,9 +534,8 @@ public class DatabaseImpl implements Database {
         return new Index(id, name, path, type);
     }
     
-    
     private void writeCollections() {
-        logger.debug(
+        LOG.debug(
                 String.format("Write database file '%s'", COLLECTIONS_FILE));
         File file = new File(dataDir, COLLECTIONS_FILE);
         try {
@@ -580,10 +547,9 @@ public class DatabaseImpl implements Database {
             String msg = String.format(
                     "Error writing database file '%s': %s",
                     COLLECTIONS_FILE, e.getMessage());
-            logger.error(msg);
+            LOG.error(msg);
         }
     }
-    
     
     private void writeCollection(Collection col, DataOutputStream dos)
             throws IOException {
@@ -610,7 +576,6 @@ public class DatabaseImpl implements Database {
         }
     }
     
-    
     private void writeIndex(Index index, DataOutputStream dos)
             throws IOException {
         dos.writeInt(index.getId());
@@ -618,7 +583,6 @@ public class DatabaseImpl implements Database {
         dos.writeUTF(index.getPath());
         dos.writeByte(index.getType().ordinal());
     }
-    
     
     private void writeDocument(Document doc, DataOutputStream dos)
             throws IOException {
@@ -630,9 +594,8 @@ public class DatabaseImpl implements Database {
         dos.writeByte(doc.getCompressionMode().ordinal());
     }
     
-    
     private void readIndices() {
-        logger.debug(String.format("Read database file '%s'", INDICES_FILE));
+        LOG.debug(String.format("Read database file '%s'", INDICES_FILE));
         File file = new File(dataDir, INDICES_FILE);
         if (file.exists()) {
             try {
@@ -661,11 +624,10 @@ public class DatabaseImpl implements Database {
                 String msg = String.format(
                         "Error reading database file '%s': %s",
                         INDICES_FILE, e.getMessage());
-                logger.error(msg);
+                LOG.error(msg);
             }
         }
     }
-    
     
     private Object readIndexValue(DataInputStream dis) throws IOException {
         Object value = null;
@@ -689,9 +651,8 @@ public class DatabaseImpl implements Database {
         return value;
     }
     
-    
     private void writeIndices() {
-        logger.debug(
+        LOG.debug(
                 String.format("Write database file '%s'", INDICES_FILE));
         File file = new File(dataDir, INDICES_FILE);
         try {
@@ -722,10 +683,9 @@ public class DatabaseImpl implements Database {
             String msg = String.format(
                     "Error writing database file '%s': %s",
                     INDICES_FILE, e.getMessage());
-            logger.error(msg);
+            LOG.error(msg);
         }
     }
-    
     
     private void writeIndexValue(Object value, DataOutputStream dos)
             throws IOException {
@@ -753,8 +713,6 @@ public class DatabaseImpl implements Database {
         }
     }
     
-    
-    // For debugging purposes only.
     private void printCollection(Collection col) {
         System.out.println(col + "/");
         for (Document doc : col.getDocuments()) {
@@ -764,6 +722,5 @@ public class DatabaseImpl implements Database {
             printCollection(c);
         }
     }
-    
     
 }

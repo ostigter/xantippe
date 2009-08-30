@@ -14,9 +14,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-
 package org.ozsoft.xantippe;
-
 
 import java.io.PrintWriter;
 
@@ -34,14 +32,12 @@ import org.ozsoft.xantippe.Document;
 import org.ozsoft.xantippe.Util;
 import org.ozsoft.xantippe.ValidationMode;
 
-
 /**
  * Test suite with performance tests.
  * 
  * @author Oscar Stigter
  */
 public class PerformanceTest {
-
 
     private static final String DATA_DIR = "src/test/resources/data.tmp";
     
@@ -64,7 +60,6 @@ public class PerformanceTest {
     //  Setup & cleanup methods
     //------------------------------------------------------------------------
 
-
     @BeforeClass
     public static void beforeClass() {
         Util.initLog4j();
@@ -73,12 +68,10 @@ public class PerformanceTest {
         database.setDatabaseLocation(DATA_DIR);
     }
     
-    
     @Before
     public void before() {
         Util.deleteFile(DATA_DIR);
     }
-
 
     @After
     public void after() {
@@ -90,7 +83,7 @@ public class PerformanceTest {
     //  Tests
     //------------------------------------------------------------------------
     
-        @Test
+    @Test
     public void performance() {
         logger.debug("Test suite 'performance' started");
         
@@ -132,7 +125,6 @@ public class PerformanceTest {
             Assert.fail(e.getMessage());
         }
         
-        
         logger.debug("Test suite 'performance' finished");
     }
 
@@ -145,26 +137,26 @@ public class PerformanceTest {
 //     @Test
 //     public void manyDocuments() {
 //         logger.debug("Test suite 'manyDocuments' started");
- //
+//
 //         try {
 //             database.start();
- //
+//
 //             Collection rootCol = database.getRootCollection();
 //             Collection dataCol = rootCol.createCollection("data");
 //             dataCol.setCompressionMode(CompressionMode.DEFLATE);
 ////             dataCol.addIndex("DocumentId", "//Header/DocumentId", IndexType.STRING);
 //             dataCol.addIndex("MachineId", "//Header/MachineID", IndexType.STRING);
- //
+//
 //             File dir = new File(LARGE_DATASET_DIR);
 //             if (!dir.isDirectory() || !dir.canRead()) {
 //                 String msg = "Invalid dataset directory: " + dir;
 //                 logger.error(msg);
 //                 Assert.fail(msg);
 //             }
- //
+//
 //             int count = 0;
 //             long size = 0L;
- //
+//
 //             logger.info("Storing documents...");
 //             long startTime = System.currentTimeMillis();
 //             for (File file : dir.listFiles()) {
@@ -203,13 +195,12 @@ public class PerformanceTest {
 //                     "Searched %d documents in %.3f seconds", count, duration));
 //             
 //             database.shutdown();
- //
+//
 //         } catch (XmldbException e) {
 //             Assert.fail(e.getMessage());
 //         }
- //
+//
 //         logger.debug("Test suite 'manyDocuments' finished");
 //     }
-
         
-} // DatabaseTest class
+}

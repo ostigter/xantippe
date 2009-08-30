@@ -11,27 +11,26 @@ High priority
 Medium priority
 ---------------
 
-- manager tool (GUI)
+- WebDAV interface (servlet, Jetty)
+- REST interface (servlet, Jetty)
+- client console (Swing, REST)
+- web console (servlet, Jetty)
 - rename documents and collections
 - copy documents and collections
 - move documents and collections
 - execute stored (precompiled and cached) XQuery functions with parameters
-- auto-commit interval to improve reliability (crash recovery)
 - database interface accessible from XQuery
-- backup & restore (Manager tool)
-- configuration file
-- WebDAV interface (web deployment, Tomcat, Jetty?)
+- auto-commit interval to improve reliability (crash recovery)
+- backup & restore (web console)
+- configuration file (server)
 
 
 Low priority
 ------------
 
 - use Long (64 bit) instead of Integer (32 bit) for ID's and file sizes
-- use term 'resources' for non-XML documents
 - health checking
 - defragmentation
-- client/server deployment (RMI)
-- REST interface
 - Authentication & Authorization (users, roles, permissions)
 - caching (documents, collections, indices)
 - recursive locking (database, collections)

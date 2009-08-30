@@ -14,9 +14,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-
 package org.ozsoft.xantippe;
-
 
 /**
  * Supported index types.
@@ -24,7 +22,6 @@ package org.ozsoft.xantippe;
  * @author Oscar Stigter
  */
 public enum IndexType {
-    
     
     /** String value. */
     STRING,
@@ -43,6 +40,5 @@ public enum IndexType {
     
     /** Timestamp value. */
     DATE,
-
 
 }

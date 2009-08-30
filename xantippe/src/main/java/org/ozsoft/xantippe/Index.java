@@ -14,9 +14,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-
 package org.ozsoft.xantippe;
-
 
 /**
  * Definition of a document index.
@@ -24,7 +22,6 @@ package org.ozsoft.xantippe;
  * @author Oscar Stigter
  */
 public class Index implements Comparable<Index> {
-    
     
     /** ID. */
     private final int id;
@@ -38,12 +35,6 @@ public class Index implements Comparable<Index> {
     /** Type. */
     private final IndexType type;
     
-    
-    //------------------------------------------------------------------------
-    //  Constructor
-    //------------------------------------------------------------------------
-
-    
     /* package */ Index(int id, String name, String path, IndexType type) {
         this.id = id;
         this.name = name;
@@ -51,12 +42,6 @@ public class Index implements Comparable<Index> {
         this.type = type;
     }
 
-
-    //------------------------------------------------------------------------
-    //  Public methods
-    //------------------------------------------------------------------------
-
-    
     /**
      * Returns the index' name.
      * 
@@ -65,7 +50,6 @@ public class Index implements Comparable<Index> {
     public String getName() {
         return name;
     }
-
 
     /**
      * Returns the index' path.
@@ -76,7 +60,6 @@ public class Index implements Comparable<Index> {
         return path;
     }
     
-    
     /**
      * Returns the index' type
      * 
@@ -86,7 +69,6 @@ public class Index implements Comparable<Index> {
         return type;
     }
 
-
     /**
      * Compares this index definition to the specified one.
      * 
@@ -95,7 +77,6 @@ public class Index implements Comparable<Index> {
     public int compareTo(Index index) {
         return name.compareTo(index.getName());
     }
-    
 
     /**
      * Returns the string representation of this index definition.
@@ -108,16 +89,9 @@ public class Index implements Comparable<Index> {
     public String toString() {
         return name;
     }
-
-
-    //------------------------------------------------------------------------
-    //  Package protected methods
-    //------------------------------------------------------------------------
-
     
     /* package */ int getId() {
         return id;
     }
-    
     
 }

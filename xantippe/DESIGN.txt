@@ -2,6 +2,38 @@ Design
 ======
 
 
+Use cases
+---------
+
+* Create collection
+* Retrieve collection
+* Delete collection
+* Create document
+* Store document
+* Retrieve document
+* Delete document
+* Support media types XML, Schema, text and binary
+* Validate XML documents
+* Compress documents
+* Configure indices, validation and compression per collection (with inheritance)
+* Find documents by index
+* Query documents
+* REST interface
+* WebDAV interface
+* Client application
+* Backup database
+* Defragment database
+
+
+Non-function requirements
+-------------------------
+
+* Documents stored in binary form on the file system
+* Queries using XQuery expressions (Saxon)
+* Re-entrant read/write locks per document or collection
+* Logging to file (log4j)
+
+
 Java interface
 --------------
 
@@ -102,7 +134,7 @@ public enum ValidationMode {
 }
 
 public enum CompressionMode {
-    NONE, DEFLATE, LZMA, INHERIT
+    NONE, DEFLATE, INHERIT
 }
 
 public enum IndexType {
@@ -127,15 +159,6 @@ Delete Collection:      DELETE  <col_uri>
 Store Document:         PUT     <doc_uri>
 Retrieve Document:      GET     <doc_uri>
 Delete Document:        DELETE  <doc_uri>
-
-
-REST API
---------
-
-Create Collection:      PUT     <col_uri>
-Find Documents:         GET     <col_uri>?<key_name>=<key_value>[&<key_name>=<key_value>]...
-Execute XQuery Module:  GET     <module_uri>
-Execute XQuery:         GET     query?<xquery>
 
 
 metadata.dbx
@@ -250,16 +273,105 @@ Example:
   }
 
 
+REST API
+--------
+
+Create collection '/db/data':
+	Request:
+		PUT /db/data
+		<?xml version="1.0" encoding="UTF-8"?>
+		<collection xmlns="http://www.ozsoft.org/xantippe" validation="inherit" compression="inherit" />
+	Response:
+		<?xml version="1.0" encoding="UTF-8"?>
+		<response xmlns="http://www.ozsoft.org/xantippe">
+			<result>ok</result>
+		</response>
+	
+Retrieve collection '/db/data':
+	Request:
+		GET /db/data
+	Response:
+		<?xml version="1.0" encoding="UTF-8"?>
+		<collection xmlns="http://www.ozsoft.org/xantippe" validation="inherit" compression="inherit" created="..." modified="...">
+			<collection name="archive" validation="inherit" compression="inherit" created="..." modified="..." />
+			<document name="foo-001.xml" created="..." modified="..." />
+			<document name="foo-002.xml" created="..." modified="..." />
+		</collection>
+	
+Update collection '/db/data':
+	Request:
+		PUT /db/data
+		<?xml version="1.0" encoding="UTF-8"?>
+		<collection xmlns="http://www.ozsoft.org/xantippe" name="data2" validation="on" compression="deflate" />
+	Response:
+		<?xml version="1.0" encoding="UTF-8"?>
+		<response xmlns="http://www.ozsoft.org/xantippe">
+			<result>error</result>
+			<message>Could not update collection '/db/data' because it is locked by another process</message>
+		</response>
+		
+Delete collection '/db/data':
+	Request:
+		DELETE /db/data
+	Response:
+		<?xml version="1.0" encoding="UTF-8"?>
+		<response xmlns="http://www.ozsoft.org/xantippe">
+			<result>error</result>
+			<message>Collection '/db/data' not found</message>
+		</response>
+
+Create/update document '/db/data/foo-001.xml':
+	Request:
+		PUT /db/data/foo-001.xml
+		...
+	Response:
+		<?xml version="1.0" encoding="UTF-8"?>
+		<response xmlns="http://www.ozsoft.org/xantippe">
+			<result>ok</result>
+		</response>
+		
+Delete document '/db/data/foo-001.xml':
+	Request:
+		DELETE /db/data/foo-001.xml
+	Response:
+		<?xml version="1.0" encoding="UTF-8"?>
+		<response xmlns="http://www.ozsoft.org/xantippe">
+			<result>error</result>
+			<message>Document '/db/data/foo-001.xml' not found</message>
+		</response>
+
+Find documents:
+	Request:
+		GET <col_uri>?<key_name>=<key_value>[&<key_name>=<key_value>]...
+		GET /db/data?documentId=foo-001&documentType=Foo
+	Response:
+		...
+
+Execute XQuery Module:
+	Request:
+		GET     <module_uri>
+	Response:
+		...
+
+Execute XQuery:
+	Request:
+		GET     query?<xquery>
+	Response:
+		...
+
+
 Configuration file
 ------------------
 
 <?xml version="1.0" encoding="UTF-8"?>
-<xc:Configuration xmlns:xc="http://www.xantippe.org/XMLSchema/Configuration/v1.0">
-
-  <Database dir="data" validation="auto" compression="deflate"/>
-
-    <WebDavInterface enabled="true" port="8081" />
-
-    <RestInterface enabled="true" port="8082" />
-
-</xc:Configuration>
+<Configuration xmlns="http://www.xantippe.org/configuration/v1.0">
+  <Database dir="data" validation="auto" compression="deflate" schemaCache="60">
+    <Server port="8081" webDav="true" rest="true" />
+    <MediaTypes>
+        <Xml>xml</Xml>
+        <Schema>xsd</Schema>
+        <Text>txt, html, css</Text>
+        <Binary>zip, jar</Binary>
+    </MediaTypes>
+  </Database>
+</Configuration>

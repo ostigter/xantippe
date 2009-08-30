@@ -14,15 +14,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-
 package org.ozsoft.xantippe;
-
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
-
 
 /**
  * Document index based on a key value.
@@ -31,26 +28,13 @@ import java.util.TreeSet;
  */
 class IndexValue {
     
-
     /** Document ID's by key values. */
     private final Map<Object, Set<Integer>> documents;
-    
-    
-    //------------------------------------------------------------------------
-    //  Constructors
-    //------------------------------------------------------------------------
-
     
     /* package */ IndexValue() {
         documents = new HashMap<Object, Set<Integer>>();
     }
-    
-    
-    //------------------------------------------------------------------------
-    //  Public methods
-    //------------------------------------------------------------------------
-    
-    
+
     public void indexDocument(int docId, Object value) {
         Set<Integer> docs = documents.get(value);
         if (docs == null) {
@@ -59,7 +43,6 @@ class IndexValue {
         }
         docs.add(docId);
     }
-    
     
     public Set<Integer> findDocuments(Object value) {
         Set<Integer> docs = new TreeSet<Integer>();
@@ -72,21 +55,16 @@ class IndexValue {
         return docs;
     }
     
-    
     public int size() {
         return documents.size();
     }
-    
-    
     
     public Set<Object> getValues() {
         return documents.keySet();
     }
     
-    
     public Set<Integer> getDocuments(Object value) {
         return documents.get(value);
     }
-    
     
 }
