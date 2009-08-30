@@ -64,7 +64,6 @@ public class DatabaseTest {
     @BeforeClass
     public static void beforeClass() {
         Util.initLog4j();
-        
         database = new DatabaseImpl();
         database.setDatabaseLocation(DATA_DIR);
     }
