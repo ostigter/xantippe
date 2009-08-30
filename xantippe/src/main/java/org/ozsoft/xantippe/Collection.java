@@ -191,7 +191,7 @@ public class Collection implements Comparable<Collection> {
      * @return  the document, or null if it does not exist
      */
     public Document getDocument(String name) {
-        database.getLockManager().lockRead(id);
+        database.getLockManager().lockRead(this);
         try {
             for (int docId : documents) {
                 Document doc = database.getDocument(docId);
@@ -203,7 +203,7 @@ public class Collection implements Comparable<Collection> {
             // Not found.
             return null;
         } finally {
-            database.getLockManager().unlockRead(id);
+            database.getLockManager().unlockRead(this);
         }
     }
     
@@ -353,14 +353,12 @@ public class Collection implements Comparable<Collection> {
      */
     public String getUri() {
         StringBuilder sb = new StringBuilder();
-        
         Collection col = this;
         while (col != null) {
             sb.insert(0, '/'); 
             sb.insert(1, col.getName());
             col = col.getParent();
         }
-        
         return sb.toString();
     }
     
@@ -408,7 +406,7 @@ public class Collection implements Comparable<Collection> {
             throw new XmldbException(msg);
         }
         
-        database.getLockManager().lockRead(id);
+        database.getLockManager().lockWrite(this);
         try { 
             int docId = database.getNextId();
             long timestamp = System.currentTimeMillis();
@@ -417,7 +415,7 @@ public class Collection implements Comparable<Collection> {
             documents.add(docId);
             updateModified();
         } finally {
-            database.getLockManager().unlockRead(id);
+            database.getLockManager().unlockWrite(this);
         }
         
         logger.debug(String.format("Created document '%s'", doc));
@@ -445,13 +443,17 @@ public class Collection implements Comparable<Collection> {
     	
     	Collection col = getCollection(name);
     	if (col == null) {
-	        int colId = database.getNextId();
-	        long timestamp = System.currentTimeMillis();
-	        col = new Collection(
-	                database, colId, name, timestamp, timestamp, id);
-	        collections.add(colId);
-            updateModified();
-	        logger.debug(String.format("Created collection '%s'", this));
+    	    database.getLockManager().lockWrite(this);
+    	    try {
+    	        int colId = database.getNextId();
+    	        long timestamp = System.currentTimeMillis();
+    	        col = new Collection(database, colId, name, timestamp, timestamp, id);
+    	        collections.add(colId);
+                updateModified();
+    	        logger.debug(String.format("Created collection '%s'", this));
+    	    } finally {
+                database.getLockManager().unlockWrite(this);
+    	    }
     	} else {
     		String msg = String.format("Collection already exists: '%s'", col);
     		throw new XmldbException(msg);
@@ -474,13 +476,18 @@ public class Collection implements Comparable<Collection> {
             throw new IllegalArgumentException("Null or empty name");
         }
         
-        boolean deleted = false;
-        Document doc = getDocument(name);
-        if (doc != null) {
-            deleteDocument(doc);
-            deleted = true;
+        database.getLockManager().lockWrite(this);
+        try {
+            boolean deleted = false;
+            Document doc = getDocument(name);
+            if (doc != null) {
+                deleteDocument(doc);
+                deleted = true;
+            }
+            return deleted;
+        } finally {
+            database.getLockManager().unlockWrite(this);
         }
-        return deleted;
     }
     
     /**
@@ -501,15 +508,20 @@ public class Collection implements Comparable<Collection> {
             throw new IllegalArgumentException("Null or empty name");
         }
         
-        boolean deleted = false;
-        Collection col = getCollection(name);
-        if (col != null) {
-            col.delete();
-            collections.remove(col.getId());
-            updateModified();
-            deleted = true;
+        database.getLockManager().lockWrite(this);
+        try {
+            boolean deleted = false;
+            Collection col = getCollection(name);
+            if (col != null) {
+                col.delete();
+                collections.remove(col.getId());
+                updateModified();
+                deleted = true;
+            }
+            return deleted;
+        } finally {
+            database.getLockManager().unlockWrite(this);
         }
-        return deleted;
     }
     
     /**
@@ -697,13 +709,18 @@ public class Collection implements Comparable<Collection> {
     }
     
     private void deleteDocument(Document doc) {
-        documents.remove(doc.getId());
-        if (doc.getMediaType() == MediaType.SCHEMA) {
-            // Unregister schema.
+        database.getLockManager().lockWrite(doc);
+        try {
+            documents.remove(doc.getId());
+            if (doc.getMediaType() == MediaType.SCHEMA) {
+                // Unregister schema.
+            }
+            
+            updateModified();
+            doc.delete();
+        } finally {
+            database.getLockManager().unlockWrite(doc);
         }
-        
-        updateModified();
-        doc.delete();
     }
     
     private void updateModified() {

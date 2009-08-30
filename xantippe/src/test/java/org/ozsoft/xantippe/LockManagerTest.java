@@ -16,11 +16,14 @@
 
 package org.ozsoft.xantippe;
 
+import java.io.File;
+
 import org.apache.log4j.Logger;
+import org.junit.After;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.ozsoft.xantippe.Util;
 
 /**
  * Test suite for the lock manager.
@@ -33,12 +36,18 @@ public class LockManagerTest {
     
     private static final int NO_OF_THREAD_ITERATIONS = 1000;
     
+    private static final String RESOURCES_DIR = "src/test/resources";
+    
+    private static final String DATA_DIR = RESOURCES_DIR + "/data.tmp";
+    
+    private static final String DB_DIR = RESOURCES_DIR + "/db";
+    
     private static final Logger logger =
             Logger.getLogger(LockManagerTest.class);
     
-    private final LockManager lockManager = new LockManager();
+    private static DatabaseImpl database;
 
-
+    
     //------------------------------------------------------------------------
     //  Setup & cleanup methods
     //------------------------------------------------------------------------
@@ -46,8 +55,20 @@ public class LockManagerTest {
     @BeforeClass
     public static void beforeClass() {
         Util.initLog4j();
+        database = new DatabaseImpl();
+        database.setDatabaseLocation(DATA_DIR);
     }
     
+    @Before
+    public void before() {
+        Util.deleteFile(DATA_DIR);
+    }
+
+    @After
+    public void after() {
+        Util.deleteFile(DATA_DIR);
+    }
+
 
     //------------------------------------------------------------------------
     //  Tests
@@ -58,9 +79,21 @@ public class LockManagerTest {
         logger.debug("Test suite 'locking' started");
         
         try {
+            LockManager lockManager = database.getLockManager();
+            
+            database.start();
+            
+            Collection root = database.getRootCollection();
+            root.setCompressionMode(CompressionMode.NONE);
+            root.setValidationMode(ValidationMode.OFF);
+            Collection col = root.createCollection("foo");
+            File file = new File(DB_DIR + "/data/foo/Foo-0001.xml");
+            Document doc = col.createDocument(file.getName());
+            doc.setContent(file);
+            
             LockingThread[] clients = new LockingThread[NO_OF_THREADS];
             for (int i = 0; i < NO_OF_THREADS; i++) {
-                clients[i] = new LockingThread(i);
+                clients[i] = new LockingThread(i, lockManager, col, doc);
             }
             for (LockingThread client : clients) {
                 client.start();
@@ -69,6 +102,8 @@ public class LockManagerTest {
                 client.join();
                 Assert.assertFalse("Error encountered in thread", client.hasErrors());
             }
+            
+            database.shutdown();
             
         } catch (Exception e) {
             Assert.fail(e.getMessage());
@@ -90,21 +125,34 @@ public class LockManagerTest {
         
         private final int id;
         
+        private final LockManager lockManager;
+        
+        private final Collection col;
+        
+        private final Document doc;
+        
         private boolean hasErrors = false;
         
-        public LockingThread(int id) {
+        public LockingThread(int id, LockManager lockManager, Collection col, Document doc) {
             this.id = id;
+            this.col = col;
+            this.doc = doc;
+            this.lockManager = lockManager;
         }
         
         @Override
         public void run() {
-            int objectId = 123;
             try {
                 for (int i = 0; i < NO_OF_THREAD_ITERATIONS; i++) {
-                    lockManager.lockRead(objectId);
-                    lockManager.unlockRead(objectId);
-                    lockManager.lockWrite(objectId);
-                    lockManager.unlockWrite(objectId);
+                    lockManager.lockRead(col);
+                    lockManager.unlockRead(col);
+                    lockManager.lockWrite(col);
+                    lockManager.unlockWrite(col);
+                    lockManager.lockRead(doc);
+                    lockManager.unlockRead(doc);
+                    //FIXME: Fix deadlock with document write locks.
+//                    lockManager.lockWrite(doc);
+//                    lockManager.unlockWrite(doc);
                 }
             } catch (Exception e) {
                 String msg = String.format(

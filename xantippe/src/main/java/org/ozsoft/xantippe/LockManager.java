@@ -39,6 +39,70 @@ class LockManager {
 	public LockManager() {
         locks = new HashMap<Integer, ReentrantReadWriteLock>();
     }
+	
+	public void lockRead(Document doc) {
+	    lockRead(doc.getId());
+        Collection col = doc.getParent();
+        if (col != null) {
+            lockRead(col);
+        }
+	}
+	
+    public void unlockRead(Document doc) {
+        unlockRead(doc.getId());
+        Collection col = doc.getParent();
+        if (col != null) {
+            unlockRead(col);
+        }
+    }
+    
+	public void lockRead(Collection col) {
+	    lockRead(col.getId());
+	    Collection parent = col.getParent();
+	    if (parent != null) {
+	        lockRead(parent);
+	    }
+	}
+    
+    public void unlockRead(Collection col) {
+        unlockRead(col.getId());
+        Collection parent = col.getParent();
+        if (parent != null) {
+            unlockRead(parent);
+        }
+    }
+    
+    public void lockWrite(Document doc) {
+        lockWrite(doc.getId());
+        Collection col = doc.getParent();
+        if (col != null) {
+            lockRead(col);
+        }
+    }
+    
+    public void unlockWrite(Document doc) {
+        unlockWrite(doc.getId());
+        Collection col = doc.getParent();
+        if (col != null) {
+            unlockRead(col);
+        }
+    }
+    
+    public void lockWrite(Collection col) {
+        lockWrite(col.getId());
+        Collection parent = col.getParent();
+        if (parent != null) {
+            lockRead(parent);
+        }
+    }
+    
+    public void unlockWrite(Collection col) {
+        unlockWrite(col.getId());
+        Collection parent = col.getParent();
+        if (parent != null) {
+            unlockRead(parent);
+        }
+    }
     
 	/**
 	 * Locks a specific object for reading (a shared lock).
@@ -48,7 +112,7 @@ class LockManager {
 	 * 
 	 * @param  objectId  the object ID
 	 */
-	public synchronized void lockRead(int objectId) {
+	private synchronized void lockRead(int objectId) {
         ReadLock lock = getLock(objectId).readLock();
         while (true) {
             if (lock.tryLock()) {
@@ -71,7 +135,7 @@ class LockManager {
      * 
      * @param  objectId  the object ID
      */
-    public synchronized void lockWrite(int objectId) {
+    private synchronized void lockWrite(int objectId) {
         WriteLock lock = getLock(objectId).writeLock();
         while (true) {
             if (lock.tryLock()) {
@@ -95,7 +159,7 @@ class LockManager {
      *              if the current thread does not have any read lock for the
      *              specified object
      */
-    public synchronized void unlockRead(int objectId) {
+    private synchronized void unlockRead(int objectId) {
         ReentrantReadWriteLock lock = locks.get(objectId);
         if (lock != null) {
             lock.readLock().unlock();
@@ -115,7 +179,7 @@ class LockManager {
      *              if the current thread does not have a write lock for the
      *              specified object
      */
-    public synchronized void unlockWrite(int objectId) {
+    private synchronized void unlockWrite(int objectId) {
         ReentrantReadWriteLock lock = locks.get(objectId);
         if (lock != null) {
             lock.writeLock().unlock();
