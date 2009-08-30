@@ -14,9 +14,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-
 package org.ozsoft.xantippe;
-
 
 import org.apache.log4j.Logger;
 import org.junit.Assert;
@@ -24,14 +22,12 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.ozsoft.xantippe.Util;
 
-
 /**
  * Test suite for the lock manager.
  * 
  * @author Oscar Stigter
  */
 public class LockManagerTest {
-
 
     private static final int NO_OF_THREADS = 100;
     
@@ -47,7 +43,6 @@ public class LockManagerTest {
     //  Setup & cleanup methods
     //------------------------------------------------------------------------
 
-
     @BeforeClass
     public static void beforeClass() {
         Util.initLog4j();
@@ -57,7 +52,6 @@ public class LockManagerTest {
     //------------------------------------------------------------------------
     //  Tests
     //------------------------------------------------------------------------
-    
     
     @Test
     public void locking() {
@@ -94,18 +88,15 @@ public class LockManagerTest {
      */
     private class LockingThread extends Thread {
         
-        
         private final int id;
         
         private boolean hasErrors = false;
-        
         
         public LockingThread(int id) {
             this.id = id;
         }
         
-        
-        @Override // Thread
+        @Override
         public void run() {
             int objectId = 123;
             try {
@@ -123,13 +114,10 @@ public class LockManagerTest {
             }
         }
         
-        
         public boolean hasErrors() {
             return hasErrors;
         }
         
-        
-    } // LockingThread class
+    } // LockingThread
     
-    
-} // LockManagerTest class
+}

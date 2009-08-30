@@ -14,9 +14,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-
 package org.ozsoft.xantippe;
-
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -31,15 +29,12 @@ import org.apache.log4j.Logger;
 import org.ozsoft.xantippe.filestore.FileStore;
 import org.ozsoft.xantippe.filestore.FileStoreException;
 
-
-
 /**
- * Document instance.
+ * A document stored in the database.
  * 
  * @author Oscar Stigter
  */
 public class Document implements Comparable<Document> {
-    
     
     /** log4j logger. */
     private static final Logger logger = Logger.getLogger(Document.class);
@@ -78,11 +73,6 @@ public class Document implements Comparable<Document> {
     private CompressionMode compressionMode = CompressionMode.NONE;
     
     
-    //------------------------------------------------------------------------
-    //  Constructors
-    //------------------------------------------------------------------------
-
-    
     /* package */ Document(DatabaseImpl database, int id, String name,
             MediaType mediaType, long created, long modified, int parent) {
         this.database = database;
@@ -109,12 +99,6 @@ public class Document implements Comparable<Document> {
         database.addDocument(this);
     }
     
-    
-    //------------------------------------------------------------------------
-    //  Public methods
-    //------------------------------------------------------------------------
-
-    
     /**
      * Returns the document's name.
      * 
@@ -123,7 +107,6 @@ public class Document implements Comparable<Document> {
     public String getName() {
         return name;
     }
-    
     
     /**
      * Returns the collection this document is stored in.
@@ -134,7 +117,6 @@ public class Document implements Comparable<Document> {
         return database.getCollection(parent);
     }
     
-    
     /**
      * Returns the document's media type.
      * 
@@ -143,7 +125,6 @@ public class Document implements Comparable<Document> {
     public MediaType getMediaType() {
         return mediaType;
     }
-    
     
     /**
      * Returns the document's length in bytes.
@@ -154,7 +135,6 @@ public class Document implements Comparable<Document> {
         return length;
     }
     
-    
     /**
      * Returns the document's stored length in bytes.
      * 
@@ -163,7 +143,6 @@ public class Document implements Comparable<Document> {
     public int getStoredLength() {
         return database.getFileStore().getLength(id); 
     }
-    
     
     /**
      * Returns the timestamp the document was created.
@@ -174,7 +153,6 @@ public class Document implements Comparable<Document> {
         return created;
     }
     
-    
     /**
      * Returns the timestamp the document was last modified.
      * 
@@ -183,7 +161,6 @@ public class Document implements Comparable<Document> {
     public long getModified() {
         return modified;
     }
-    
     
     /**
      * Returns the document's absolute URI.
@@ -200,7 +177,6 @@ public class Document implements Comparable<Document> {
         sb.append(name);
         return sb.toString(); 
     }
-    
     
     /**
      * Returns the document's content.
@@ -233,7 +209,6 @@ public class Document implements Comparable<Document> {
         return is;
     }
     
-    
     /**
      * Sets the document's content using an OutputStream.
      * The streamed document's content is written to a temporary file. 
@@ -254,7 +229,6 @@ public class Document implements Comparable<Document> {
             throw new XmldbException(msg, e);
         }
     }
-    
     
     /**
      * Sets the document's content based on a file.
@@ -393,7 +367,6 @@ public class Document implements Comparable<Document> {
         }
     }
     
-    
     /**
      * Sets a manual key value for this document.
      * 
@@ -417,7 +390,6 @@ public class Document implements Comparable<Document> {
         getParent().addIndexValue(name, value, id);
     }
     
-    
     /**
      * Returns the hash code of this object.
      * 
@@ -427,7 +399,6 @@ public class Document implements Comparable<Document> {
     public int hashCode() {
         return id;
     }
-    
     
     /**
      * Return true if this document is equal to the specified Object, otherwise
@@ -447,7 +418,6 @@ public class Document implements Comparable<Document> {
         }
     }
     
-    
     /**
      * Compares this document with the specified document.
      * 
@@ -460,7 +430,6 @@ public class Document implements Comparable<Document> {
     public int compareTo(Document doc) {
         return name.compareTo(doc.getName());
     }
-    
 
     /**
      * Returns a string representation of this document.
@@ -474,26 +443,17 @@ public class Document implements Comparable<Document> {
         return getUri();
     }
     
-    
-    //------------------------------------------------------------------------
-    //  Package protected methods
-    //------------------------------------------------------------------------
-    
-    
     /* package */ int getId() {
         return id;
     }
-    
     
     /* package */ CompressionMode getCompressionMode() {
         return compressionMode;
     }
     
-    
     /* package */ void setCompressionMode(CompressionMode compressionMode) {
         this.compressionMode = compressionMode;
     }
-    
     
     /* package */ void delete() {
         database.deleteDocument(this);
@@ -501,15 +461,8 @@ public class Document implements Comparable<Document> {
         logger.debug(msg);
     }
     
-    
-    //------------------------------------------------------------------------
-    //  Private methods
-    //------------------------------------------------------------------------
-    
-    
     private void updateModified() {
         modified = System.currentTimeMillis();
     }
-
     
 }

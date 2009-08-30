@@ -14,9 +14,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-
 package org.ozsoft.xantippe;
-
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -44,7 +42,6 @@ import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
-
 /**
  * Document validator with cached, precompiled schema's.
  * 
@@ -53,7 +50,6 @@ import org.xml.sax.helpers.DefaultHandler;
  * @author Oscar Stigter
  */
 /* package */ class DocumentValidator {
-    
 
     /** Database file with the schema's. */
     private static final String SCHEMAS_FILE = "schemas.dbx";
@@ -78,12 +74,6 @@ import org.xml.sax.helpers.DefaultHandler;
     /** Back-reference to the database. */
     private final DatabaseImpl database;
 
-
-    //------------------------------------------------------------------------
-    //  Constructor
-    //------------------------------------------------------------------------
-
-
     /* package */ DocumentValidator(DatabaseImpl database) {
         this.database = database;
         
@@ -103,12 +93,6 @@ import org.xml.sax.helpers.DefaultHandler;
         validators = new HashMap<String, Validator>();
     }
     
-    
-    //------------------------------------------------------------------------
-    //  Public methods
-    //------------------------------------------------------------------------
-
-
     /**
      * Adds a schema.
      * 
@@ -127,7 +111,6 @@ import org.xml.sax.helpers.DefaultHandler;
         logger.debug(String.format(
                 "Added schema with namespace '%s'", namespace));
     }
-    
     
     /**
      * Validates a document.
@@ -189,7 +172,6 @@ import org.xml.sax.helpers.DefaultHandler;
         }
     }
     
-    
     /**
      * Clears all schema namespaces and cached Validator objects.
      */
@@ -199,12 +181,6 @@ import org.xml.sax.helpers.DefaultHandler;
         logger.debug("Cleared all schema's");
     }
     
-    
-    //------------------------------------------------------------------------
-    //  Package protected methods
-    //------------------------------------------------------------------------
-
-
     /* package */ void readSchemas(File dataDir) {
         clearSchemas();
         logger.debug(String.format("Read database file '%s'", SCHEMAS_FILE));
@@ -233,7 +209,6 @@ import org.xml.sax.helpers.DefaultHandler;
         }
     }
     
-    
     /* package */ void writeSchemas(File dataDir) {
         logger.debug(String.format("Write database file '%s'", SCHEMAS_FILE));
         File file = new File(dataDir, SCHEMAS_FILE);
@@ -255,12 +230,6 @@ import org.xml.sax.helpers.DefaultHandler;
         }
     }
     
-    
-    //------------------------------------------------------------------------
-    //  Private methods
-    //------------------------------------------------------------------------
-
-
     private Validator getValidator(String namespace, boolean keepInCache)
             throws XmldbException {
         logger.debug("Get schema for namespace '" + namespace + "'");
@@ -308,7 +277,6 @@ import org.xml.sax.helpers.DefaultHandler;
         return validator;
     }
     
-    
     /**
      * Returns the target namespace from a schema file.
      *
@@ -330,7 +298,6 @@ import org.xml.sax.helpers.DefaultHandler;
 
         return namespace;
     }
-
 
     /**
      * Returns the document namespace from an XML file.
@@ -354,21 +321,13 @@ import org.xml.sax.helpers.DefaultHandler;
         return namespace;
     }
     
-    
-    //------------------------------------------------------------------------
-    //  Inner classes
-    //------------------------------------------------------------------------
-
-
     /**
      * SAX content handler to retrieve the target namespace from a schema file.
      */
     private class SchemaHandler extends DefaultHandler {
 
-
         /** Target namespace found. */
         private String namespace = null;
-
 
         /**
          * Returns the target namespace.
@@ -378,7 +337,6 @@ import org.xml.sax.helpers.DefaultHandler;
         public String getNamespace() {
             return namespace;
         }
-
 
         /**
          * Processes the start of an XML element.
@@ -396,23 +354,16 @@ import org.xml.sax.helpers.DefaultHandler;
                 throw new ParsingDoneException();
             }
         }
-        
     
-    }
-    
-    
-    //------------------------------------------------------------------------
-    
+    } // SchemaHandler
     
     /**
      * SAX content handler to retrieve the document namespace. 
      */
     private class DocumentHandler extends DefaultHandler {
-        
 
         /** Target namespace found. */
         private String namespace = null;
-        
         
         /**
          * Returns the target namespace.
@@ -423,7 +374,6 @@ import org.xml.sax.helpers.DefaultHandler;
             return namespace;
         }
         
-
         /**
          * Returns the root element namespace of an XML file, or null if it has
          * no namespace.
@@ -439,12 +389,7 @@ import org.xml.sax.helpers.DefaultHandler;
             throw new ParsingDoneException();
         }
         
-    
-    }
-    
-    
-    //------------------------------------------------------------------------
-    
+    } // DocumentHandler
     
     /**
      * Exception used to abort a SAX parser when all required data has been
@@ -454,28 +399,20 @@ import org.xml.sax.helpers.DefaultHandler;
      * when the interesting data is located at the start of the document.
      */
     private static class ParsingDoneException extends SAXException {
-        
 
         /** Serial version UID. */
         private static final long serialVersionUID = -1L;
-        
 
     }
 
-
-    //------------------------------------------------------------------------
-    
-    
     /**
      * Resource resolver to retrieve schema files by their namespace.
      */
     private class XmldbResourceResolver implements LSResourceResolver {
         
-        
         private static final String SCHEMA_TYPE =
                 "http://www.w3.org/2001/XMLSchema";
         
-    
         public LSInput resolveResource(String type, String namespace,
                 String publicId, String systemId, String baseUri) {
             LSInput input = null;
@@ -518,12 +455,7 @@ import org.xml.sax.helpers.DefaultHandler;
             return input;
         }
         
-        
     } // XmldbResourceResolver class
-    
-    
-    //------------------------------------------------------------------------
-    
     
     /**
      * Resource input to retrieve schema's by their namespace from the
@@ -531,98 +463,79 @@ import org.xml.sax.helpers.DefaultHandler;
      */
     private static class XmldbResourceInput implements LSInput {
         
-        
         private InputStream is;
-        
         
         public String getPublicId() {
             // Empty implementation.
             return null;
         }
 
-
         public void setPublicId(String publicId) {
             // Empty implementation.
         }
-
 
         public String getSystemId() {
             // Empty implementation.
             return null;
         }
-
         
         public void setSystemId(String systemId) {
             // Empty implementation.
         }
-        
 
         public String getBaseURI() {
             // Empty implementation.
             return null;
         }
 
-
         public void setBaseURI(String baseUri) {
             // Empty implementation.
         }
-
 
         public InputStream getByteStream() {
             return is;
         }
 
-
         public void setByteStream(InputStream is) {
             this.is = is;
         }
-
 
         public boolean getCertifiedText() {
             // Not supported.
             return false;
         }
-
         
         public void setCertifiedText(boolean isCertifiedText) {
             // Empty implementation.
         }
-
 
         public Reader getCharacterStream() {
             // Empty implementation.
             return null;
         }
 
-        
         public void setCharacterStream(Reader reader) {
             // Empty implementation.
         }
-
 
         public String getEncoding() {
             // Empty implementation.
             return null;
         }
 
-
         public void setEncoding(String encoding) {
             // Empty implementation.
         }
-
 
         public String getStringData() {
             // Empty implementation.
             return null;
         }
-
         
         public void setStringData(String stringData) {
             // Empty implementation.
         }
 
-
     } // XmldbResourceInput
 
-
-} // DocumentValidator
+}

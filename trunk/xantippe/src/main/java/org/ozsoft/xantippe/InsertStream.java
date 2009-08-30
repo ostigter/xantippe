@@ -14,15 +14,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-
 package org.ozsoft.xantippe;
-
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-
 
 /**
  * <code>OutputStream</code> for writing the content of a document.
@@ -34,7 +31,6 @@ import java.io.OutputStream;
  */
 /* package */ class InsertStream extends OutputStream {
     
-    
     /** The document. */
     private final Document document;
     
@@ -44,12 +40,6 @@ import java.io.OutputStream;
     /** Underlying output stream to the temporary file. */
     private final OutputStream os;
     
-
-    //------------------------------------------------------------------------
-    //  Constructor
-    //------------------------------------------------------------------------
-    
-
     /**
      * Constructor.
      * 
@@ -61,18 +51,12 @@ import java.io.OutputStream;
         os = new FileOutputStream(file);
     }
     
-    
-    //------------------------------------------------------------------------
-    //  Public methods
-    //------------------------------------------------------------------------
-    
-
     /**
      * Closes the stream.
      * 
      * @throws IOException  if the stream could not be gracefully closed
      */
-    @Override // OutputStream
+    @Override
     public void close() throws IOException {
         try {
             os.close();
@@ -87,17 +71,15 @@ import java.io.OutputStream;
         }
     }
 
-
     /**
      * Flushes the stream, writing any non-written data.
      * 
      * @throws IOException  if the data could not be written
      */
-    @Override // OutputStream
+    @Override
     public void flush() throws IOException {
         os.flush();
     }
-
 
     /**
      * Writes a byte.
@@ -106,11 +88,10 @@ import java.io.OutputStream;
      * 
      * @throws  IOException  if the byte could not be written
      */
-    @Override // OutputStream
+    @Override
     public void write(int b) throws IOException {
         os.write(b);
     }
-
 
     /**
      * Writes a byte array.
@@ -119,11 +100,10 @@ import java.io.OutputStream;
      * 
      * @throws  IOException  if the data could not be written
      */
-    @Override // OutputStream
+    @Override
     public void write(byte[] data) throws IOException {
         os.write(data);
     }
-
 
     /**
      * Writes a byte array.
@@ -134,11 +114,10 @@ import java.io.OutputStream;
      * 
      * @throws  IOException  if the data could not be written
      */
-    @Override // OutputStream
+    @Override
     public void write(byte[] buffer, int offset, int length)
             throws IOException {
         os.write(buffer, offset, length);
     }
-
 
 }

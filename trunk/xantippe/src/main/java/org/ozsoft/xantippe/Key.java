@@ -14,9 +14,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-
 package org.ozsoft.xantippe;
-
 
 /**
  * Document key used to retrieve documents using indexes.
@@ -28,18 +26,11 @@ package org.ozsoft.xantippe;
  */
 public class Key {
     
-    
     /** Key name. */
     private final String name;
     
     /** Key value. */
     private final Object value;
-    
-    
-    //------------------------------------------------------------------------
-    //  Constructor
-    //------------------------------------------------------------------------
-
     
     /**
      * Constructor.
@@ -52,12 +43,6 @@ public class Key {
         this.value = value;
     }
     
-    
-    //------------------------------------------------------------------------
-    //  Public methods
-    //------------------------------------------------------------------------
-    
-    
     /**
      * Returns the name.
      * 
@@ -67,7 +52,6 @@ public class Key {
         return name;
     }
     
-    
     /**
      * Returns the value.
      * 
@@ -76,7 +60,6 @@ public class Key {
     public Object getValue() {
         return value;
     }
-    
     
     /**
      * Returns the string representation of this key.
@@ -89,6 +72,5 @@ public class Key {
     public String toString() {
         return String.format("{%s = %s}",  name, value);
     }
-
     
 }

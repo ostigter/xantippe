@@ -14,9 +14,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-
 package org.ozsoft.xantippe;
-
 
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
@@ -44,7 +42,6 @@ import net.sf.saxon.value.AnyURIValue;
 
 import org.apache.log4j.Logger;
 
-
 /**
  * XQuery processor powered by Saxon-B.
  * 
@@ -54,7 +51,6 @@ import org.apache.log4j.Logger;
  * @author Oscar Stigter
  */
 /* package */ class QueryProcessor {
-
 
 	/** log4j logger. */
 	protected static final Logger logger =
@@ -72,12 +68,6 @@ import org.apache.log4j.Logger;
 	/** Dynamic query context. */
 	private final DynamicQueryContext dynamicQueryContext;
 	
-	
-    //------------------------------------------------------------------------
-    //  Constructor
-    //------------------------------------------------------------------------
-
-    
 	/* package */ QueryProcessor(DatabaseImpl database) {
 		super();
 		
@@ -90,12 +80,6 @@ import org.apache.log4j.Logger;
 		staticQueryContext = new StaticQueryContext(config);
         dynamicQueryContext = new DynamicQueryContext(config);
 	}
-	
-	
-    //------------------------------------------------------------------------
-    //  Public methods
-    //------------------------------------------------------------------------
-
     
 	/**
 	 * Executes the specified query.
@@ -132,12 +116,6 @@ import org.apache.log4j.Logger;
         }
     }
     
-    
-    //------------------------------------------------------------------------
-    //  Inner classes
-    //------------------------------------------------------------------------
-
-    
     /**
      * Document URI resolver.
      * 
@@ -146,7 +124,6 @@ import org.apache.log4j.Logger;
      * @author Oscar Stigter
      */
     private class DocumentURIResolver implements URIResolver {
-
 
         /**
          * Resolves a document URI and returns the document content.
@@ -159,9 +136,7 @@ import org.apache.log4j.Logger;
         public Source resolve(String uri, String baseUri)
     			throws TransformerException {
 //    		logger.debug("Resolve document URI: '" + uri + "'");
-    		
     		Source source = null;
-    		
     		try {
 	    		Document doc = database.getDocument(uri);
 	    		try {
@@ -175,16 +150,10 @@ import org.apache.log4j.Logger;
     		    // Runtime query error (client side)
     		    logger.debug("Document not found: '" + uri + "'");
     		}
-    		
     		return source;
 		}
         
-    	
-    } // DocumentURIResolver class
-    
-    
-    //------------------------------------------------------------------------
-    
+    } // DocumentURIResolver
     
     /**
      * Collection URI resolver.
@@ -195,16 +164,12 @@ import org.apache.log4j.Logger;
      */
     private class XmldbCollectionURIResolver implements CollectionURIResolver {
 
-
         private static final long serialVersionUID = 1L;
-        
 
         /**
          * Returns the URI's of the documents stored in a specific collection.
          */
-        public SequenceIterator resolve(
-                String colUri, String baseUri, XPathContext context)
-                throws XPathException {
+        public SequenceIterator resolve(String colUri, String baseUri, XPathContext context) throws XPathException {
             boolean recurse = false;
             
             // Parse query parameters
@@ -253,7 +218,6 @@ import org.apache.log4j.Logger;
             return it;
         }
         
-        
         private void getDocumentUris(
                 Collection col, boolean recurse, List<String> docUris) {
             for (Document doc : col.getDocuments()) {
@@ -266,13 +230,8 @@ import org.apache.log4j.Logger;
             }
         }
         
-        
-    } // CollectionURIResolver class
+    } // CollectionURIResolver
 
-
-    //------------------------------------------------------------------------
-    
-    
     /**
      * Module URI resolver.
      * 
@@ -282,9 +241,7 @@ import org.apache.log4j.Logger;
      */
     private class XmldbModuleURIResolver implements ModuleURIResolver {
         
-        
         private static final long serialVersionUID = 1L;
-
 
         /**
          * Returns the contents of an XQuery module specified by its URI. 
@@ -327,8 +284,6 @@ import org.apache.log4j.Logger;
             return sources;
         }
         
-        
-    } // XmldbModuleURIResolver class
+    } // XmldbModuleURIResolver
 
-
-} // QueryProcessor class
+}

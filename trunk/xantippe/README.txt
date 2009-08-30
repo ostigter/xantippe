@@ -33,6 +33,14 @@ Features
 
 - Queries, written in the XQuery language, can be exectued ad-hoc or using
   stored modules.
+  
+- Features a re-entrant read/write locking mechanism at the collection/document
+  level.
+  
+- Interfaces:
+  - Java API (embedded library)
+  - WebDAV (standalone server) (TODO)
+  - REST (standalone server) (TODO)
 
 The XQuery functionality is powered by Saxon-B. Saxon is an open source XQuery
 and XSLT processor written by Michael H. Kay from Saxonica Limited
@@ -42,10 +50,14 @@ and XSLT processor written by Michael H. Kay from Saxonica Limited
 Status
 ------
 
-The first stage of development is complete; all basic functionality (as
-embedded library) has been implemented and pretty well-tested.
+Stable (alpha) as embedded Java library. Comes with a decent number of unit
+tests to guarantee reliability and stability.
 
-However, Xantippe is still in Alpha stage, so please use at your own risk!
+Now working on the WebDAV and REST interfaces to extends its use with a role as
+standalone server.
+
+However, much more testing is required for Xantippe to be considered mature
+enough for production. Please use at your own risk! 
 
 
 Building
@@ -58,7 +70,7 @@ are highly recommended.
 
 Unfortunately, because Saxon is not kept up to date in any public Maven
 repository, you will have to download the latest version and deploy it to your
-local repository with a command like:
+local repository with the following command:
 
     mvn install:install-file -Dfile=saxon9.jar -DgroupId=net.sf.saxon \
         -DartifactId=saxon -Dversion=9.1 -Dpackaging=jar

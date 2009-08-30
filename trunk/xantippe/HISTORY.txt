@@ -3,12 +3,12 @@ HISTORY
 
 
 ------------------------------------------------------------------------------
-Date	     Version  Comment
+Date	     Version  Description
 ------------------------------------------------------------------------------
 
 ???          0.3a     - Converted to Maven project
                       - Changed root package to 'org.ozsoft.xantippe'
-                      - Improved code quality (Checkstyle, PMD)
+                      - Cleaned up code (Checkstyle and PMD)
                       - Added performance test
 
 11-Nov-2008  0.2a     - Added locking
@@ -16,6 +16,6 @@ Date	     Version  Comment
 
 01-Oct-2008  0.1a     First public release
 
-24-Jun-2008  -        Google Code project created
+24-Jun-2008  -        Project created and hosted at Google Code
 
 ------------------------------------------------------------------------------

@@ -14,12 +14,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-
 package org.ozsoft.xantippe;
 
-
 import java.io.OutputStream;
-
 
 /**
  * Lightweight XML database with validation, XQuery and indexing, using a plain
@@ -29,14 +26,12 @@ import java.io.OutputStream;
  */
 public interface Database {
     
-    
     /**
      * Returns the database location.
      * 
      * @return  the database location
      */
     String getDatabaseLocation();
-    
     
     /**
      * Sets the database location.
@@ -52,7 +47,6 @@ public interface Database {
      */
     void setDatabaseLocation(String path);
 
-
     /**
      * Starts the database.
      * 
@@ -61,7 +55,6 @@ public interface Database {
      */
     void start() throws XmldbException;
 
-    
     /**
      * Shuts down the database.
      * 
@@ -69,7 +62,6 @@ public interface Database {
      *              if the database is not running
      */
     void shutdown() throws XmldbException;
-
     
     /**
      * Indicates whether the database is running.
@@ -77,7 +69,6 @@ public interface Database {
      * @return  true if the database is running, otherwise false
      */
     boolean isRunning();
-
     
     /**
      * Returns the root collection.
@@ -88,7 +79,6 @@ public interface Database {
      *              if the database is not running
      */
     Collection getRootCollection() throws XmldbException;
-    
     
     /**
      * Returns the collection with the specified URI.
@@ -105,7 +95,6 @@ public interface Database {
      *              if the collection does not exist, or the URI is invalid 
      */
     Collection getCollection(String uri) throws XmldbException;
-
     
     /**
      * Returns the document with the specified URI.
@@ -122,7 +111,6 @@ public interface Database {
      *              if the document does not exist, or the URI is invalid 
      */
     Document getDocument(String uri) throws XmldbException;
-
     
     /**
      * Executes the specified query.
@@ -144,13 +132,11 @@ public interface Database {
      */
     OutputStream executeQuery(String query) throws XmldbException;
     
-    
     /**
      * Prints a listing of the complete database on the console.
      * 
      * This method is meant for debugging purposes only.
      */
     public void print();
-
     
 }
