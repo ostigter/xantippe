@@ -40,7 +40,7 @@ class LockManager {
         locks = new HashMap<Integer, ReentrantReadWriteLock>();
     }
 	
-	public void lockRead(Document doc) {
+	public synchronized void lockRead(Document doc) {
 	    lockRead(doc.getId());
         Collection col = doc.getParent();
         if (col != null) {
@@ -48,7 +48,7 @@ class LockManager {
         }
 	}
 	
-    public void unlockRead(Document doc) {
+    public synchronized void unlockRead(Document doc) {
         unlockRead(doc.getId());
         Collection col = doc.getParent();
         if (col != null) {
@@ -56,7 +56,7 @@ class LockManager {
         }
     }
     
-	public void lockRead(Collection col) {
+	public synchronized void lockRead(Collection col) {
 	    lockRead(col.getId());
 	    Collection parent = col.getParent();
 	    if (parent != null) {
@@ -64,7 +64,7 @@ class LockManager {
 	    }
 	}
     
-    public void unlockRead(Collection col) {
+    public synchronized void unlockRead(Collection col) {
         unlockRead(col.getId());
         Collection parent = col.getParent();
         if (parent != null) {
@@ -72,7 +72,7 @@ class LockManager {
         }
     }
     
-    public void lockWrite(Document doc) {
+    public synchronized void lockWrite(Document doc) {
         lockWrite(doc.getId());
         Collection col = doc.getParent();
         if (col != null) {
@@ -80,7 +80,7 @@ class LockManager {
         }
     }
     
-    public void unlockWrite(Document doc) {
+    public synchronized void unlockWrite(Document doc) {
         unlockWrite(doc.getId());
         Collection col = doc.getParent();
         if (col != null) {
@@ -88,7 +88,7 @@ class LockManager {
         }
     }
     
-    public void lockWrite(Collection col) {
+    public synchronized void lockWrite(Collection col) {
         lockWrite(col.getId());
         Collection parent = col.getParent();
         if (parent != null) {
@@ -96,7 +96,7 @@ class LockManager {
         }
     }
     
-    public void unlockWrite(Collection col) {
+    public synchronized void unlockWrite(Collection col) {
         unlockWrite(col.getId());
         Collection parent = col.getParent();
         if (parent != null) {
@@ -135,7 +135,7 @@ class LockManager {
      * 
      * @param  objectId  the object ID
      */
-    private synchronized void lockWrite(int objectId) {
+    private void lockWrite(int objectId) {
         WriteLock lock = getLock(objectId).writeLock();
         while (true) {
             if (lock.tryLock()) {
@@ -159,7 +159,7 @@ class LockManager {
      *              if the current thread does not have any read lock for the
      *              specified object
      */
-    private synchronized void unlockRead(int objectId) {
+    private void unlockRead(int objectId) {
         ReentrantReadWriteLock lock = locks.get(objectId);
         if (lock != null) {
             lock.readLock().unlock();
@@ -179,7 +179,7 @@ class LockManager {
      *              if the current thread does not have a write lock for the
      *              specified object
      */
-    private synchronized void unlockWrite(int objectId) {
+    private void unlockWrite(int objectId) {
         ReentrantReadWriteLock lock = locks.get(objectId);
         if (lock != null) {
             lock.writeLock().unlock();
