@@ -5,16 +5,18 @@ TO DO
 High priority
 -------------
 
-(None)
+- REST interface (servlet)
+- standalone server (Jetty)
+- configuration file (server)
+- client console (Swing, REST)
 
 
 Medium priority
 ---------------
 
-- WebDAV interface (servlet, Jetty)
-- REST interface (servlet, Jetty)
-- client console (Swing, REST)
-- web console (servlet, Jetty)
+- container distribution (Tomcat)
+- web console (servlet)
+- WebDAV interface (servlet)
 - rename documents and collections
 - copy documents and collections
 - move documents and collections
@@ -22,7 +24,6 @@ Medium priority
 - database interface accessible from XQuery
 - auto-commit interval to improve reliability (crash recovery)
 - backup & restore (web console)
-- configuration file (server)
 
 
 Low priority

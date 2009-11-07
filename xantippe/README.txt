@@ -33,14 +33,14 @@ Features
 
 - Queries, written in the XQuery language, can be exectued ad-hoc or using
   stored modules.
-  
+
 - Features a re-entrant read/write locking mechanism at the collection/document
   level.
-  
+
 - Interfaces:
   - Java API (embedded library)
-  - WebDAV (standalone server) (TODO)
-  - REST (standalone server) (TODO)
+  - REST (server) (TODO)
+  - WebDAV (server) (TODO)
 
 The XQuery functionality is powered by Saxon-B. Saxon is an open source XQuery
 and XSLT processor written by Michael H. Kay from Saxonica Limited
@@ -53,11 +53,11 @@ Status
 Stable (alpha) as embedded Java library. Comes with a decent number of unit
 tests to guarantee reliability and stability.
 
-Now working on the WebDAV and REST interfaces to extends its use with a role as
-standalone server.
+Now working on the REST and WebDAV interfaces to extends its use with a role as
+server (standalone or in a web container like Tomcat).
 
-However, much more testing is required for Xantippe to be considered mature
-enough for production. Please use at your own risk! 
+Please note that much more testing is required for Xantippe to be considered
+mature enough for production, so use at your own risk.
 
 
 Building

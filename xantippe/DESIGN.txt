@@ -375,3 +375,22 @@ Configuration file
     </MediaTypes>
   </Database>
 </Configuration>
+
+
+Distributions
+-------------
+
+xantippe-core
+    xantippe-core.jar
+xantippe-rest
+    xantippe-rest.jar (servlet)
+xantippe-webdav
+    xantippe-webdav.jar (servlet)
+xantippe-server-standalone
+    xantippe-server-standalone (Jetty)
+        xantippe-rest
+        xantippe-webdav
+xantippe-server-container
+    xantippe.war (Tomcat)
+        xantippe-rest
+        xantippe-webdav
