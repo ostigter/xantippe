@@ -17,7 +17,19 @@
     </appender>
 
     <logger name="org.ozsoft.xantippe">
+        <level value="INFO"/>
+    </logger>
+
+    <logger name="org.ozsoft.xantippe.server">
         <level value="DEBUG"/>
+    </logger>
+
+    <logger name="org.ozsoft.xantippe.rest">
+        <level value="DEBUG"/>
+    </logger>
+
+    <logger name="org.ozsoft.xantippe.filestore">
+        <level value="INFO"/>
     </logger>
 
     <logger name="org.mortbay">

@@ -4,6 +4,10 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.mortbay.jetty.Server;
 import org.mortbay.jetty.servlet.ServletHandler;
+import org.mortbay.jetty.servlet.ServletHolder;
+import org.ozsoft.xantippe.Database;
+import org.ozsoft.xantippe.DatabaseImpl;
+import org.ozsoft.xantippe.rest.RestServlet;
 
 /**
  * Standalone server.
@@ -16,15 +20,18 @@ import org.mortbay.jetty.servlet.ServletHandler;
  */
 public class Main {
 	
-	/** The log. */
-	private static final Log LOG = LogFactory.getLog(Main.class);
-	
-	/** The port to listen to. */
+	/** Port to listen to. */
 	private static final int PORT = 8088;
 
-//	/** The servlet context. */
-//	private static final String CONTEXT = "/xantippe";
+	/** Servlet context. */
+	private static final String CONTEXT = "/xantippe";
 	
+    /** Database data directory. */
+    private static final String DATA_DIR = "target/data-test";
+  
+    /** Log. */
+    private static final Log LOG = LogFactory.getLog(Main.class);
+    
 	/**
 	 * The application's entry point.
 	 * 
@@ -32,17 +39,24 @@ public class Main {
 	 *            Command line arguments.
 	 */
 	public static void main(String[] args) {
-//	    Database database = new DatabaseImpl();
-		Server server = new Server(PORT);
-		ServletHandler handler = new ServletHandler();
-//		handler.addServletWithMapping(new ServletHolder(servlet), CONTEXT + "/*");
-		server.setHandler(handler);
-		try {
-			server.start();
-			LOG.info(String.format("Started, listening on port %d", PORT));
-		} catch (Exception e) {
-			LOG.error("Could not start server", e);
-		}
+        try {
+            // Start REST servlet with a running database.
+            Database database = new DatabaseImpl();
+            database.setDatabaseLocation(DATA_DIR);
+            RestServlet servlet = new RestServlet(CONTEXT, database);
+            servlet.start();
+
+            // Start Jetty server.
+            Server server = new Server(PORT);
+            ServletHandler handler = new ServletHandler();
+            handler.addServletWithMapping(new ServletHolder(servlet), CONTEXT + "/*");
+            server.setHandler(handler);
+            server.start();
+            LOG.info("Started");
+
+        } catch (Exception e) {
+            LOG.error("Could not start server", e);
+        }
 	}
 
 }
