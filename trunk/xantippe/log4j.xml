@@ -17,31 +17,31 @@
     </appender>
 
     <logger name="org.ozsoft.xantippe">
-        <level value="info"/>
+        <level value="INFO"/>
     </logger>
 
     <logger name="org.ozsoft.xantippe.DatabaseTest">
-        <level value="debug"/>
+        <level value="DEBUG"/>
     </logger>
 
     <logger name="org.ozsoft.xantippe.LockManagerTest">
-        <level value="debug"/>
+        <level value="DEBUG"/>
     </logger>
 
     <logger name="org.ozsoft.xantippe.PerformanceTest">
-        <level value="debug"/>
+        <level value="DEBUG"/>
     </logger>
 
     <logger name="org.ozsoft.xantippe.filestore">
-        <level value="info"/>
+        <level value="DEBUG"/>
     </logger>
 
     <logger name="org.ozsoft.xantippe.filestore.FileStoreTest">
-        <level value="debug"/>
+        <level value="DEBUG"/>
     </logger>
 
     <root>
-        <priority value="info"/>
+        <priority value="INFO"/>
         <appender-ref ref="console"/>
         <appender-ref ref="file"/>
     </root>
