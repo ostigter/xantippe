@@ -1,0 +1,396 @@
+Design
+======
+
+
+Use cases
+---------
+
+* Create collection
+* Retrieve collection
+* Delete collection
+* Create document
+* Store document
+* Retrieve document
+* Delete document
+* Support media types XML, Schema, text and binary
+* Validate XML documents
+* Compress documents
+* Configure indices, validation and compression per collection (with inheritance)
+* Find documents by index
+* Query documents
+* REST interface
+* WebDAV interface
+* Client application
+* Backup database
+* Defragment database
+
+
+Non-function requirements
+-------------------------
+
+* Documents stored in binary form on the file system
+* Queries using XQuery expressions (Saxon)
+* Re-entrant read/write locks per document or collection
+* Logging to file (log4j)
+
+
+Java interface
+--------------
+
+public class DatabaseManager {
+    void createDatabase(String path) throws XmldbException
+    boolean databaseExists(String path)
+    void startDatabase(String name, String path)  throws XmldbException
+    void shutdownDatabase(String name) throws XmldbException
+    boolean databaseIsRunning(String name)
+    Connection getConnection(String databaseName) throws XmldbException
+}
+
+public class Database {
+    String getDatabaseLocation()
+    void start() throws XmldbException
+    void shutdown() throws XmldbException
+    boolean isRunning()
+    Collection getRootCollection() throws XmldbException
+    Collection getCollection(String uri) throws XmldbException
+    Document getDocument(String uri) throws XmldbException
+    OutputStream executeQuery(String query) throws XmldbException
+}
+
+public class Connection {
+    String getDatabaseName()
+    boolean isOpen()
+    boolean isActive()
+    Collection getRootCollection() throws XmldbException
+    Collection getCollection(String uri) throws XmldbException
+    Document getDocument(String uri) throws XmldbException
+    OutputStream executeQuery(String query) throws XmldbException
+    void close()
+}
+
+class LockManager {
+    void lockDatabase(Connection conn) throws XmldbException
+    void lockCollection(Connection conn, boolean exclusive, boolean recursive) throws XmldbException
+    void lockDocument(Connection conn, boolean exclusive) throws XmldbException
+    void unlockDatabase(Database database, Connection conn)
+    void unlockCollection(Collection col, Connection conn)
+    void unlockDocument(Document doc, Connection conn)
+}
+
+public class Collection {
+    String getName()
+    Date getCreated()
+    Date getModified()
+    Collection getParent()
+    String getUri()
+    Set<Document> getDocuments()
+    Document getDocument(String name)
+    Set<Collection> getCollections()
+    Collection getCollection(String name)
+    ValidationMode getValidationMode(boolean inherited)
+    void setValidationMode(ValidationMode vm)
+    CompressionMode getCompressionMode(boolean inherited)
+    void setCompressionMode(CompressionMode cm)
+    Set<Index> getIndices(boolean inherited)
+    Index getIndex(String name)
+    void addIndex(Index index) throws XmldbException
+    String getUri()
+    Document createDocument(String name) throws XmldbException
+    Document createDocument(String name, MediaType mediaType) throws XmldbException
+    Collection createCollection(String name) throws XmldbException
+    void deleteDocument(String name) throws XmldbException
+    void deleteCollection(String name) throws XmldbException
+    Set<Document> findDocuments(Key[] keys, boolean recursive)
+}
+
+public class Document {
+    String getName()
+    MediaType getMediaType()
+    Collection getParent()
+    int getLength()
+    int getStoredLength()
+    Date getCreated()
+    Date getModified()
+    String getUri()
+    InputStream getContent() throws XmldbException
+    OutputStream setContent() throws XmldbException
+    void setContent(File file) throws XmldbException
+    void setKey(String name, Object value)
+}
+
+public class Key {
+    Key(String name, Object value)
+    String getName()
+    Object getValue()
+}
+
+public class XmldbException {
+    XmldbException(String msg)
+    XmldbException(String msg, Throwable t)
+}
+
+public enum ValidationMode {
+    OFF, ON, AUTO INHERIT
+}
+
+public enum CompressionMode {
+    NONE, DEFLATE, INHERIT
+}
+
+public enum IndexType {
+    STRING, INTEGER, LONG, FLOAT, DOUBLE, DATE
+}
+
+
+XQuery API
+----------
+
+void createCollection(String uri)
+String[] listCollection(String uri)
+void deleteCollection(String uri, boolean force)
+
+
+WebDAV API
+----------
+
+Create Collection:      MKCOL   <col_uri>
+List Collection:        GET     <col_uri>
+Delete Collection:      DELETE  <col_uri>
+Store Document:         PUT     <doc_uri>
+Retrieve Document:      GET     <doc_uri>
+Delete Document:        DELETE  <doc_uri>
+
+
+metadata.dbx
+------------
+
+Structure:
+
+  nextId : int
+
+
+collections.dbx
+---------------
+
+Structure:
+
+  Collection               # root collection
+  | id : int
+  | name : String
+  | validationMode : byte  # ValidationMode enum
+  | noOfIndices : int
+  | Index*
+  | | id : int
+  | | name : String
+  | | path : String
+  | | type : byte          # IndexType enum
+  | noOfDocuments : int
+  | Document*
+  | | id : int
+  | | name : String
+  | | mediaType : byte     # MediaType
+  | noOfCollections : int
+  | Collection*            # tail recursion
+
+Example:
+
+  db/
+    data/
+      Foo/
+        Foo-0001.xml
+        Foo-0002.xml
+      Bar/
+        Bar-0001.xml
+      
+
+  Collection (1, "/db", OFF) {
+    indices {}
+    documents {}
+    collections {
+      Collection (2, "/db/data", ON) {
+        indices {
+          Index {101, "DocumentId", "/element()/Header/DocumentId", IndexType.INTEGER}
+          Index {102, "DocumentType", "/element()/Header/DocumentType", IndexType.STRING}
+          Index {103, "DocumentVersion", "/element()/Header/DocumentVersion", IndexType.STRING}
+        }
+        documents {}
+        collections {
+          Collection (3, "/db/data/Foo", INHERIT) {
+            indices {}
+            documents {
+              Document (11, "Foo-0001.xml", XML)
+              Document (12, "Foo-0002.xml", XML)
+            }
+            collections {}
+          }
+          Collection (4, "/db/data/Bar", INHERIT) {
+            indices {}
+            documents {
+              Document (13, "Bar-0001.xml", XML)
+            }
+            collections {}
+          }
+        }
+      }
+    }
+
+
+indices.dbx
+-----------
+
+Structure:
+
+  noOfCollections : int
+  Collection*
+  | colId : int
+  | noOfIndices
+  | Index*
+  | | name : String
+  | | noOfValues : int
+  | | value*
+  | | | value : Object
+  | | | noOfDocuments : int
+  | | | document*
+  | | | | docId : int
+
+Example:
+
+  Collection ("/db") {}
+  Collection ("/db/data") {}
+  Collection ("/db/data/Foo") {
+    indexValues {
+      IndexValue {101, { {1, {11}}, {2, {12} } } )
+      IndexValue {102, { {"Foo", {11, 12} } } )
+      IndexValue {103, { {"v1.0", {11, 12} } } )
+    }
+  }
+  Collection ("/db/data/Bar") {
+    indexValues {
+      IndexValue {101, { {3, {13} } } )
+      IndexValue {102, { {"Bar", {13} } } )
+      IndexValue {103, { {"v1.1", {13} } } )
+    }
+  }
+
+
+REST API
+--------
+
+Create collection '/db/data':
+	Request:
+		PUT /db/data
+		<?xml version="1.0" encoding="UTF-8"?>
+		<collection xmlns="http://www.ozsoft.org/xantippe" validation="inherit" compression="inherit" />
+	Response:
+		<?xml version="1.0" encoding="UTF-8"?>
+		<response xmlns="http://www.ozsoft.org/xantippe">
+			<result>ok</result>
+		</response>
+	
+Retrieve collection '/db/data':
+	Request:
+		GET /db/data
+	Response:
+		<?xml version="1.0" encoding="UTF-8"?>
+		<collection xmlns="http://www.ozsoft.org/xantippe" validation="inherit" compression="inherit" created="..." modified="...">
+			<collection name="archive" validation="inherit" compression="inherit" created="..." modified="..." />
+			<document name="foo-001.xml" created="..." modified="..." />
+			<document name="foo-002.xml" created="..." modified="..." />
+		</collection>
+	
+Update collection '/db/data':
+	Request:
+		PUT /db/data
+		<?xml version="1.0" encoding="UTF-8"?>
+		<collection xmlns="http://www.ozsoft.org/xantippe" name="data2" validation="on" compression="deflate" />
+	Response:
+		<?xml version="1.0" encoding="UTF-8"?>
+		<response xmlns="http://www.ozsoft.org/xantippe">
+			<result>error</result>
+			<message>Could not update collection '/db/data' because it is locked by another process</message>
+		</response>
+		
+Delete collection '/db/data':
+	Request:
+		DELETE /db/data
+	Response:
+		<?xml version="1.0" encoding="UTF-8"?>
+		<response xmlns="http://www.ozsoft.org/xantippe">
+			<result>error</result>
+			<message>Collection '/db/data' not found</message>
+		</response>
+
+Create/update document '/db/data/foo-001.xml':
+	Request:
+		PUT /db/data/foo-001.xml
+		...
+	Response:
+		<?xml version="1.0" encoding="UTF-8"?>
+		<response xmlns="http://www.ozsoft.org/xantippe">
+			<result>ok</result>
+		</response>
+		
+Delete document '/db/data/foo-001.xml':
+	Request:
+		DELETE /db/data/foo-001.xml
+	Response:
+		<?xml version="1.0" encoding="UTF-8"?>
+		<response xmlns="http://www.ozsoft.org/xantippe">
+			<result>error</result>
+			<message>Document '/db/data/foo-001.xml' not found</message>
+		</response>
+
+Find documents:
+	Request:
+		GET <col_uri>?<key_name>=<key_value>[&<key_name>=<key_value>]...
+		GET /db/data?documentId=foo-001&documentType=Foo
+	Response:
+		...
+
+Execute XQuery Module:
+	Request:
+		GET     <module_uri>
+	Response:
+		...
+
+Execute XQuery:
+	Request:
+		GET     query?<xquery>
+	Response:
+		...
+
+
+Configuration file
+------------------
+
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration xmlns="http://www.xantippe.org/configuration/v1.0">
+  <Database dir="data" validation="auto" compression="deflate" schemaCache="60">
+    <Server port="8081" webDav="true" rest="true" />
+    <MediaTypes>
+        <Xml>xml</Xml>
+        <Schema>xsd</Schema>
+        <Text>txt, html, css</Text>
+        <Binary>zip, jar</Binary>
+    </MediaTypes>
+  </Database>
+</Configuration>
+
+
+Distributions
+-------------
+
+xantippe-core
+    xantippe-core.jar
+xantippe-rest
+    xantippe-rest.jar (servlet)
+xantippe-webdav
+    xantippe-webdav.jar (servlet)
+xantippe-server
+    xantippe-server (Jetty)
+        xantippe-rest
+        xantippe-webdav
+xantippe-webapp
+    xantippe.war (Tomcat)
+        xantippe-rest
+        xantippe-webdav

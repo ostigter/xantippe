@@ -1,0 +1,40 @@
+TO DO
+=====
+
+
+High priority
+-------------
+
+- standalone server (Jetty)
+- configuration file (server)
+- REST interface (servlet)
+- client console (Swing, REST)
+
+
+Medium priority
+---------------
+
+- container distribution (Tomcat)
+- web console (servlet)
+- WebDAV interface (servlet)
+- rename documents and collections
+- copy documents and collections
+- move documents and collections
+- execute stored (precompiled and cached) XQuery functions with parameters
+- database interface accessible from XQuery
+- auto-commit interval to improve reliability (crash recovery)
+- backup & restore (web console)
+
+
+Low priority
+------------
+
+- use Long (64 bit) instead of Integer (32 bit) for ID's and file sizes
+- health checking
+- defragmentation
+- Authentication & Authorization (users, roles, permissions)
+- caching (documents, collections, indices)
+- recursive locking (database, collections)
+- transactions (journaling)
+- multiple databases
+- encryption

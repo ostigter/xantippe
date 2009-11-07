@@ -1,0 +1,22 @@
+HISTORY
+=======
+
+
+------------------------------------------------------------------------------
+Date	     Version  Description
+------------------------------------------------------------------------------
+
+07-Nov-2009  0.3a     - Converted to Maven project
+                      - Changed root package to 'org.ozsoft.xantippe'
+                      - Cleaned up code (Checkstyle and PMD)
+                      - Improved locking implementation
+                      - Added performance test
+
+11-Nov-2008  0.2a     - Added locking
+                      - Upgraded to Saxon-B 9.1
+
+01-Oct-2008  0.1a     First public release
+
+24-Jun-2008  -        Project created and hosted at Google Code
+
+------------------------------------------------------------------------------

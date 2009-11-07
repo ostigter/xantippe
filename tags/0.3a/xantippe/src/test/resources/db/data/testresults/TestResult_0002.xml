@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tr:TestResult xmlns:tr="http://www.example.com/XMLSchema/TestResult/v1.0">
+  <Header>
+    <Id>12</Id>
+    <Type>TestResult</Type>
+    <Version>v1.0</Version>
+    <Title>My TestResult document</Title>
+  </Header>
+
+  <Body>
+    <Test>
+      <Type>LaserCalibration</Type>
+      <Version>v1.0</Version>
+      <Value>3.14</Value>
+      <Result>Passed</Result>
+    </Test>
+
+    <Test>
+      <Type>LensCalibration</Type>
+      <Version>v1.0</Version>
+      <Value>6.67</Value>
+      <Result>Passed</Result>
+    </Test>
+
+    <OverallResult>Passed</OverallResult>
+  </Body>
+
+</tr:TestResult>
