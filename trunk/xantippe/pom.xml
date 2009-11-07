@@ -3,11 +3,11 @@
 
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>org.ozsoft</groupId>
+    <groupId>org.ozsoft.xantippe</groupId>
     <artifactId>xantippe</artifactId>
     <version>0.3.0-SNAPSHOT</version>
 
-    <name>Xantippe</name>
+    <name>xantippe</name>
     <description>Open source, lightweight XML database with validation, indexing and XQuery support</description>
 
     <developers>
@@ -21,20 +21,6 @@
             <timezone>+1</timezone>
         </developer>
     </developers>
-
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <source>1.6</source>
-                    <target>1.6</target>
-                    <compilerVersion>6</compilerVersion>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
 
     <dependencies>
         <dependency>
@@ -56,5 +42,19 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>1.6</source>
+                    <target>1.6</target>
+                    <compilerVersion>6</compilerVersion>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 
 </project>
