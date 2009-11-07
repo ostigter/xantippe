@@ -386,11 +386,11 @@ xantippe-rest
     xantippe-rest.jar (servlet)
 xantippe-webdav
     xantippe-webdav.jar (servlet)
-xantippe-server-standalone
-    xantippe-server-standalone (Jetty)
+xantippe-server
+    xantippe-server (Jetty)
         xantippe-rest
         xantippe-webdav
-xantippe-server-container
+xantippe-webapp
     xantippe.war (Tomcat)
         xantippe-rest
         xantippe-webdav

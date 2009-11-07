@@ -5,9 +5,9 @@ TO DO
 High priority
 -------------
 
-- REST interface (servlet)
 - standalone server (Jetty)
 - configuration file (server)
+- REST interface (servlet)
 - client console (Swing, REST)
 
 

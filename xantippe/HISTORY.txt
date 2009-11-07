@@ -6,9 +6,10 @@ HISTORY
 Date	     Version  Description
 ------------------------------------------------------------------------------
 
-???          0.3a     - Converted to Maven project
+07-Nov-2009  0.3a     - Converted to Maven project
                       - Changed root package to 'org.ozsoft.xantippe'
                       - Cleaned up code (Checkstyle and PMD)
+                      - Improved locking implementation
                       - Added performance test
 
 11-Nov-2008  0.2a     - Added locking
