@@ -164,7 +164,7 @@ public class DatabaseImpl implements Database {
         
         isRunning = true;
 
-        LOG.info("Started");
+        LOG.debug("Started");
     }
     
     /*
@@ -196,7 +196,7 @@ public class DatabaseImpl implements Database {
         
         isRunning = false;
         
-        LOG.info("Shut down");
+        LOG.debug("Shut down");
     }
     
     /*
