@@ -42,7 +42,7 @@ public class LockManagerTest {
     
     private static final String DB_DIR = RESOURCES_DIR + "/db";
     
-    private static final Logger logger =
+    private static final Logger LOG =
             Logger.getLogger(LockManagerTest.class);
     
     private static DatabaseImpl database;
@@ -76,7 +76,7 @@ public class LockManagerTest {
     
     @Test
     public void locking() {
-        logger.debug("Test suite 'locking' started");
+        LOG.debug("Test suite 'locking' started");
         
         try {
             LockManager lockManager = database.getLockManager();
@@ -109,7 +109,7 @@ public class LockManagerTest {
             Assert.fail(e.getMessage());
         }
         
-        logger.debug("Test suite 'locking' finished");
+        LOG.debug("Test suite 'locking' finished");
     }
     
     
@@ -157,7 +157,7 @@ public class LockManagerTest {
             } catch (Exception e) {
                 String msg = String.format(
                         "Exception in thread %d: %s", id, e.getMessage());
-                logger.error(msg, e);
+                LOG.error(msg, e);
                 hasErrors = true;
             }
         }

@@ -50,7 +50,7 @@ public class PerformanceTest {
     private static final String XML_HEADER =
 		"<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
 
-    private static final Logger logger =
+    private static final Logger LOG =
             Logger.getLogger(PerformanceTest.class);
 
     private static Database database;
@@ -84,7 +84,7 @@ public class PerformanceTest {
     
     @Test
     public void performance() {
-        logger.debug("Test suite 'performance' started");
+        LOG.debug("Test suite 'performance' started");
         
         try {
             database.start();
@@ -93,7 +93,7 @@ public class PerformanceTest {
             col.setCompressionMode(CompressionMode.NONE);
             col.setValidationMode(ValidationMode.OFF);
             
-            logger.debug("Creating " + DOCUMENT_COUNT + " documents...");
+            LOG.debug("Creating " + DOCUMENT_COUNT + " documents...");
             
             long time = System.currentTimeMillis();
             
@@ -109,7 +109,7 @@ public class PerformanceTest {
             }
             
             double duration = (System.currentTimeMillis() - time) / 1000.0;
-            logger.debug(String.format("Duration: %.3f seconds", duration));
+            LOG.debug(String.format("Duration: %.3f seconds", duration));
             
             // Restart database to force persist storage
             database.shutdown();
@@ -124,7 +124,7 @@ public class PerformanceTest {
             Assert.fail(e.getMessage());
         }
         
-        logger.debug("Test suite 'performance' finished");
+        LOG.debug("Test suite 'performance' finished");
     }
 
 
@@ -135,7 +135,7 @@ public class PerformanceTest {
 //      */
 //     @Test
 //     public void manyDocuments() {
-//         logger.debug("Test suite 'manyDocuments' started");
+//         LOG.debug("Test suite 'manyDocuments' started");
 //
 //         try {
 //             database.start();
@@ -149,14 +149,14 @@ public class PerformanceTest {
 //             File dir = new File(LARGE_DATASET_DIR);
 //             if (!dir.isDirectory() || !dir.canRead()) {
 //                 String msg = "Invalid dataset directory: " + dir;
-//                 logger.error(msg);
+//                 LOG.error(msg);
 //                 Assert.fail(msg);
 //             }
 //
 //             int count = 0;
 //             long size = 0L;
 //
-//             logger.info("Storing documents...");
+//             LOG.info("Storing documents...");
 //             long startTime = System.currentTimeMillis();
 //             for (File file : dir.listFiles()) {
 //                 if (file.isFile()) {
@@ -169,20 +169,20 @@ public class PerformanceTest {
 //             }
 //             double duration = (System.currentTimeMillis() - startTime) / 1000.0;
 //             double speed = (size / (1024 * 1024)) / duration;
-//             logger.info(String.format(java.util.Locale.US,
+//             LOG.info(String.format(java.util.Locale.US,
 //                     "Stored %d documents in %.3f seconds (%.2f MB/s)",
 //                     count, duration, speed));
 //             
-////             logger.info("Finding documents using brute-force search...");
+////             LOG.info("Finding documents using brute-force search...");
 ////             String query = "count(collection('/db/data')[element()/Header/MachineID = '1111'])";
 ////             startTime = System.currentTimeMillis();
 ////             String result = database.executeQuery(query).toString();
 ////             duration = (System.currentTimeMillis() - startTime) / 1000.0;
 ////             Assert.assertEquals(XML_HEADER + "10", result);
-////             logger.info(String.format(java.util.Locale.US,
+////             LOG.info(String.format(java.util.Locale.US,
 ////                     "Searched %d documents in %.3f seconds", count, duration));
 //             
-//             logger.info("Finding documents using indices...");
+//             LOG.info("Finding documents using indices...");
 //             Key[] keys = new Key[] {
 //                     new Key("MachineId", "1111"),
 //             };
@@ -190,7 +190,7 @@ public class PerformanceTest {
 //             Set<Document> docs = rootCol.findDocuments(keys, true);
 //             duration = (System.currentTimeMillis() - startTime) / 1000.0;
 //             Assert.assertEquals(10, docs.size());
-//             logger.info(String.format(java.util.Locale.US,
+//             LOG.info(String.format(java.util.Locale.US,
 //                     "Searched %d documents in %.3f seconds", count, duration));
 //             
 //             database.shutdown();
@@ -199,7 +199,7 @@ public class PerformanceTest {
 //             Assert.fail(e.getMessage());
 //         }
 //
-//         logger.debug("Test suite 'manyDocuments' finished");
+//         LOG.debug("Test suite 'manyDocuments' finished");
 //     }
         
 }

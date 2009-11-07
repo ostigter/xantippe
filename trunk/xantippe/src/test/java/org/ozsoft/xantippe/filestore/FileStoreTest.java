@@ -21,14 +21,13 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-import org.apache.log4j.Logger;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.ozsoft.xantippe.Util;
-import org.ozsoft.xantippe.filestore.FileStore;
-import org.ozsoft.xantippe.filestore.FileStoreException;
 
 
 /**
@@ -46,8 +45,8 @@ public class FileStoreTest {
     
     private static final String DB_DIR = RESOURCES_DIR + "/db";
 
-    /** log4j logger. */
-    private static final Logger logger = Logger.getLogger(FileStoreTest.class);
+    /** Log */
+    private static final Log LOG = LogFactory.getLog(FileStoreTest.class);
 
     
     //------------------------------------------------------------------------
@@ -75,7 +74,7 @@ public class FileStoreTest {
     
     @Test
     public void fileStore() {
-        logger.debug("Test suite 'fileStore' started");
+        LOG.debug("Test suite 'fileStore' started");
         
         File file;
         
@@ -144,7 +143,7 @@ public class FileStoreTest {
             Assert.fail(e.getMessage());
         }
         
-        logger.debug("Test suite 'fileStore' finished");
+        LOG.debug("Test suite 'fileStore' finished");
     }
     
     

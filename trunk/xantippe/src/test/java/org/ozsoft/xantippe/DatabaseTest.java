@@ -24,7 +24,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -52,7 +53,7 @@ public class DatabaseTest {
     
     private static final int BUFFER_SIZE = 8192;  // 8 kB
 
-    private static final Logger logger = Logger.getLogger(DatabaseTest.class);
+    private static final Log LOG = LogFactory.getLog(DatabaseTest.class);
 
     private static Database database;
 
@@ -85,7 +86,7 @@ public class DatabaseTest {
     
     @Test
     public void states() {
-        logger.debug("Test suite 'states' started");
+        LOG.debug("Test suite 'states' started");
         
         // Check database is not running.
         Assert.assertFalse(database.isRunning());
@@ -165,12 +166,12 @@ public class DatabaseTest {
         // Check database is shut down.
         Assert.assertFalse(database.isRunning());
         
-        logger.debug("Test suite 'states' finished");
+        LOG.debug("Test suite 'states' finished");
     }
     
     @Test
     public void badWeather() {
-        logger.debug("Test suite 'badWeather' started");
+        LOG.debug("Test suite 'badWeather' started");
         
         try {
             database.start();
@@ -248,7 +249,7 @@ public class DatabaseTest {
             Assert.fail(e.getMessage());
         }
 
-        logger.debug("Test suite 'badWeather' finished");
+        LOG.debug("Test suite 'badWeather' finished");
     }
 
     /**
@@ -256,7 +257,7 @@ public class DatabaseTest {
      */
     @Test
     public void storage() {
-        logger.debug("Test suite 'storage' started");
+        LOG.debug("Test suite 'storage' started");
 
         File file;
         Document doc;
@@ -507,7 +508,7 @@ public class DatabaseTest {
             Assert.fail(e.getMessage());
         }
 
-        logger.debug("Test suite 'storage' finished");
+        LOG.debug("Test suite 'storage' finished");
     }
     
     /**
@@ -515,7 +516,7 @@ public class DatabaseTest {
      */
     @Test
     public void validation() {
-        logger.debug("Test suite 'validation' started");
+        LOG.debug("Test suite 'validation' started");
         
         File file;
         Document doc;
@@ -560,7 +561,7 @@ public class DatabaseTest {
             Assert.fail(e.getMessage());
         }
 
-        logger.debug("Test suite 'validation' finished");
+        LOG.debug("Test suite 'validation' finished");
     }
 
     /**
@@ -568,7 +569,7 @@ public class DatabaseTest {
      */
     @Test
     public void xquery() {
-        logger.debug("Test suite 'xquery' started");
+        LOG.debug("Test suite 'xquery' started");
         
         File file;
         Document doc;
@@ -636,7 +637,7 @@ public class DatabaseTest {
             Assert.fail(e.getMessage());
         }
         
-        logger.debug("Test suite 'xquery' finished");
+        LOG.debug("Test suite 'xquery' finished");
     }
     
     /**
@@ -644,7 +645,7 @@ public class DatabaseTest {
      */
     @Test
     public void multiThreading() {
-        logger.debug("Test suite 'multiThreading' started");
+        LOG.debug("Test suite 'multiThreading' started");
         
         try {
             database.start();
@@ -674,7 +675,7 @@ public class DatabaseTest {
             Assert.fail(e.getMessage());
         }
         
-        logger.debug("Test suite 'multiThreading' finished");
+        LOG.debug("Test suite 'multiThreading' finished");
     }
     
     
@@ -742,7 +743,7 @@ public class DatabaseTest {
             } catch (Exception e) {
                 String msg = String.format(
                         "Exception in thread %d: %s", id, e.getMessage());
-                logger.error(msg, e);
+                LOG.error(msg, e);
                 hasErrors = true;
             }
         }

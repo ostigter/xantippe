@@ -54,9 +54,8 @@ import org.xml.sax.helpers.DefaultHandler;
     /** Database file with the schema's. */
     private static final String SCHEMAS_FILE = "schemas.dbx";
     
-    /** log4j logger. */
-    private static final Logger logger =
-            Logger.getLogger(DocumentValidator.class);
+    /** Log */
+    private static final Logger LOG = Logger.getLogger(DocumentValidator.class);
     
     /** Schema factory for WC3 XML schema's with namespaces. */
     private final SchemaFactory schemaFactory =
@@ -85,7 +84,7 @@ import org.xml.sax.helpers.DefaultHandler;
             parser = spf.newSAXParser();
         } catch (Exception e) {
             String msg = "Could not instantiate SAX parser";
-            logger.fatal(msg, e);
+            LOG.fatal(msg, e);
             throw new RuntimeException(msg, e);
         }
         
@@ -108,7 +107,7 @@ import org.xml.sax.helpers.DefaultHandler;
             throws IOException, SAXException {
         String namespace = getTargetNamespaceFromSchema(file);
         schemaFiles.put(namespace, docId);
-        logger.debug(String.format(
+        LOG.debug(String.format(
                 "Added schema with namespace '%s'", namespace));
     }
     
@@ -130,12 +129,12 @@ import org.xml.sax.helpers.DefaultHandler;
         } catch (IOException e) {
             String msg = String.format(
                     "Error reading file: '%s': %s", file, e.getMessage());
-            logger.error(msg, e);
+            LOG.error(msg, e);
             throw new XmldbException(msg, e);
         } catch (SAXException e) {
             String msg = String.format(
                     "Invalid document: '%s': %s", uri, e.getMessage());
-            logger.warn(msg);
+            LOG.warn(msg);
             throw new XmldbException(msg, e);
         }
             
@@ -145,12 +144,12 @@ import org.xml.sax.helpers.DefaultHandler;
                 try {
                     validator.validate(new StreamSource(file));
                     long duration = System.currentTimeMillis() - startTime;
-                    logger.debug(String.format(
+                    LOG.debug(String.format(
                         "Validated document '%s' in %d ms", uri, duration));
                 } catch (Exception e) {
                     String msg = String.format(
                         "Invalid document: '%s': %s", uri, e.getMessage());
-                    logger.warn(msg);
+                    LOG.warn(msg);
                     throw new XmldbException(msg, e);
                 }
             } else {
@@ -158,7 +157,7 @@ import org.xml.sax.helpers.DefaultHandler;
                     String msg = String.format(
                             "Invalid document: '%s'; no schema found for namespace '%s'",
                             uri, namespace);
-                    logger.warn(msg);
+                    LOG.warn(msg);
                     throw new XmldbException(msg);
                 }
             }
@@ -166,7 +165,7 @@ import org.xml.sax.helpers.DefaultHandler;
             if (required) {
                 String msg = String.format(
                         "Invalid document: '%s'; no document namespace", file);
-                logger.warn(msg);
+                LOG.warn(msg);
                 throw new XmldbException(msg);
             }
         }
@@ -178,12 +177,12 @@ import org.xml.sax.helpers.DefaultHandler;
     public void clearSchemas() {
         schemaFiles.clear();
         validators.clear();
-        logger.debug("Cleared all schema's");
+        LOG.debug("Cleared all schema's");
     }
     
     /* package */ void readSchemas(File dataDir) {
         clearSchemas();
-        logger.debug(String.format("Read database file '%s'", SCHEMAS_FILE));
+        LOG.debug(String.format("Read database file '%s'", SCHEMAS_FILE));
         File file = new File(dataDir, SCHEMAS_FILE);
         if (file.exists()) {
             try {
@@ -204,13 +203,13 @@ import org.xml.sax.helpers.DefaultHandler;
                 String msg = String.format(
                         "Error reading database file '%s': %s",
                         SCHEMAS_FILE, e.getMessage());
-                logger.error(msg, e);
+                LOG.error(msg, e);
             }
         }
     }
     
     /* package */ void writeSchemas(File dataDir) {
-        logger.debug(String.format("Write database file '%s'", SCHEMAS_FILE));
+        LOG.debug(String.format("Write database file '%s'", SCHEMAS_FILE));
         File file = new File(dataDir, SCHEMAS_FILE);
         try {
             DataOutputStream dos = new DataOutputStream(
@@ -226,13 +225,13 @@ import org.xml.sax.helpers.DefaultHandler;
             String msg = String.format(
                     "Error writing database file '%s': %s",
                     SCHEMAS_FILE, e.getMessage());
-            logger.error(msg, e);
+            LOG.error(msg, e);
         }
     }
     
     private Validator getValidator(String namespace, boolean keepInCache)
             throws XmldbException {
-        logger.debug("Get schema for namespace '" + namespace + "'");
+        LOG.debug("Get schema for namespace '" + namespace + "'");
         
         // Try the cache first.
         Validator validator = validators.get(namespace);
@@ -249,7 +248,7 @@ import org.xml.sax.helpers.DefaultHandler;
                                 new StreamSource(doc.getContent()));
                         validator = schema.newValidator();
                         long duration = System.currentTimeMillis() - startTime;
-                        logger.debug(String.format(
+                        LOG.debug(String.format(
                                 "Schema compiled in %d ms", duration));
                         if (keepInCache) {
                             // Store compiled schema in cache. 
@@ -259,19 +258,19 @@ import org.xml.sax.helpers.DefaultHandler;
                         String msg = String.format(
                                 "Error parsing schema file '%s': %s",
                                 doc, e.getMessage());
-                        logger.error(msg);
+                        LOG.error(msg);
                         throw new XmldbException(msg);
                     }
                 } else {
                     String msg = "Could not find stored schema file";
-                    logger.error(msg);
+                    LOG.error(msg);
                     throw new XmldbException(msg);
                 }
             } else {
-                logger.debug("No matching schema file found (ignored)");
+                LOG.debug("No matching schema file found (ignored)");
             }
         } else {
-            logger.debug("Precompiled schema found");
+            LOG.debug("Precompiled schema found");
         }
         
         return validator;
@@ -418,7 +417,7 @@ import org.xml.sax.helpers.DefaultHandler;
             LSInput input = null;
             
             if (type.equals(SCHEMA_TYPE)) {
-                logger.debug(String.format(
+                LOG.debug(String.format(
                         "Retrieve schema with namespace '%s'", namespace));
                 Integer docId = schemaFiles.get(namespace);
                 if (docId != null) {
@@ -433,23 +432,23 @@ import org.xml.sax.helpers.DefaultHandler;
                         } catch (XmldbException e) {
                             String msg = "Error retrieving schema file: "
                                     + e.getMessage();
-                            logger.error(msg);
+                            LOG.error(msg);
                         }
                     } else {
                         String msg = String.format(
                                 "Schema with namespace '%s' not found",
                                 namespace);
-                        logger.error(msg);
+                        LOG.error(msg);
                     }
                 } else {
                     String msg = String.format(
                             "Unknown schema with namespace '%s'", namespace);
-                    logger.error(msg);
+                    LOG.error(msg);
                 }
             } else {
                 String msg =
                         String.format("Unexpected resource type: '%s'", type);
-                logger.error(msg);
+                LOG.error(msg);
             }
             
             return input;

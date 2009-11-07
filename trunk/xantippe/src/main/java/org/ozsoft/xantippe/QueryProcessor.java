@@ -52,8 +52,8 @@ import org.apache.log4j.Logger;
  */
 /* package */ class QueryProcessor {
 
-	/** log4j logger. */
-	protected static final Logger logger =
+	/** Log */
+	protected static final Logger LOG =
 			Logger.getLogger(QueryProcessor.class);
 	
 	/** Back-reference to the database. */
@@ -93,21 +93,21 @@ import org.apache.log4j.Logger;
 	 */
 	public OutputStream executeQuery(String query)
     		throws XmldbException {
-        logger.debug("Executing query: \n" + query);
+        LOG.debug("Executing query: \n" + query);
         
         long startTime = System.currentTimeMillis();
         try {
             XQueryExpression expr = staticQueryContext.compileQuery(query);
             long duration = System.currentTimeMillis() - startTime;
-            logger.debug("Query compiled in " + duration + " ms");
+            LOG.debug("Query compiled in " + duration + " ms");
             startTime = System.currentTimeMillis();
             dynamicQueryContext.clearParameters();
             OutputStream os = new ByteArrayOutputStream();
             Result result = new StreamResult(os);
             expr.run(dynamicQueryContext, result, null);
             duration = System.currentTimeMillis() - startTime;
-            logger.debug("Query executed in " + duration + " ms");
-            logger.debug("Query result:\n" + os.toString());
+            LOG.debug("Query executed in " + duration + " ms");
+            LOG.debug("Query result:\n" + os.toString());
             return os;
             
         } catch (XPathException e) {
@@ -135,20 +135,20 @@ import org.apache.log4j.Logger;
          */
         public Source resolve(String uri, String baseUri)
     			throws TransformerException {
-//    		logger.debug("Resolve document URI: '" + uri + "'");
+//    		LOG.debug("Resolve document URI: '" + uri + "'");
     		Source source = null;
     		try {
 	    		Document doc = database.getDocument(uri);
 	    		try {
 	    		    source = new StreamSource(doc.getContent());
 	    		} catch (XmldbException e) {
-	    		    logger.error(String.format(
+	    		    LOG.error(String.format(
 	    		            "Error retrieving content of document '%s': %s",
 	    		            doc, e.getMessage()));
 	    		}
     		} catch (XmldbException e) {
     		    // Runtime query error (client side)
-    		    logger.debug("Document not found: '" + uri + "'");
+    		    LOG.debug("Document not found: '" + uri + "'");
     		}
     		return source;
 		}
@@ -178,7 +178,7 @@ import org.apache.log4j.Logger;
                 String params = colUri.substring(p + 1);
                 colUri = colUri.substring(0, p);
                 for (String param : params.split(";")) {
-//                    logger.debug("Query parameter: '" + param + "'");
+//                    LOG.debug("Query parameter: '" + param + "'");
                     p = param.indexOf('=');
                     if (p != -1) {
                         String name = param.substring(0, p);
@@ -193,7 +193,7 @@ import org.apache.log4j.Logger;
             
             SequenceIterator it = null;
             
-//            logger.debug("Resolve collection: '" + colUri + "'");
+//            LOG.debug("Resolve collection: '" + colUri + "'");
             
             try {
                 // Get documents from collection. 
@@ -212,7 +212,7 @@ import org.apache.log4j.Logger;
                 
             } catch (XmldbException e) {
                 // Runtime query error (client side)
-                logger.debug("Collection not found: '" + colUri + "'");
+                LOG.debug("Collection not found: '" + colUri + "'");
             }
             
             return it;
@@ -249,7 +249,7 @@ import org.apache.log4j.Logger;
         public StreamSource[] resolve(
                 String namespace, String baseUri, String[] locationHints)
                 throws XPathException {
-            logger.debug("Resolve module with namespace '" + namespace + "'");
+            LOG.debug("Resolve module with namespace '" + namespace + "'");
             
             Document doc = null;
             
@@ -275,7 +275,7 @@ import org.apache.log4j.Logger;
                         new StreamSource(doc.getContent(), doc.getUri()),
                     };
                 } catch (XmldbException e) {
-                    logger.error(String.format(
+                    LOG.error(String.format(
                             "Error retrieving content of document '%s': %s",
                             doc, e.getMessage()));
                 }
