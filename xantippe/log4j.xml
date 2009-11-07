@@ -33,7 +33,7 @@
     </logger>
 
     <logger name="org.ozsoft.xantippe.filestore">
-        <level value="DEBUG"/>
+        <level value="INFO"/>
     </logger>
 
     <logger name="org.ozsoft.xantippe.filestore.FileStoreTest">
