@@ -24,7 +24,8 @@ import java.util.Set;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
-import org.apache.log4j.Logger;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
@@ -38,8 +39,8 @@ import org.xml.sax.helpers.DefaultHandler;
  */
 /* package */ class Indexer {
     
-    /** log4j logger. */
-    private static final Logger logger = Logger.getLogger(Indexer.class);
+    /** Log */
+    private static final Log LOG = LogFactory.getLog(Indexer.class);
     
     /** SAX parser. */
     private final SAXParser parser;
@@ -60,7 +61,7 @@ import org.xml.sax.helpers.DefaultHandler;
     
     public void index(Document doc, File file, Collection col) {
         if (col.getIndices(true).size() > 0) {
-            logger.debug(String.format("Indexing document '%s'", doc));
+            LOG.debug(String.format("Indexing document '%s'", doc));
             
             long startTime = System.currentTimeMillis();
             
@@ -74,11 +75,11 @@ import org.xml.sax.helpers.DefaultHandler;
                 String msg = String.format(
                         "Error while indexing document '%s': %s",
                         doc, e.getMessage());
-                logger.error(msg, e);
+                LOG.error(msg, e);
             }
             
             long duration = System.currentTimeMillis() - startTime;
-            logger.debug(String.format("Indexed document in %d ms.", duration));
+            LOG.debug(String.format("Indexed document in %d ms.", duration));
         }
     }
     

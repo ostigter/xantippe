@@ -23,7 +23,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
-import org.apache.log4j.Logger;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * A collection containing documents and/or subcollections.
@@ -32,8 +33,8 @@ import org.apache.log4j.Logger;
  */
 public class Collection implements Comparable<Collection> {
     
-    /** log4j logger. */
-    private static final Logger logger = Logger.getLogger(Collection.class);
+    /** Log */
+    private static final Log LOG = LogFactory.getLog(Collection.class);
     
     /** Back-reference to the database. */
     private final DatabaseImpl database;
@@ -175,7 +176,7 @@ public class Collection implements Comparable<Collection> {
             if (doc != null) {
                 docs.add(doc);
             } else {
-                logger.error(String.format(
+                LOG.error(String.format(
                         "Document with ID %d not found", id));
             }
         }
@@ -234,7 +235,7 @@ public class Collection implements Comparable<Collection> {
      */
     public void setValidationMode(ValidationMode validationMode) {
         if (parent == -1 && validationMode == ValidationMode.INHERIT) {
-            logger.error("Invalid validation mode for root collection");
+            LOG.error("Invalid validation mode for root collection");
         } else {
             this.validationMode = validationMode;
             updateModified();
@@ -269,7 +270,7 @@ public class Collection implements Comparable<Collection> {
      */
     public void setCompressionMode(CompressionMode compressionMode) {
         if (parent == -1 && compressionMode == CompressionMode.INHERIT) {
-            logger.error("Invalid compression mode for root collection");
+            LOG.error("Invalid compression mode for root collection");
         } else {
             this.compressionMode = compressionMode;
             updateModified();
@@ -338,7 +339,7 @@ public class Collection implements Comparable<Collection> {
             int newId = database.getNextId();
             indices.add(new Index(newId, name, path, type));
             updateModified();
-            logger.debug(String.format(
+            LOG.debug(String.format(
                     "Added index '%s' for collection '%s'", name, this));
         } else {
             String msg = "Index name already used (possibly inherited)";
@@ -418,7 +419,7 @@ public class Collection implements Comparable<Collection> {
             database.getLockManager().unlockWrite(this);
         }
         
-        logger.debug(String.format("Created document '%s'", doc));
+        LOG.debug(String.format("Created document '%s'", doc));
         
         return doc;
     }
@@ -450,7 +451,7 @@ public class Collection implements Comparable<Collection> {
     	        col = new Collection(database, colId, name, timestamp, timestamp, id);
     	        collections.add(colId);
                 updateModified();
-    	        logger.debug(String.format("Created collection '%s'", this));
+    	        LOG.debug(String.format("Created collection '%s'", this));
     	    } finally {
                 database.getLockManager().unlockWrite(this);
     	    }
@@ -649,7 +650,7 @@ public class Collection implements Comparable<Collection> {
         
         database.deleteCollection(this);
         
-        logger.debug(String.format("Deleted collection '%s'", this));
+        LOG.debug(String.format("Deleted collection '%s'", this));
     }
 
     // FIXME: Get rid of "unchecked" warning (Eclipse bug?)

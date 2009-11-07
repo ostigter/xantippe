@@ -28,7 +28,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.TreeMap;
 
-import org.apache.log4j.Logger;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * File system based database for storing documents.
@@ -63,8 +64,8 @@ public class FileStore {
     /** File with the document contents. */
     private static final String DATA_FILE = "contents.dbx";
     
-    /** log4j logger. */
-    private static final Logger logger = Logger.getLogger(FileStore.class);
+    /** Log */
+    private static final Log LOG = LogFactory.getLog(FileStore.class);
     
     /** Buffer size. */
     private static final int BUFFER_SIZE = 8192;  // 8 kB
@@ -138,13 +139,13 @@ public class FileStore {
             throw new IllegalStateException("Database already running");
         }
 
-        logger.debug("Starting");
+        LOG.debug("Starting");
             
         // Create data directory.
         if (!dataDir.exists()) {
             if (!dataDir.mkdirs()) {
                 String msg = "Could not create data directory: " + dataDir;
-                logger.error(msg);
+                LOG.error(msg);
                 throw new FileStoreException(msg);
             }
         }
@@ -170,7 +171,7 @@ public class FileStore {
 
         isRunning = true;
         
-        logger.debug("Started");
+        LOG.debug("Started");
     }
     
     /**
@@ -185,7 +186,7 @@ public class FileStore {
     public void shutdown() throws FileStoreException {
         checkIsRunning();
         
-        logger.debug("Shutting down");
+        LOG.debug("Shutting down");
         
         sync();
         
@@ -194,7 +195,7 @@ public class FileStore {
             
         } catch (IOException e) {
             String msg = "Error closing data file: " + e.getMessage();
-            logger.error(msg, e);
+            LOG.error(msg, e);
             throw new FileStoreException(msg, e);
             
         } finally {
@@ -203,7 +204,7 @@ public class FileStore {
         
         entries.clear();
         
-        logger.debug("Shut down");
+        LOG.debug("Shut down");
     }
     
     /**
@@ -270,7 +271,7 @@ public class FileStore {
         entry.setLength(0);
         entries.put(id, entry);
         
-        logger.debug("Created document with ID " + id);
+        LOG.debug("Created document with ID " + id);
         
         return entry;
     }
@@ -299,7 +300,7 @@ public class FileStore {
             
         FileEntry entry = create(id);
 
-        logger.debug("Storing document with ID " + id);
+        LOG.debug("Storing document with ID " + id);
         
         entry.setOffset(offset);
         entry.setLength(length);
@@ -317,7 +318,7 @@ public class FileStore {
             String msg = String.format(
                     "Could not store document with ID %d: %s",
                     id, e.getMessage());
-            logger.error(msg, e);
+            LOG.error(msg, e);
             throw new FileStoreException(msg, e);
         }
     }
@@ -338,7 +339,7 @@ public class FileStore {
     public InputStream retrieve(int id) throws FileStoreException {
         checkIsRunning();
         
-        logger.debug("Retrieving document with ID " + id);
+        LOG.debug("Retrieving document with ID " + id);
         
         InputStream is = null;
         
@@ -351,12 +352,12 @@ public class FileStore {
                 String msg = String.format(
                         "Error retrieving document with ID %d: %s",
                         id, e.getMessage());
-                logger.error(msg, e);
+                LOG.error(msg, e);
                 throw new FileStoreException(msg, e);
             }
         } else {
             String msg = "Document with ID " + id + " not found";
-            logger.error(msg);
+            LOG.error(msg);
             throw new FileStoreException(msg);
         }
         
@@ -402,7 +403,7 @@ public class FileStore {
         FileEntry entry = entries.get(id);
         if (entry != null) {
             entries.remove(id);
-            logger.debug("Deleted document with ID " + id);
+            LOG.debug("Deleted document with ID " + id);
         }
     }
     
@@ -410,13 +411,13 @@ public class FileStore {
      * Writes any volatile meta-data to disk.
      */
     public void sync() throws FileStoreException {
-        logger.debug("Sync");
+        LOG.debug("Sync");
         if (isRunning) {
             try {
                 writeIndexFile();
             } catch (IOException e) {
                 String msg = "Error sync'ing to disk: " + e.getMessage();
-                logger.error(msg, e);
+                LOG.error(msg, e);
                 throw new FileStoreException(msg, e);
             }
         }
@@ -438,7 +439,7 @@ public class FileStore {
         if (stored > 0) {
             wastedPerc = ((double) wasted / (double) stored) * 100;
         }
-        logger.debug(String.format(Locale.US,
+        LOG.debug(String.format(Locale.US,
                 "Disk usage:  Size: %s, Used: %s, Wasted: %s (%.1f %%)",
                 diskSizeToString(stored), diskSizeToString(used),
                 diskSizeToString(wasted), wastedPerc));
@@ -534,7 +535,7 @@ public class FileStore {
         } catch (IOException e) {
             String msg =
                     "Error retrieving data file length: " + e.getMessage();
-            logger.error(msg, e);
+            LOG.error(msg, e);
         }
         return size;
     }

@@ -25,7 +25,8 @@ import java.io.OutputStream;
 import java.util.zip.DeflaterOutputStream;
 import java.util.zip.InflaterInputStream;
 
-import org.apache.log4j.Logger;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.ozsoft.xantippe.filestore.FileStore;
 import org.ozsoft.xantippe.filestore.FileStoreException;
 
@@ -36,8 +37,8 @@ import org.ozsoft.xantippe.filestore.FileStoreException;
  */
 public class Document implements Comparable<Document> {
     
-    /** log4j logger. */
-    private static final Logger logger = Logger.getLogger(Document.class);
+    /** Log */
+    private static final Log LOG = LogFactory.getLog(Document.class);
     
     /** Buffer size for byte stream operations. */
     private static final int BUFFER_SIZE = 8192;  // 8 kB
@@ -92,7 +93,7 @@ public class Document implements Comparable<Document> {
                 String msg = String.format(
                         "Error creating document '%s' in FileStore; ID not unique",
                         this);
-                logger.error(msg, e);
+                LOG.error(msg, e);
             }
         }
         
@@ -200,7 +201,7 @@ public class Document implements Comparable<Document> {
             String msg = String.format(
                     "Could not retrieve document '%s': %s",
                     this, e.getMessage());
-            logger.error(msg, e);
+            LOG.error(msg, e);
             throw new XmldbException(msg, e);
         } finally {
             database.getLockManager().unlockRead(this);
@@ -225,7 +226,7 @@ public class Document implements Comparable<Document> {
             return new InsertStream(this);
         } catch (IOException e) {
             String msg = String.format("Could not store document: '%s'", this);
-            logger.error(msg, e);
+            LOG.error(msg, e);
             throw new XmldbException(msg, e);
         }
     }
@@ -257,13 +258,13 @@ public class Document implements Comparable<Document> {
         
         if (!file.isFile()) {
             String msg = "File not found: " + file;
-            logger.error(msg);
+            LOG.error(msg);
             throw new XmldbException(msg);
         }
         
         if (!file.canRead()) {
             String msg = "No read permission on file: " + file;
-            logger.error(msg);
+            LOG.error(msg);
             throw new XmldbException(msg);
         }
         
@@ -286,7 +287,7 @@ public class Document implements Comparable<Document> {
                     break;
                 default:
                     // Should never happen.
-                    logger.error("Invalid validation mode: " + vm);
+                    LOG.error("Invalid validation mode: " + vm);
             }
         } else if (mediaType == MediaType.SCHEMA) {
             try {
@@ -294,7 +295,7 @@ public class Document implements Comparable<Document> {
             } catch (Exception e) {
                 String msg = String.format(
                         "Invalid schema file: '%s': %s", file, e.getMessage());
-                logger.error(msg);
+                LOG.error(msg);
                 throw new XmldbException(msg);
             }
         }
@@ -315,7 +316,7 @@ public class Document implements Comparable<Document> {
                 } else {
                     // Should never happen.
                     String msg = "Invalid compression mode: " + compressionMode;
-                    logger.error(msg);
+                    LOG.error(msg);
                     throw new XmldbException(msg);
                 }
                 InputStream is = new FileInputStream(file);
@@ -346,14 +347,14 @@ public class Document implements Comparable<Document> {
             String msg = String.format(
                     "Error while compressing document '%s': %s",
                     this, e.getMessage());
-        	logger.error(msg, e);
+        	LOG.error(msg, e);
         	throw new XmldbException(msg, e);
         	
         } catch (FileStoreException e) {
             String msg = String.format(
                     "Error while storing document '%s': %s",
                     this, e.getMessage());
-            logger.error(msg, e);
+            LOG.error(msg, e);
             throw new XmldbException(msg, e);
             
         } finally {
@@ -458,7 +459,7 @@ public class Document implements Comparable<Document> {
     /* package */ void delete() {
         database.deleteDocument(this);
         String msg = String.format("Deleted document '%s'", this);
-        logger.debug(msg);
+        LOG.debug(msg);
     }
     
     private void updateModified() {
