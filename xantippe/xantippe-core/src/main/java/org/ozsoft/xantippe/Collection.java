@@ -100,6 +100,27 @@ public class Collection implements Comparable<Collection> {
     }
     
     /**
+     * Returns the absolute URI.
+     * 
+     * @return  the URI
+     */
+    public String getUri() {
+        StringBuilder sb = new StringBuilder();
+        Collection col = this;
+        while (col != null) {
+            sb.insert(0, '/'); 
+            sb.insert(1, col.getName());
+            col = col.getParent();
+        }
+        String uri = sb.toString();
+        if (uri.startsWith("//")) {
+            // Special case for root collection.
+            uri = uri.substring(1);
+        }
+        return uri;
+    }
+    
+    /**
      * Returns the timestamp the collection was created.
      * 
      * @return  the timestamp in milliseconds after 01-Jan-1970.
@@ -345,22 +366,6 @@ public class Collection implements Comparable<Collection> {
             String msg = "Index name already used (possibly inherited)";
             throw new IllegalArgumentException(msg);
         }
-    }
-    
-    /**
-     * Returns the absolute URI.
-     * 
-     * @return  the URI
-     */
-    public String getUri() {
-        StringBuilder sb = new StringBuilder();
-        Collection col = this;
-        while (col != null) {
-            sb.insert(0, '/'); 
-            sb.insert(1, col.getName());
-            col = col.getParent();
-        }
-        return sb.toString();
     }
     
     /**

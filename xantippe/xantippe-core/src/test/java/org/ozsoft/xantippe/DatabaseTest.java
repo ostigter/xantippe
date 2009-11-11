@@ -39,11 +39,11 @@ import org.junit.Test;
  */
 public class DatabaseTest {
 
+    /** Directory with the resource files. */
+    private static final String DB_DIR = "src/test/resources/db";
+    
     /** Database data directory. */
     private static final String DATA_DIR = "target/data.tmp";
-    
-    /** Directory with the resource files. */
-    private static final String RESOURCES_DIR = "src/test/resources";
     
     /** XML declaration. */
     private static final String XML_DECLARATION = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
@@ -212,9 +212,9 @@ public class DatabaseTest {
 
         // Get non-existing collection.
         try {
-            database.getCollection("/db/foo");
+            database.getCollection("/foo");
         } catch (XmldbException e) {
-            Assert.assertEquals("Collection not found: /db/foo", e.getMessage());
+            Assert.assertEquals("Collection not found: /foo", e.getMessage());
         }
 
         // Get document with null URI.
@@ -237,16 +237,16 @@ public class DatabaseTest {
 
         // Get document with invalid URI.
         try {
-            database.getDocument("foobar");
+            database.getDocument("foo");
         } catch (XmldbException e) {
-            Assert.assertEquals("Invalid URI: foobar", e.getMessage());
+            Assert.assertEquals("Invalid URI: foo", e.getMessage());
         }
 
         // Get non-existing document.
         try {
-            database.getDocument("/db/foo.xml");
+            database.getDocument("/foo.xml");
         } catch (XmldbException e) {
-            Assert.assertEquals("Document not found: /db/foo.xml", e.getMessage());
+            Assert.assertEquals("Document not found: /foo.xml", e.getMessage());
         }
 
         try {
@@ -273,37 +273,37 @@ public class DatabaseTest {
             
             // Create collections.
             Collection rootCol = database.getRootCollection();
-            Assert.assertEquals("db", rootCol.getName());
+            Assert.assertEquals("", rootCol.getName());
             Assert.assertNull(rootCol.getParent());
-            Assert.assertEquals("/db", rootCol.getUri());
+            Assert.assertEquals("/", rootCol.getUri());
             Assert.assertEquals(0, rootCol.getDocuments().size());
             Assert.assertEquals(0, rootCol.getCollections().size());
             Assert.assertEquals(0, rootCol.getIndices(true).size());
             Collection dataCol = rootCol.createCollection("data");
             Assert.assertEquals("data", dataCol.getName());
-            Assert.assertEquals("/db/data", dataCol.getUri());
-            Assert.assertEquals("/db", dataCol.getParent().getUri());
+            Assert.assertEquals("/data", dataCol.getUri());
+            Assert.assertEquals("/", dataCol.getParent().getUri());
             Assert.assertEquals(0, dataCol.getDocuments().size());
             Assert.assertEquals(0, dataCol.getCollections().size());
             Assert.assertEquals(0, dataCol.getIndices(true).size());
             dataCol.setCompressionMode(CompressionMode.DEFLATE);
             Collection fooCol = dataCol.createCollection("foo");
             Assert.assertEquals("foo", fooCol.getName());
-            Assert.assertEquals("/db/data/foo", fooCol.getUri());
-            Assert.assertEquals("/db/data", fooCol.getParent().getUri());
+            Assert.assertEquals("/data/foo", fooCol.getUri());
+            Assert.assertEquals("/data", fooCol.getParent().getUri());
             Assert.assertEquals(0, fooCol.getDocuments().size());
             Assert.assertEquals(0, fooCol.getCollections().size());
             Assert.assertEquals(0, fooCol.getIndices(true).size());
             fooCol.setCompressionMode(CompressionMode.NONE);
             Collection barCol = dataCol.createCollection("bar");
             Assert.assertEquals("bar", barCol.getName());
-            Assert.assertEquals("/db/data/bar", barCol.getUri());
-            Assert.assertEquals("/db/data", barCol.getParent().getUri());
+            Assert.assertEquals("/data/bar", barCol.getUri());
+            Assert.assertEquals("/data", barCol.getParent().getUri());
             Assert.assertEquals(0, barCol.getDocuments().size());
             Assert.assertEquals(0, barCol.getCollections().size());
             Assert.assertEquals(0, barCol.getIndices(true).size());
             Collection emptyCol = dataCol.createCollection("empty");
-            Assert.assertEquals("/db/data/empty", emptyCol.getUri());
+            Assert.assertEquals("/data/empty", emptyCol.getUri());
 
             // Create indices.
             Assert.assertEquals(0, rootCol.getIndices(true).size());
@@ -342,7 +342,7 @@ public class DatabaseTest {
 
             // Add documents.
 
-            file = new File(RESOURCES_DIR + "/db/data/foo/Foo-0001.xml");
+            file = new File(DB_DIR + "/data/foo/Foo-0001.xml");
             doc = fooCol.createDocument(file.getName());
             Assert.assertEquals("Foo-0001.xml", doc.getName());
             Assert.assertEquals(0, doc.getLength());
@@ -353,7 +353,7 @@ public class DatabaseTest {
             Assert.assertEquals(file.length(), doc.getLength());
             Assert.assertEquals(file.length(), doc.getStoredLength());  // no compression
             
-            file = new File(RESOURCES_DIR + "/db/data/foo/Foo-0002.xml");
+            file = new File(DB_DIR + "/data/foo/Foo-0002.xml");
             doc = fooCol.createDocument(file.getName());
             doc.setContent(file);
             assertEquals(doc.getContent(), file);
@@ -373,7 +373,7 @@ public class DatabaseTest {
             
             // Refresh collection references.
             rootCol = database.getRootCollection();
-            dataCol = database.getCollection("/db/data");
+            dataCol = database.getCollection("/data");
             fooCol = dataCol.getCollection("foo");
             
             // Find documents by keys (using indices).
@@ -384,7 +384,7 @@ public class DatabaseTest {
             Set<Document> docs = rootCol.findDocuments(keys, true);
             Assert.assertEquals(1, docs.size());
             doc = (Document) docs.toArray()[0];
-            Assert.assertEquals("/db/data/foo/Foo-0002.xml", doc.getUri());
+            Assert.assertEquals("/data/foo/Foo-0002.xml", doc.getUri());
 
             keys = new IndexKey[] {
                     new IndexKey("DocumentType", "Foo")
@@ -392,9 +392,9 @@ public class DatabaseTest {
             docs = rootCol.findDocuments(keys, true);
             Assert.assertEquals(2, docs.size());
             doc = (Document) docs.toArray()[0];
-            Assert.assertEquals("/db/data/foo/Foo-0001.xml", doc.getUri());
+            Assert.assertEquals("/data/foo/Foo-0001.xml", doc.getUri());
             doc = (Document) docs.toArray()[1];
-            Assert.assertEquals("/db/data/foo/Foo-0002.xml", doc.getUri());
+            Assert.assertEquals("/data/foo/Foo-0002.xml", doc.getUri());
             docs = fooCol.findDocuments(keys, false);
             Assert.assertEquals(2, docs.size());
 
@@ -405,7 +405,7 @@ public class DatabaseTest {
             docs = rootCol.findDocuments(keys, true);
             Assert.assertEquals(1, docs.size());
             doc = (Document) docs.toArray()[0];
-            Assert.assertEquals("/db/data/foo/Foo-0002.xml", doc.getUri());
+            Assert.assertEquals("/data/foo/Foo-0002.xml", doc.getUri());
             
             keys = new IndexKey[] {
                     new IndexKey("DocumentVersion", "v1.0")
@@ -413,14 +413,14 @@ public class DatabaseTest {
             docs = rootCol.findDocuments(keys, true);
             Assert.assertEquals(2, docs.size());
             doc = (Document) docs.toArray()[0];
-            Assert.assertEquals("/db/data/bar/Bar-0001.xml", doc.getUri());
+            Assert.assertEquals("/data/bar/Bar-0001.xml", doc.getUri());
             doc = (Document) docs.toArray()[1];
-            Assert.assertEquals("/db/data/foo/Foo-0001.xml", doc.getUri());
+            Assert.assertEquals("/data/foo/Foo-0001.xml", doc.getUri());
             
             docs = fooCol.findDocuments(keys, true);
             Assert.assertEquals(1, docs.size());
             doc = (Document) docs.toArray()[0];
-            Assert.assertEquals("/db/data/foo/Foo-0001.xml", doc.getUri());
+            Assert.assertEquals("/data/foo/Foo-0001.xml", doc.getUri());
             
             keys = new IndexKey[] {
                     new IndexKey("My_Manual_Key", "Foo-0002_manual_key")
@@ -428,7 +428,7 @@ public class DatabaseTest {
             docs = rootCol.findDocuments(keys, true);
             Assert.assertEquals(1, docs.size());
             doc = (Document) docs.toArray()[0];
-            Assert.assertEquals("/db/data/foo/Foo-0002.xml", doc.getUri());
+            Assert.assertEquals("/data/foo/Foo-0002.xml", doc.getUri());
 
             keys = new IndexKey[] {
                     new IndexKey("DocumentType", "Foo"),
@@ -437,7 +437,7 @@ public class DatabaseTest {
             docs = rootCol.findDocuments(keys, true);
             Assert.assertEquals(1, docs.size());
             doc = (Document) docs.toArray()[0];
-            Assert.assertEquals("/db/data/foo/Foo-0002.xml", doc.getUri());
+            Assert.assertEquals("/data/foo/Foo-0002.xml", doc.getUri());
 
             keys = new IndexKey[] {
                     new IndexKey("DocumentType", "Bar"),
@@ -472,7 +472,7 @@ public class DatabaseTest {
             
             Assert.assertTrue(fooCol.deleteDocument("Foo-0001.xml"));
             try {
-                database.getDocument("/db/data/foo/Foo-0001.xml");
+                database.getDocument("/data/foo/Foo-0001.xml");
                 Assert.fail("No exception thrown!");
             } catch (XmldbException e) {
                 // OK
@@ -481,7 +481,7 @@ public class DatabaseTest {
             // Delete an empty collection.
             Assert.assertTrue(dataCol.deleteCollection("empty"));
             try {
-                database.getCollection("/db/data/empty");
+                database.getCollection("/data/empty");
                 Assert.fail("No exception thrown!");
             } catch (XmldbException e) {
                 // OK
@@ -490,7 +490,7 @@ public class DatabaseTest {
             // Delete a single, non-empty collection.
             Assert.assertTrue(dataCol.deleteCollection("foo"));
             try {
-                database.getCollection("/db/data/foo");
+                database.getCollection("/data/foo");
                 Assert.fail("No exception thrown!");
             } catch (XmldbException e) {
                 // OK
@@ -499,7 +499,7 @@ public class DatabaseTest {
             // Delete a non-empty collection tree (recursive).
             Assert.assertTrue(rootCol.deleteCollection("data"));
             try {
-                database.getCollection("/db/data");
+                database.getCollection("/data");
                 Assert.fail("No exception thrown!");
             } catch (XmldbException e) {
                 // OK
@@ -531,30 +531,30 @@ public class DatabaseTest {
             col.setValidationMode(ValidationMode.ON);
             
             // Self-contained schema.
-            file = new File(RESOURCES_DIR + "/db/schemas/Address_v1.0.xsd");
+            file = new File(DB_DIR + "/schemas/Address_v1.0.xsd");
             doc = col.createDocument(file.getName());
             doc.setContent(file);
-            file = new File(RESOURCES_DIR + "/db/data/addressbook/Address_0001.xml");
+            file = new File(DB_DIR + "/data/addressbook/Address_0001.xml");
             doc = col.createDocument(file.getName());
             doc.setContent(file);
-            file = new File(RESOURCES_DIR + "/db/data/addressbook/Address_0002.xml");
+            file = new File(DB_DIR + "/data/addressbook/Address_0002.xml");
             doc = col.createDocument(file.getName());
             doc.setContent(file);
             
             // Multi-file schema (with 'include' statement).
-            file = new File(RESOURCES_DIR + "/db/schemas/Generic_v1.0.xsd");
+            file = new File(DB_DIR + "/schemas/Generic_v1.0.xsd");
             doc = col.createDocument(file.getName());
             doc.setContent(file);
-            file = new File(RESOURCES_DIR + "/db/schemas/TestResult_v1.0.xsd");
+            file = new File(DB_DIR + "/schemas/TestResult_v1.0.xsd");
             doc = col.createDocument(file.getName());
             doc.setContent(file);
-            file = new File(RESOURCES_DIR + "/db/data/testresults/TestResult_0001.xml");
+            file = new File(DB_DIR + "/data/testresults/TestResult_0001.xml");
             doc = col.createDocument(file.getName());
             doc.setContent(file);
-            file = new File(RESOURCES_DIR + "/db/data/testresults/TestResult_0002.xml");
+            file = new File(DB_DIR + "/data/testresults/TestResult_0002.xml");
             doc = col.createDocument(file.getName());
             doc.setContent(file);
-            file = new File(RESOURCES_DIR + "/db/data/testresults/TestResult_0003.xml");
+            file = new File(DB_DIR + "/data/testresults/TestResult_0003.xml");
             doc = col.createDocument(file.getName());
             doc.setContent(file);
             
@@ -584,18 +584,18 @@ public class DatabaseTest {
             Collection rootCol = database.getRootCollection();
             Collection dataCol = rootCol.createCollection("data");
             Collection fooCol = dataCol.createCollection("foo");
-            file = new File(RESOURCES_DIR + "/db/data/foo/Foo-0001.xml");
+            file = new File(DB_DIR + "/data/foo/Foo-0001.xml");
             doc = fooCol.createDocument(file.getName());
             doc.setContent(file);
-            file = new File(RESOURCES_DIR + "/db/data/foo/Foo-0002.xml");
+            file = new File(DB_DIR + "/data/foo/Foo-0002.xml");
             doc = fooCol.createDocument(file.getName());
             doc.setContent(file);
             Collection barCol = dataCol.createCollection("bar");
-            file = new File(RESOURCES_DIR + "/db/data/bar/Bar-0001.xml");
+            file = new File(DB_DIR + "/data/bar/Bar-0001.xml");
             doc = barCol.createDocument(file.getName());
             doc.setContent(file);
             Collection modulesCol = rootCol.createCollection("modules");
-            file = new File(RESOURCES_DIR + "/db/modules/greeting.xqy");
+            file = new File(DB_DIR + "/modules/greeting.xqy");
             doc = modulesCol.createDocument(file.getName());
             doc.setContent(file);
         	
@@ -615,21 +615,21 @@ public class DatabaseTest {
             Assert.assertEquals(XML_DECLARATION + "\n<Result>5</Result>", result);
             
 	        // doc() function.
-	        query = "doc('/db/data/foo/Foo-0001.xml')/element()/Header/Id/text()";
+	        query = "doc('/data/foo/Foo-0001.xml')/element()/Header/Id/text()";
             result = database.executeQuery(query).toString();
             Assert.assertEquals(XML_DECLARATION + "1", result);
             
             // collection() function.
-            query = "count(collection('/db/data?recurse=yes'))";
+            query = "count(collection('/data?recurse=yes'))";
             result = database.executeQuery(query).toString();
             Assert.assertEquals(XML_DECLARATION + "3", result);
-            query = "collection('/db/data/foo')/element()/Header/Id/text()";
+            query = "collection('/data/foo')/element()/Header/Id/text()";
             result = database.executeQuery(query).toString();
             Assert.assertEquals(XML_DECLARATION + "12", result);
             
             // Stored XQuery module
             query = "import module namespace gr = 'http://www.example.com/greeting' \n" +
-                    "  at '/db/modules/greeting.xqy'; \n\n" +
+                    "  at '/modules/greeting.xqy'; \n\n" +
                     "gr:greeting('Mr Smith')";
             result = database.executeQuery(query).toString();
             Assert.assertEquals(XML_DECLARATION + "Hello, Mr Smith!", result);

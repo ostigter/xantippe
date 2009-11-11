@@ -235,8 +235,8 @@ public class DatabaseImpl implements Database {
         
     	String absoluteUri = uri;
     	
-    	if (uri.startsWith("/db")) {
-    		uri = uri.substring(3);
+    	if (uri.startsWith("/")) {
+    		uri = uri.substring(1);
     	} else {
     		throw new XmldbException("Invalid URI: " + uri);
     	}
@@ -272,6 +272,10 @@ public class DatabaseImpl implements Database {
     	int p = uri.lastIndexOf('/');
     	if (p != -1) {
     	    String colUri = uri.substring(0, p);
+    	    if (colUri.length() == 0) {
+                // Special case for root collection.
+    	        colUri = "/";
+    	    }
     	    String docName = uri.substring(p + 1);
     	    
     	    Collection col = getCollection(colUri);
@@ -496,9 +500,8 @@ public class DatabaseImpl implements Database {
         } else {
             int id = getNextId();
             long timestamp = System.currentTimeMillis();
-            rootCollection = new Collection(
-                    this, id, "db", timestamp, timestamp, -1);
-            // Validation and compession disabled by default.
+            rootCollection = new Collection(this, id, "", timestamp, timestamp, -1);
+            //TODO: Make default validation and compression configurable.
             rootCollection.setValidationMode(ValidationMode.OFF);
             rootCollection.setCompressionMode(CompressionMode.NONE);
         }
