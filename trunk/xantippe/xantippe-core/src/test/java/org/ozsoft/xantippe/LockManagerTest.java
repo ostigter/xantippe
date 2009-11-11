@@ -36,11 +36,9 @@ public class LockManagerTest {
     
     private static final int NO_OF_THREAD_ITERATIONS = 1000;
     
-    private static final String RESOURCES_DIR = "src/test/resources";
+    private static final String DB_DIR = "src/test/resources/db";
     
-    private static final String DATA_DIR = RESOURCES_DIR + "/data.tmp";
-    
-    private static final String DB_DIR = RESOURCES_DIR + "/db";
+    private static final String DATA_DIR = "target/data.tmp";
     
     private static final Logger LOG =
             Logger.getLogger(LockManagerTest.class);

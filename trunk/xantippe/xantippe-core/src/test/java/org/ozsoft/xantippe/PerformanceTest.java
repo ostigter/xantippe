@@ -39,13 +39,11 @@ import org.ozsoft.xantippe.ValidationMode;
  */
 public class PerformanceTest {
 
-    private static final String DATA_DIR = "src/test/resources/data.tmp";
+//  private static final String LARGE_DATASET_DIR = "D:/Temp/XML_docs/1000"; 
     
     private static final int DOCUMENT_COUNT = 1000;
     
-//    private static final String LARGE_DATASET_DIR =
-//            "D:/Temp/XML_docs/1000"; 
-//            "C:/LocalData/Temp/XML_docs/1000"; 
+    private static final String DATA_DIR = "target/data.tmp";
     
     private static final String XML_HEADER =
 		"<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
@@ -174,7 +172,7 @@ public class PerformanceTest {
 //                     count, duration, speed));
 //             
 ////             LOG.info("Finding documents using brute-force search...");
-////             String query = "count(collection('/db/data')[element()/Header/MachineID = '1111'])";
+////             String query = "count(collection('/data')[element()/Header/MachineID = '1111'])";
 ////             startTime = System.currentTimeMillis();
 ////             String result = database.executeQuery(query).toString();
 ////             duration = (System.currentTimeMillis() - startTime) / 1000.0;

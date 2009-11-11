@@ -37,22 +37,18 @@ import org.ozsoft.xantippe.Util;
  */
 public class FileStoreTest {
 
-
-    private static final String RESOURCES_DIR = "src/test/resources";
+    /** Directory with database resource files. */
+    private static final String DB_DIR = "src/test/resources/db";
     
-    /** Temporary database directory. */ 
-    private static final String DATA_DIR = RESOURCES_DIR + "/data.tmp";
+    /** Database directory. */ 
+    private static final String DATA_DIR = "target/data.tmp";
     
-    private static final String DB_DIR = RESOURCES_DIR + "/db";
-
     /** Log */
     private static final Log LOG = LogFactory.getLog(FileStoreTest.class);
-
     
     //------------------------------------------------------------------------
     //  Setup and cleanup methods
     //------------------------------------------------------------------------
-    
     
     @BeforeClass
     public static void beforeClass() {
@@ -60,17 +56,14 @@ public class FileStoreTest {
         Util.deleteFile(DATA_DIR);
     }
     
-    
     @AfterClass
     public static void afterClass() {
         Util.deleteFile(DATA_DIR);
     }
     
-    
     //------------------------------------------------------------------------
     //  Tests
     //------------------------------------------------------------------------
-    
     
     @Test
     public void fileStore() {
@@ -146,11 +139,9 @@ public class FileStoreTest {
         LOG.debug("Test suite 'fileStore' finished");
     }
     
-    
     //------------------------------------------------------------------------
     //  Private methods
     //------------------------------------------------------------------------
-    
     
     /**
      * Asserts that the contents of the specified byte stream is equal to that
@@ -177,6 +168,5 @@ public class FileStoreTest {
             Assert.fail(e.getMessage());
         }
     }
-    
     
 }
