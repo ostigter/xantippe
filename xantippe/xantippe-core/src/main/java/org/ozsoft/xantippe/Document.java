@@ -118,6 +118,10 @@ public class Document implements Comparable<Document> {
         return database.getCollection(parent);
     }
     
+    public String getContentType() {
+        return mediaType.getContentType();
+    }
+    
     /**
      * Returns the document's media type.
      * 

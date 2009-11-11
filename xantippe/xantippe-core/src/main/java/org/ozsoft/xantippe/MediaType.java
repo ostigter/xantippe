@@ -24,18 +24,42 @@ package org.ozsoft.xantippe;
 public enum MediaType {
     
     /** XML document. */
-    XML,
+    XML("text/xml"),
     
     /** XML schema. */
-    SCHEMA,
+    SCHEMA("text/xsd"),
     
     /** XQuery module. */
-    XQUERY,
+    XQUERY("application/xquery"),
     
     /** Plain text resource. */
-    PLAIN_TEXT,
+    PLAIN_TEXT("text/plain"),
     
     /** Binary resource. */
-    BINARY,
+    BINARY("octal/binary"),
+    
+    ;
+    
+    /** MIME content type. */
+    private final String contentType;
+    
+    /**
+     * Constructor.
+     * 
+     * @param contentType
+     *            The content type.
+     */
+    MediaType(String contentType) {
+        this.contentType = contentType;
+    }
+    
+    /**
+     * Returns the content type.
+     * 
+     * @return The content type.
+     */
+    public String getContentType() {
+        return contentType;
+    }
 
 }
