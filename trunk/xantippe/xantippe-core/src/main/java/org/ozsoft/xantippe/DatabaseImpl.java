@@ -60,9 +60,6 @@ public class DatabaseImpl implements Database {
     /** Documents mapped by ID. */
     private final Map<Integer, Document> documents;
     
-    /** Content types mapped by file extention. */
-    private final Map<String, ContentType> contentTypes;
-    
     /** Database directory. */
     private File dataDir = new File(DEFAULT_DATA_DIR);
     
@@ -100,9 +97,6 @@ public class DatabaseImpl implements Database {
         
         collections = new HashMap<Integer, Collection>();
         documents = new HashMap<Integer, Document>();
-        contentTypes = new HashMap<String, ContentType>();
-        
-        configureContentTypes();
         
         fileStore = new FileStore();
         lockManager = new LockManager();
@@ -215,6 +209,70 @@ public class DatabaseImpl implements Database {
     
     /*
      * (non-Javadoc)
+     * @see org.ozsoft.xantippe.Database#exists(java.lang.String)
+     */
+    public boolean exists(String uri) {
+        checkRunning();
+        
+        if (uri == null || uri.length() == 0) {
+            throw new IllegalArgumentException("Null or empty URI");
+        }
+        
+        try {
+            return (getCollection(uri) != null || getDocument(uri) != null); 
+        } catch (XmldbException e) {
+            return false;
+        }
+    }
+    
+    /*
+     * (non-Javadoc)
+     * @see org.ozsoft.xantippe.Database#isCollection(java.lang.String)
+     */
+    public boolean isCollection(String uri) {
+        checkRunning();
+        
+        if (uri == null || uri.length() == 0) {
+            throw new IllegalArgumentException("Null or empty URI");
+        }
+        
+        if (exists(uri)) {
+            try {
+                Collection col = getCollection(uri);
+                return (col != null);
+            } catch (XmldbException e) {
+                return false;
+            }
+        } else {
+            return false;
+        }
+    }
+
+    /*
+     * (non-Javadoc)
+     * @see org.ozsoft.xantippe.Database#isDocument(java.lang.String)
+     */
+    public boolean isDocument(String uri) {
+        checkRunning();
+        
+        if (uri == null || uri.length() == 0) {
+            throw new IllegalArgumentException("Null or empty URI");
+        }
+        
+        if (exists(uri)) {
+            try {
+                Document doc = getDocument(uri);
+                return (doc != null);
+            } catch (XmldbException e) {
+                return false;
+            }
+        } else {
+            return false;
+        }
+    }
+    
+    /*
+     * (non-Javadoc)
      * @see org.ozsoft.xantippe.Database#getRootCollection()
      */
     public Collection getRootCollection() throws XmldbException {
@@ -303,14 +361,6 @@ public class DatabaseImpl implements Database {
     	return queryProcessor.executeQuery(query);
     }
     
-    /*
-     * (non-Javadoc)
-     * @see org.ozsoft.xantippe.Database#print()
-     */
-    public void print() {
-        printCollection(rootCollection);
-    }
-
     /* package */ int getNextId() {
         return nextId++;
     }
@@ -399,29 +449,8 @@ public class DatabaseImpl implements Database {
         return mediaType;
     }
     
-    /* package */ ContentType getContentType(String fileName) {
-        ContentType contentType = null;
-        int p = fileName.lastIndexOf('.');
-        if (p > 0) {
-            String extention = fileName.substring(p + 1).toLowerCase();
-            if (contentTypes.containsKey(extention)) {
-                contentType = contentTypes.get(extention);
-            }
-        }
-        return contentType;
-    }
-    
     /* package */ boolean isSchemaFile(String fileName) {
         return fileName.toLowerCase().endsWith(".xsd");
-    }
-    
-    /**
-     * Configures some default content types.
-     */
-    private void configureContentTypes() {
-        contentTypes.put("xml", ContentType.XML);
-        contentTypes.put("xsd", ContentType.SCHEMA);
-        contentTypes.put("txt", ContentType.TEXT);
     }
     
     private void checkRunning() {
@@ -740,16 +769,6 @@ public class DatabaseImpl implements Database {
         } else {
             throw new IOException(
                     "Error serializing index value; invalid type");
-        }
-    }
-    
-    private void printCollection(Collection col) {
-        System.out.println(col + "/");
-        for (Document doc : col.getDocuments()) {
-            System.out.println(doc);
-        }
-        for (Collection c : col.getCollections()) {
-            printCollection(c);
         }
     }
     

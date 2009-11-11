@@ -29,114 +29,159 @@ public interface Database {
     /**
      * Returns the database location.
      * 
-     * @return  the database location
+     * @return The database location.
      */
     String getDatabaseLocation();
     
     /**
      * Sets the database location.
      * 
-     * This method may only be called when the database is not running. 
+     * This method may only be called when the database is not running.
      * 
-     * @param  path  the database location
+     * @param path
+     *            The database location.
      * 
-     * @throws  IllegalArgumentException
-     *              if the path is null or empty
-     * @throws  IllegalStateException
-     *              if the database is running
+     * @throws IllegalArgumentException
+     *             If the path is null or empty.
+     * @throws IllegalStateException
+     *             If the database is running.
      */
     void setDatabaseLocation(String path);
 
     /**
      * Starts the database.
      * 
-     * @throws  IllegalStateException
-     *              if the database is already running
+     * @throws IllegalStateException
+     *             If the database is already running.
      */
     void start() throws XmldbException;
 
     /**
      * Shuts down the database.
      * 
-     * @throws  IllegalStateException
-     *              if the database is not running
+     * @throws IllegalStateException
+     *             If the database is not running.
      */
     void shutdown() throws XmldbException;
     
     /**
      * Indicates whether the database is running.
      * 
-     * @return  true if the database is running, otherwise false
+     * @return True if running, otherwise false.
      */
     boolean isRunning();
     
     /**
      * Returns the root collection.
      * 
-     * @return  the root collection
+     * @return The root collection.
      * 
-     * @throws  IllegalStateException
-     *              if the database is not running
+     * @throws IllegalStateException
+     *             If the database is not running.
      */
     Collection getRootCollection() throws XmldbException;
     
     /**
+     * Returns whether a specific resource exists.
+     * 
+     * @param uri
+     *            The resource URI.
+     * 
+     * @return True if the resource exists, otherwise false.
+     * 
+     * @throws IllegalStateException
+     *             If the database is not running.
+     * @throws IllegalArgumentException
+     *             If the URI is null or empty.
+     */
+    boolean exists(String uri);
+    
+    /**
+     * Returns whether a specific resource is a collection.
+     * 
+     * If the resource does not exist it returns false.
+     * 
+     * @param uri The resource URI.
+     * 
+     * @return True if a collection, otherwise false.
+     * 
+     * @throws IllegalStateException
+     *             If the database is not running.
+     * @throws IllegalArgumentException
+     *             If the URI is null or empty.
+     */
+    boolean isCollection(String uri);
+    
+    /**
+     * Returns whether a specific resource is a document.
+     * 
+     * If the resource does not exist it returns false.
+     * 
+     * @param uri
+     *            The resource URI.
+     * 
+     * @return True if a document, otherwise false.
+     * 
+     * @throws IllegalStateException
+     *             If the database is not running.
+     * @throws IllegalArgumentException
+     *             If the URI is null or empty.
+     */
+    boolean isDocument(String uri);
+    
+    /**
      * Returns the collection with the specified URI.
      * 
-     * @param   uri  the collection URI
+     * @param uri
+     *            The collection URI.
      * 
-     * @return  the collection
+     * @return The collection.
      * 
-     * @throws  IllegalStateException
-     *              if the database is not running
-     * @throws  IllegalArgumentException
-     *              if the URI is null or empty
-     * @throws  XmldbException
-     *              if the collection does not exist, or the URI is invalid 
+     * @throws IllegalStateException
+     *             If the database is not running.
+     * @throws IllegalArgumentException
+     *             If the URI is null or empty.
+     * @throws XmldbException
+     *             If the collection does not exist, or the URI is invalid.
      */
     Collection getCollection(String uri) throws XmldbException;
     
     /**
      * Returns the document with the specified URI.
      * 
-     * @param   uri  the document URI
+     * @param uri
+     *            The document URI.
      * 
-     * @return  the document
+     * @return The document.
      * 
-     * @throws  IllegalStateException
-     *              if the database is not running
-     * @throws  IllegalArgumentException
-     *              if the URI is null or empty
-     * @throws  XmldbException
-     *              if the document does not exist, or the URI is invalid 
+     * @throws IllegalStateException
+     *             If the database is not running.
+     * @throws IllegalArgumentException
+     *             If the URI is null or empty.
+     * @throws XmldbException
+     *             If the document does not exist, or the URI is invalid.
      */
     Document getDocument(String uri) throws XmldbException;
     
     /**
-     * Executes the specified query.
+     * Executes a query.
      * 
      * The query must be in the form of an XQuery expression.
      * 
      * The query result (plain text) is written to the returned OutputStream.
      * 
-     * @param   query  the query body
+     * @param query
+     *            The query.
      * 
-     * @return  OutputStream with the query results
+     * @return The OutputStream with the query results.
      * 
-     * @throws  IllegalStateException
-     *              if the database is not running
-     * @throws  IllegalArgumentException
-     *              if the query text is null or empty
-     * @throws  XmldbException
-     *              if the query could not be executed
+     * @throws IllegalStateException
+     *             If the database is not running.
+     * @throws IllegalArgumentException
+     *             If the query text is null or empty.
+     * @throws XmldbException
+     *             If the query could not be executed due to errors.
      */
     OutputStream executeQuery(String query) throws XmldbException;
-    
-    /**
-     * Prints a listing of the complete database on the console.
-     * 
-     * This method is meant for debugging purposes only.
-     */
-    public void print();
     
 }
