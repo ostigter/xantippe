@@ -536,7 +536,7 @@ public class Collection implements Comparable<Collection> {
      * 
      * @throws  IllegalArgumentException  if the keys array is null or empty
      */
-    public Set<Document> findDocuments(Key[] keys, boolean recursive) {
+    public Set<Document> findDocuments(IndexKey[] keys, boolean recursive) {
         if (keys == null || keys.length == 0) {
             throw new IllegalArgumentException("Null or empty key array");
         }
@@ -655,7 +655,7 @@ public class Collection implements Comparable<Collection> {
 
     // FIXME: Get rid of "unchecked" warning (Eclipse bug?)
     @SuppressWarnings("unchecked")  // new HashSet[]
-    private void findDocuments(Key[] keys, boolean recursive, Set<Document> docs) {
+    private void findDocuments(IndexKey[] keys, boolean recursive, Set<Document> docs) {
         int noOfKeys = keys.length;
         
         // Find documents (ID's) that match any key, sorted per key.

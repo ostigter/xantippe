@@ -24,7 +24,7 @@ package org.ozsoft.xantippe;
  * 
  * @author Oscar Stigter
  */
-public class Key {
+public class IndexKey {
     
     /** Key name. */
     private final String name;
@@ -38,7 +38,7 @@ public class Key {
      * @param  name   the name
      * @param  value  the value
      */
-    public Key(String name, Object value) {
+    public IndexKey(String name, Object value) {
         this.name = name;
         this.value = value;
     }

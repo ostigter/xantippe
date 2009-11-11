@@ -60,6 +60,9 @@ public class DatabaseImpl implements Database {
     /** Documents mapped by ID. */
     private final Map<Integer, Document> documents;
     
+    /** Content types mapped by file extention. */
+    private final Map<String, ContentType> contentTypes;
+    
     /** Database directory. */
     private File dataDir = new File(DEFAULT_DATA_DIR);
     
@@ -97,6 +100,9 @@ public class DatabaseImpl implements Database {
         
         collections = new HashMap<Integer, Collection>();
         documents = new HashMap<Integer, Document>();
+        contentTypes = new HashMap<String, ContentType>();
+        
+        configureContentTypes();
         
         fileStore = new FileStore();
         lockManager = new LockManager();
@@ -389,8 +395,29 @@ public class DatabaseImpl implements Database {
         return mediaType;
     }
     
+    /* package */ ContentType getContentType(String fileName) {
+        ContentType contentType = null;
+        int p = fileName.lastIndexOf('.');
+        if (p > 0) {
+            String extention = fileName.substring(p + 1).toLowerCase();
+            if (contentTypes.containsKey(extention)) {
+                contentType = contentTypes.get(extention);
+            }
+        }
+        return contentType;
+    }
+    
     /* package */ boolean isSchemaFile(String fileName) {
         return fileName.toLowerCase().endsWith(".xsd");
+    }
+    
+    /**
+     * Configures some default content types.
+     */
+    private void configureContentTypes() {
+        contentTypes.put("xml", ContentType.XML);
+        contentTypes.put("xsd", ContentType.SCHEMA);
+        contentTypes.put("txt", ContentType.TEXT);
     }
     
     private void checkRunning() {
