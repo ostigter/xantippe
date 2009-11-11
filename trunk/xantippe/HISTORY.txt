@@ -6,7 +6,11 @@ HISTORY
 Date	     Version  Description
 ------------------------------------------------------------------------------
 
-??-???-????  0.4a     - Use Java Logging API (commons-logging)
+??-???-????  0.4a     - Added REST interface (servlet)
+                      - Added standalone server distribution
+                      - Added client application (REST interface)
+                      - Use Apache Commons Logging
+                      - Renamed root collection to '/'
 
 07-Nov-2009  0.3a     - Converted to Maven project
                       - Changed root package to 'org.ozsoft.xantippe'
