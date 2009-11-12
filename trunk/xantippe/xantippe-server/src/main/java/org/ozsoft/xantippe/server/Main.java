@@ -43,13 +43,13 @@ public class Main {
             // Start REST servlet with a running database.
             Database database = new DatabaseImpl();
             database.setDatabaseLocation(DATA_DIR);
-            RestServlet servlet = new RestServlet(CONTEXT, database);
+            RestServlet servlet = new RestServlet(CONTEXT + "/rest", database);
             servlet.start();
 
             // Start Jetty server.
             Server server = new Server(PORT);
             ServletHandler handler = new ServletHandler();
-            handler.addServletWithMapping(new ServletHolder(servlet), CONTEXT + "/*");
+            handler.addServletWithMapping(new ServletHolder(servlet), CONTEXT + "/rest/*");
             server.setHandler(handler);
             server.start();
             LOG.info("Started");
