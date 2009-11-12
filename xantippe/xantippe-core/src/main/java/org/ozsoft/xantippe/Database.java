@@ -92,9 +92,26 @@ public interface Database {
      * @throws IllegalStateException
      *             If the database is not running.
      * @throws IllegalArgumentException
-     *             If the URI is null or empty.
+     *             If the URI is invalid.
      */
     boolean exists(String uri);
+    
+    /**
+     * Returns a specific resource.
+     * 
+     * @param uri
+     *            The resource URI.
+     * 
+     * @return The resource.
+     * 
+     * @throws IllegalStateException
+     *             If the database is not running.
+     * @throws IllegalArgumentException
+     *             If the URI is invalid.
+     * @throws XmldbException
+     *             If the document does not exist.
+     */
+    Object getResource(String uri) throws XmldbException;
     
     /**
      * Returns whether a specific resource is a collection.
@@ -108,7 +125,7 @@ public interface Database {
      * @throws IllegalStateException
      *             If the database is not running.
      * @throws IllegalArgumentException
-     *             If the URI is null or empty.
+     *             If the URI is invalid.
      */
     boolean isCollection(String uri);
     
@@ -162,6 +179,21 @@ public interface Database {
      *             If the document does not exist, or the URI is invalid.
      */
     Document getDocument(String uri) throws XmldbException;
+    
+    /**
+     * Deletes a resource.
+     * 
+     * @param uri
+     *            The resource URI.
+     * 
+     * @throws IllegalStateException
+     *             If the database is not running.
+     * @throws IllegalArgumentException
+     *             If the URI is null or empty.
+     * @throws XmldbException
+     *             If the resource does not exist, or the URI is invalid.
+     */
+    void delete(String uri) throws XmldbException;
     
     /**
      * Executes a query.

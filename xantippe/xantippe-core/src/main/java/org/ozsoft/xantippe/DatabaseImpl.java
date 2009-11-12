@@ -207,22 +207,32 @@ public class DatabaseImpl implements Database {
         return isRunning;
     }
     
-    /*
-     * (non-Javadoc)
-     * @see org.ozsoft.xantippe.Database#exists(java.lang.String)
-     */
-    public boolean exists(String uri) {
+    public Object getResource(String uri) {
         checkRunning();
         
         if (uri == null || uri.length() == 0) {
             throw new IllegalArgumentException("Null or empty URI");
         }
         
-        try {
-            return (getCollection(uri) != null || getDocument(uri) != null); 
-        } catch (XmldbException e) {
-            return false;
+        if (uri.charAt(0) != '/') {
+            throw new IllegalArgumentException("Invalid URI (must start with '/')");
         }
+        
+        if (uri.length() == 1) {
+            // Special case for root collection.
+            return rootCollection;
+        } else {
+            return rootCollection.getResource(uri.substring(1));
+        }
+    }
+    
+    /*
+     * (non-Javadoc)
+     * @see org.ozsoft.xantippe.Database#exists(java.lang.String)
+     */
+    public boolean exists(String uri) {
+        Object resource = getResource(uri);
+        return (resource != null);
     }
     
     /*
@@ -230,22 +240,8 @@ public class DatabaseImpl implements Database {
      * @see org.ozsoft.xantippe.Database#isCollection(java.lang.String)
      */
     public boolean isCollection(String uri) {
-        checkRunning();
-        
-        if (uri == null || uri.length() == 0) {
-            throw new IllegalArgumentException("Null or empty URI");
-        }
-        
-        if (exists(uri)) {
-            try {
-                Collection col = getCollection(uri);
-                return (col != null);
-            } catch (XmldbException e) {
-                return false;
-            }
-        } else {
-            return false;
-        }
+        Object resource = getResource(uri);
+        return (resource != null && resource instanceof Collection); 
     }
 
     /*
@@ -253,22 +249,8 @@ public class DatabaseImpl implements Database {
      * @see org.ozsoft.xantippe.Database#isDocument(java.lang.String)
      */
     public boolean isDocument(String uri) {
-        checkRunning();
-        
-        if (uri == null || uri.length() == 0) {
-            throw new IllegalArgumentException("Null or empty URI");
-        }
-        
-        if (exists(uri)) {
-            try {
-                Document doc = getDocument(uri);
-                return (doc != null);
-            } catch (XmldbException e) {
-                return false;
-            }
-        } else {
-            return false;
-        }
+        Object resource = getResource(uri);
+        return (resource != null && resource instanceof Document); 
     }
     
     /*
@@ -300,7 +282,6 @@ public class DatabaseImpl implements Database {
     	}
     	
     	Collection col = rootCollection;
-    	
     	String[] parts = uri.split("/");
     	for (String colName : parts) {
     		if (colName.length() != 0) {
@@ -311,7 +292,6 @@ public class DatabaseImpl implements Database {
 	    		}
     		}
     	}
-    	
     	return col;
     }
     
@@ -345,6 +325,28 @@ public class DatabaseImpl implements Database {
     	    }
     	}
     	return doc;
+    }
+    
+    /*
+     * (non-Javadoc)
+     * @see org.ozsoft.xantippe.Database#delete(java.lang.String)
+     */
+    public void delete(String uri) throws XmldbException {
+        checkRunning();
+        
+        if (uri == null || uri.length() == 0) {
+            throw new IllegalArgumentException("Null or empty URI");
+        }
+        
+       if (exists(uri)) {
+           if (isCollection(uri)) {
+               getCollection(uri).delete();
+           } else {
+               getDocument(uri).delete();
+           }
+       } else {
+           throw new XmldbException("Resource not found: " + uri);
+       }
     }
     
     /*

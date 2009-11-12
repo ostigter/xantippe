@@ -47,9 +47,6 @@ public class RestServlet extends HttpServlet {
 	/** The log. */
 	private static final Log LOG = LogFactory.getLog(RestServlet.class);
 	
-    /** Buffer. */
-	private final byte[] BUFFER = new byte[BUFFER_SIZE];
-    
 	/** The servlet context. */
 	private final String context;
 	
@@ -176,13 +173,7 @@ public class RestServlet extends HttpServlet {
                     } else {
                         // Write document content as-is.
                         response.setContentType(mediaType.getContentType());
-                        InputStream is = doc.getContent();
-                        OutputStream os = response.getOutputStream();
-                        int read = 0;
-                        while ((read = is.read(BUFFER)) > 0) {
-                            os.write(BUFFER, 0, read);
-                        }
-                        is.close();
+                        readDocumentContent(doc, response);
                     }
                 }
             } catch (XmldbException e) {
@@ -196,7 +187,7 @@ public class RestServlet extends HttpServlet {
             sendError(response, HttpServletResponse.SC_NOT_FOUND, msg);
         }
 	}
-
+	
 	/*
 	 * (non-Javadoc)
 	 * @see javax.servlet.http.HttpServlet#doPut(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)
@@ -206,6 +197,43 @@ public class RestServlet extends HttpServlet {
 	        throws ServletException, IOException {
 		String uri = getUriFromRequest(request);
 		LOG.debug("PUT " + uri);
+		if (database.exists(uri)) {
+		    if (database.isDocument(uri)) {
+	            // Overwrite existing document.
+	            try {
+	                Document doc = database.getDocument(uri);
+                    writeDocumentContent(doc, request);
+	            } catch (XmldbException e) {
+	                String msg = String.format("Database I/O error for document '%s'", uri);
+	                LOG.error(msg, e);
+	                sendError(response, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, msg);
+	            }
+		    } else {
+                String msg = String.format("Method PUT not allowed for collection '%s'", uri);
+                LOG.warn(msg);
+                sendError(response, HttpServletResponse.SC_BAD_REQUEST, msg);
+		    }
+		} else {
+		    // Create new document.
+		    int p = uri.lastIndexOf('/');
+		    String colUri = uri.substring(0, p);
+		    if (database.isCollection(colUri)) {
+		        try {
+                    Collection col = database.getCollection(colUri);
+    	            String docName = uri.substring(p + 1);
+    	            Document doc = col.createDocument(docName);
+    	            writeDocumentContent(doc, request);
+		        } catch (XmldbException e) {
+                    String msg = String.format("Database I/O error for document '%s'", uri);
+                    LOG.error(msg, e);
+                    sendError(response, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, msg);
+		        }
+		    } else {
+                String msg = String.format("Collection '%s' does not exist", uri);
+                LOG.warn(msg);
+                sendError(response, HttpServletResponse.SC_BAD_REQUEST, msg);
+		    }
+		}
 	}
 
 	/*
@@ -217,6 +245,19 @@ public class RestServlet extends HttpServlet {
 			throws ServletException, IOException {
         String uri = getUriFromRequest(request);
 		LOG.debug("DELETE " + uri);
+        if (database.exists(uri)) {
+            try {
+                database.delete(uri);
+            } catch (XmldbException e) {
+                String msg = String.format("Could not delete resource '%s'", uri);
+                LOG.error(msg);
+                sendError(response, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, msg);
+            }
+        } else {
+            String msg = String.format("Resource '%s' does not exist", uri);
+            LOG.warn(msg);
+            sendError(response, HttpServletResponse.SC_NOT_FOUND, msg);
+        }
 	}
 	
 	/*
@@ -228,6 +269,56 @@ public class RestServlet extends HttpServlet {
 			throws ServletException, IOException {
         String uri = getUriFromRequest(request);
 		LOG.debug("POST " + uri);
+	}
+	
+    /**
+     * Writes the content of a stored document to the HTTP response.
+     * 
+     * @param doc
+     *            The document.
+     * @param response
+     *            The HTTP response.
+     * 
+     * @throws XmldbException
+     *             If the document content could not be read.
+     * @throws IOException
+     *             If the HTTP response could not be written.
+     */
+	private static void readDocumentContent(Document doc, HttpServletResponse response)
+            throws XmldbException, IOException {
+        InputStream is = doc.getContent();
+        OutputStream os = response.getOutputStream();
+        byte[] buffer = new byte[BUFFER_SIZE];
+        int read = 0;
+        while ((read = is.read(buffer)) > 0) {
+            os.write(buffer, 0, read);
+        }
+        is.close();
+	}
+	
+    /**
+     * Writes the HTTP request body as the content of a stored document.
+     * 
+     * @param doc
+     *            The document.
+     * @param request
+     *            The HTTP request.
+     * 
+     * @throws XmldbException
+     *             If the document content could not be written.
+     * @throws IOException
+     *             If the request body could not read.
+     */
+	private static void writeDocumentContent(Document doc, HttpServletRequest request)
+	        throws XmldbException, IOException {
+        InputStream is = request.getInputStream();
+        OutputStream os = doc.setContent();
+        byte[] buffer = new byte[BUFFER_SIZE];
+        int read = 0;
+        while ((read = is.read(buffer)) > 0) {
+            os.write(buffer, 0, read);
+        }
+        is.close();
 	}
 	
     /**
