@@ -416,8 +416,7 @@ public class Collection implements Comparable<Collection> {
         try { 
             int docId = database.getNextId();
             long timestamp = System.currentTimeMillis();
-            doc = new Document(
-                    database, docId, name, mediaType, timestamp, timestamp, id);
+            doc = new Document(database, docId, name, mediaType, timestamp, timestamp, id);
             documents.add(docId);
             updateModified();
         } finally {
@@ -607,6 +606,31 @@ public class Collection implements Comparable<Collection> {
         return id;
     }
     
+    /* package */ Object getResource(String uri) {
+        int p = uri.indexOf('/');
+        String name = (p != -1) ? uri.substring(0, p) : uri;
+        Document doc = getDocument(name);
+        if (doc != null) {
+            // Match on child document.
+            return doc;
+        } else {
+            Collection col = getCollection(name);
+            if (col != null) {
+                if (p != -1) {
+                    // Recurse into child collection.
+                    uri = uri.substring(p + 1);
+                    return col.getResource(uri);
+                } else {
+                    // Match on child collection.
+                    return col;
+                }
+            } else {
+                // Not found.
+                return null;
+            }
+        }
+    }
+    
     /* package */ void addIndex(Index index) {
         indices.add(index);
     }
@@ -658,7 +682,6 @@ public class Collection implements Comparable<Collection> {
         LOG.debug(String.format("Deleted collection '%s'", this));
     }
 
-    // FIXME: Get rid of "unchecked" warning (Eclipse bug?)
     @SuppressWarnings("unchecked")  // new HashSet[]
     private void findDocuments(IndexKey[] keys, boolean recursive, Set<Document> docs) {
         int noOfKeys = keys.length;
