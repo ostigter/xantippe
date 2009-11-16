@@ -217,6 +217,10 @@ public class RestServlet extends HttpServlet {
 		    // Create new document.
 		    int p = uri.lastIndexOf('/');
 		    String colUri = uri.substring(0, p);
+		    if (colUri.length() == 0) {
+		        // Special case for root collection.
+		        colUri = "/";
+		    }
 		    if (database.isCollection(colUri)) {
 		        try {
                     Collection col = database.getCollection(colUri);
