@@ -27,7 +27,7 @@ public class Main {
 	private static final String CONTEXT = "/xantippe";
 	
     /** Database data directory. */
-    private static final String DATA_DIR = "target/data-test";
+    private static final String DATA_DIR = "target/test-data";
   
     /** Log. */
     private static final Log LOG = LogFactory.getLog(Main.class);
