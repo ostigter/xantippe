@@ -103,7 +103,6 @@ public class RestServlet extends HttpServlet {
 	protected void service(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		String method = request.getMethod();
-		LOG.debug("Method: " + method);
 //		for (Enumeration e = request.getHeaderNames(); e.hasMoreElements();) {
 //			String name = (String) e.nextElement();
 //			String value = request.getHeader(name);
@@ -322,7 +321,7 @@ public class RestServlet extends HttpServlet {
         while ((read = is.read(buffer)) > 0) {
             os.write(buffer, 0, read);
         }
-        is.close();
+        os.close();
 	}
 	
     /**
