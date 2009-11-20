@@ -23,10 +23,11 @@ public class Main {
     /** Log. */
     private static final Log LOG = LogFactory.getLog(Main.class); 
     
-    /** REST servlet. */
+    /** REST servlet name. */
     private static final String SERVLET = "rest";
     
-    private final HttpClient httpClient; 
+    /** HTTP client. */
+    private final HttpClient httpClient;
     
     /** Servlet URI. */
     private String servletUri;
