@@ -104,6 +104,8 @@ public class DatabaseImpl implements Database {
         indexer = new Indexer();
         queryProcessor = new QueryProcessor(this);
         
+        registerShutdownHook();
+        
         LOG.debug("Created");
     }
     
@@ -453,6 +455,22 @@ public class DatabaseImpl implements Database {
     
     /* package */ boolean isSchemaFile(String fileName) {
         return fileName.toLowerCase().endsWith(".xsd");
+    }
+    
+    private void registerShutdownHook() {
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+            @Override
+            public void run() {
+                try {
+                    if (isRunning) {
+                        LOG.debug("JVM shutdown detected");
+                        shutdown();
+                    }
+                } catch (XmldbException e) {
+                    LOG.error("Could not properly shutdown database", e);
+                }
+           }
+        });
     }
     
     private void checkRunning() {
