@@ -91,7 +91,9 @@ public class RestServlet extends HttpServlet {
      */
 	public void shutdown() throws XmldbException {
         LOG.debug("Shutting down");
-        database.shutdown();
+        if (database.isRunning()) {
+            database.shutdown();
+        }
         LOG.debug("Shut down");
 	}
 

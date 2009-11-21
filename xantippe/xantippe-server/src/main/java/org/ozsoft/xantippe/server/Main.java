@@ -7,6 +7,7 @@ import org.mortbay.jetty.servlet.ServletHandler;
 import org.mortbay.jetty.servlet.ServletHolder;
 import org.ozsoft.xantippe.Database;
 import org.ozsoft.xantippe.DatabaseImpl;
+import org.ozsoft.xantippe.XmldbException;
 import org.ozsoft.xantippe.rest.RestServlet;
 
 /**
@@ -32,6 +33,8 @@ public class Main {
     /** Log. */
     private static final Log LOG = LogFactory.getLog(Main.class);
     
+    private static RestServlet servlet;
+    
 	/**
 	 * The application's entry point.
 	 * 
@@ -43,20 +46,50 @@ public class Main {
             // Start REST servlet with a running database.
             Database database = new DatabaseImpl();
             database.setDatabaseLocation(DATA_DIR);
-            RestServlet servlet = new RestServlet(CONTEXT + "/rest", database);
+            servlet = new RestServlet(CONTEXT + "/rest", database);
             servlet.start();
-
+            
+            registerShutdownHook();
+            
             // Start Jetty server.
             Server server = new Server(PORT);
             ServletHandler handler = new ServletHandler();
             handler.addServletWithMapping(new ServletHolder(servlet), CONTEXT + "/rest/*");
             server.setHandler(handler);
             server.start();
-            LOG.info("Started");
-
+            LOG.info(String.format("Server started, listening on port %d", PORT));
+            
+        } catch (XmldbException e) {
+            LOG.error("Could not start REST servlet", e);
         } catch (Exception e) {
-            LOG.error("Could not start server", e);
+            LOG.error("Could not start Jetty server", e);
         }
+        
 	}
 
+    private static void shutdown() {
+        LOG.debug("Shutting down");
+        
+        try {
+            LOG.warn("JVM shutdown detected; shutting down server");
+            if (servlet != null) {
+                servlet.shutdown();
+            }
+        } catch (XmldbException e) {
+            LOG.error("Could not properly shutdown servlet", e);
+        }
+        
+        LOG.info("Server shut down");
+    }
+    
+    private static void registerShutdownHook() {
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+            @Override
+            public void run() {
+                LOG.warn("JVM shutdown detected; shutting down server");
+                shutdown();
+           }
+        });
+    }
+    
 }
