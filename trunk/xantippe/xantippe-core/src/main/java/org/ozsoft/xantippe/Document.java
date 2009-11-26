@@ -43,9 +43,6 @@ public class Document implements Comparable<Document> {
     /** Buffer size for byte stream operations. */
     private static final int BUFFER_SIZE = 8192;  // 8 kB
     
-    /** Buffer for byte stream operations. */
-    private final byte[] buffer = new byte[BUFFER_SIZE];
-    
     /** Back-reference to the database. */
     private final DatabaseImpl database;
 
@@ -324,9 +321,10 @@ public class Document implements Comparable<Document> {
                     throw new XmldbException(msg);
                 }
                 InputStream is = new FileInputStream(file);
-                int length;
-                while ((length = is.read(buffer)) > 0) {
-                    os.write(buffer, 0, length);
+                byte[] buffer = new byte[BUFFER_SIZE];                
+                int read;
+                while ((read = is.read(buffer)) > 0) {
+                    os.write(buffer, 0, read);
                 }
                 os.close();
                 is.close();
