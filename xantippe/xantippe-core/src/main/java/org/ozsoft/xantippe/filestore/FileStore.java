@@ -64,15 +64,12 @@ public class FileStore {
     /** File with the document contents. */
     private static final String DATA_FILE = "contents.dbx";
     
-    /** Log */
-    private static final Log LOG = LogFactory.getLog(FileStore.class);
-    
     /** Buffer size. */
     private static final int BUFFER_SIZE = 8192;  // 8 kB
     
-    /** Buffer for reading and writing files. */
-    private final byte[] buffer = new byte[BUFFER_SIZE]; 
-
+    /** Log */
+    private static final Log LOG = LogFactory.getLog(FileStore.class);
+    
     /** Document entries mapped by the their ID. */
     private final Map<Integer, FileEntry> entries;
     
@@ -271,8 +268,6 @@ public class FileStore {
         entry.setLength(0);
         entries.put(id, entry);
         
-        LOG.debug("Created document with ID " + id);
-        
         return entry;
     }
     
@@ -300,14 +295,13 @@ public class FileStore {
             
         FileEntry entry = create(id);
 
-        LOG.debug("Storing document with ID " + id);
-        
         entry.setOffset(offset);
         entry.setLength(length);
         
         try {
             dataFile.seek(offset);
             InputStream is = new FileInputStream(file);
+            byte buffer[] = new byte[BUFFER_SIZE];
             int bytesRead;
             while ((bytesRead = is.read(buffer)) > 0) {
                 dataFile.write(buffer, 0, bytesRead);
@@ -315,9 +309,7 @@ public class FileStore {
             is.close();
         } catch (IOException e) {
             entries.remove(id);
-            String msg = String.format(
-                    "Could not store document with ID %d: %s",
-                    id, e.getMessage());
+            String msg = String.format("Could not store document with ID %d", id);
             LOG.error(msg, e);
             throw new FileStoreException(msg, e);
         }
@@ -338,8 +330,6 @@ public class FileStore {
      */
     public InputStream retrieve(int id) throws FileStoreException {
         checkIsRunning();
-        
-        LOG.debug("Retrieving document with ID " + id);
         
         InputStream is = null;
         
@@ -403,7 +393,6 @@ public class FileStore {
         FileEntry entry = entries.get(id);
         if (entry != null) {
             entries.remove(id);
-            LOG.debug("Deleted document with ID " + id);
         }
     }
     
@@ -411,12 +400,11 @@ public class FileStore {
      * Writes any volatile meta-data to disk.
      */
     public void sync() throws FileStoreException {
-        LOG.debug("Sync");
         if (isRunning) {
             try {
                 writeIndexFile();
             } catch (IOException e) {
-                String msg = "Error sync'ing to disk: " + e.getMessage();
+                String msg = "Error sync'ing to disk";
                 LOG.error(msg, e);
                 throw new FileStoreException(msg, e);
             }
